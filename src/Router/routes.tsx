@@ -5,19 +5,24 @@ import HomeLayout from "../Layout/HomeLayout";
 import {
     Landing,
     Error,
+    Chat,
 } from "../Pages";
 
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <HomeLayout></HomeLayout>,
+        element: <HomeLayout/>,
         errorElement: <Error />,
         children: [
             {
                 index: true,
                 element: <Landing />,
             },
+            {
+                path:"chat/:id",
+                element: <Chat/>
+            }
         ],
     },
 ]);

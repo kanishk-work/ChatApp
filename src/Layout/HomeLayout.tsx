@@ -6,9 +6,14 @@ import ChatListComp from "../Components/ChatListComp/ChatListComp";
 
 const HomeLayout = () => {
     return (
-        <div className="h-[100vh] grid grid-cols-12 grid-rows-1">
-            <ChatListComp />
-            <Outlet />
+        <div className="h-[100vh] flex">
+            <div className="w-[20vw] h-full">
+                <ChatListComp />
+            </div>
+            <div className="w-[80vw]">
+                <Outlet />
+            </div>
+            
             {/* <Footer/> */}
         </div>
     );

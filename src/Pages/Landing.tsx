@@ -6,12 +6,11 @@ function Landing() {
   const [isLoading, setIsLoading] = useState('')
 
   return (
-    <div className='col-span-8 md:col-span-9'>
+    <div className='w-full h-full'>
         
-        <div id="intro" className='flex flex-col justify-center items-center text-center h-[100vh] bg-slate-700'>
+        <div id="intro" className='flex flex-col justify-center items-center h-full overflow-auto text-center bg-slate-700'>
           
-        </div>
-                
+        </div>          
     </div>
   )
 }
