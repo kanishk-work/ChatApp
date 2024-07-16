@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+
+  
+html {
+    scroll-behavior: smooth;
+}
+
+body{
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.text-shadow{
+    text-shadow: rgba(0, 0, 0, 0.498039) -1px -1px 0px,
+    rgba(0, 0, 0, 0.498039) -1px 1px 0px, 
+    rgba(0, 0, 0, 0.498039) 1px 1px 0px, 
+    rgba(0, 0, 0, 0.498039) 1px -1px 0px;
+}
+
+
