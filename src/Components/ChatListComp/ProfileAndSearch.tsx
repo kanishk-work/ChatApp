@@ -8,7 +8,7 @@ const ProfileAndSearch = () => {
   }
   return (
     <div className="w-full flex items-center justify-between mb-3">
-      <img src={profile.img} alt="user profile pic" className='object-contain h-8 w-8 rounded-full w-full items-start flex-shrink-0' />
+      <img src={profile.img} alt="user profile pic" className='object-contain h-8 w-8 rounded-full items-start flex-shrink-0' />
 
       <div className="relative"> 
             <input type="text" className="placeholder-slate-400 bg-[var(--accent-color)] shadow-sm text-slate-200 rounded focus:outline-none py-1 px-3 focus:shadow-lg" placeholder="Search..."/> 
