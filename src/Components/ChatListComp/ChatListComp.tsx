@@ -1,11 +1,12 @@
 import Chats from "./Chats"
-import Search from "./ProfileAndSearch"
+import ProfileAndSearch from "./ProfileAndSearch"
+
 
 const ChatListComp = () => {
   return (
-    <div className="h-full overflow-auto p-3 bg-gradient-to-tr from-slate-700 to-slate-700 shadow-[inset_-20px_0px_20px_0px_#00000024]">
+    <div className="h-full w-full overflow-auto p-3 shadow-[inset_-10px_0px_20px_0px_#00000024]">
 
-        <Search/>
+        <ProfileAndSearch/>
         <Chats/>
     </div>
   )

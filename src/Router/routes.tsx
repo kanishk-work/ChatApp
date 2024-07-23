@@ -7,6 +7,7 @@ import {
     Error,
     Chat,
 } from "../Pages";
+import ChatListComp from "../Components/ChatListComp/ChatListComp";
 
 
 const router = createBrowserRouter([
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <Landing />,
+            },
+            {
+                path:"chatList",
+                element: <ChatListComp/>
             },
             {
                 path:"chat/:id",
