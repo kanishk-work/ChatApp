@@ -1,6 +1,4 @@
-import React from "react";
 import { Link, useRouteError } from "react-router-dom";
-import styled from "styled-components";
 
 
 const Error = () => {

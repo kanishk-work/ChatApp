@@ -1,7 +1,7 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi"
 import { useAppDispatch } from '../../redux/hooks'
-import { setShowProfile } from '../../redux/slices/profileSlice'
+import { setShowProfile, setShowSettings } from '../../redux/slices/profileSlice'
 
 
 const ProfileAndSearch = () => {
@@ -13,13 +13,13 @@ const ProfileAndSearch = () => {
 
   
   return (
-    <div className="w-full flex items-center justify-between mb-3">
+    <div className="w-full flex items-center gap-2 mb-3">
       <button onClick={() => dispatch(setShowProfile(true))}>
-        <img src={profile.img} alt="user profile pic" className='object-contain h-8 w-8 rounded-full items-start flex-shrink-0' />
+        <img src={profile.img} alt="user profile pic" className='object-contain h-9 w-9 rounded-full items-start flex-shrink-0' />
       </button>
 
-      <div className="relative"> 
-            <input type="text" className="placeholder-slate-400 bg-[var(--accent-color)] shadow-sm text-slate-200 rounded focus:outline-none py-1 px-3 focus:shadow-lg" placeholder="Search..."/> 
+      <div className="relative grow"> 
+            <input type="text" className="w-full placeholder-[var(--text-secondary)] bg-[var(--accent-color)] shadow-sm text-slate-200 rounded focus:outline-none py-1 px-3 focus:shadow-lg" placeholder="Search..."/> 
             <BiSearch className="absolute right-3 top-2 text-slate-400"/>
       </div>
 
@@ -27,7 +27,7 @@ const ProfileAndSearch = () => {
       
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <MenuButton className="flex items-center text-2xl p-1 text-slate-400 rounded-full data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white">
+          <MenuButton className="flex items-center text-2xl py-1 text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white">
             <BiDotsVerticalRounded className=""/>
           </MenuButton>
         </div>
@@ -38,28 +38,44 @@ const ProfileAndSearch = () => {
         >
           <div className="py-1">
             <MenuItem>
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
+              <button
+                onClick={() => dispatch(setShowSettings(true))}
+                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
               >
-                New Group
-              </a>
+                New group
+              </button>
             </MenuItem>
             <MenuItem>
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
+              <button
+                onClick={() => dispatch(setShowSettings(true))}
+                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
+              >
+                Starred messages
+              </button>
+            </MenuItem>
+            <MenuItem>
+              <button
+                onClick={() => dispatch(setShowSettings(true))}
+                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
+              >
+                Pinned chats
+              </button>
+            </MenuItem>
+            <MenuItem>
+              <button
+                onClick={() => dispatch(setShowSettings(true))}
+                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
               >
                 Settings
-              </a>
+              </button>
             </MenuItem>
             <MenuItem>
-              <a
-                href="#"
-                className="block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
+              <button
+                onClick={() => dispatch(setShowSettings(true))}
+                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
               >
                 License
-              </a>
+              </button>
             </MenuItem>
             {/* <form action="#" method="POST">
               <MenuItem>
