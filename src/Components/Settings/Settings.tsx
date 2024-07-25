@@ -1,32 +1,38 @@
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowProfile, setShowSettings } from '../../redux/slices/profileSlice'
 import { FaBell, FaChevronLeft, FaKeyboard, FaLock, FaPalette, FaQuestionCircle } from "react-icons/fa"
+import { setShowHelp, setShowNotification, setShowPrivacy, setShowShortcuts, setShowTheme } from '../../redux/slices/settingsSlice'
 
 const Settings = () => {
     const settings_list = [
         {
             title: "notifications",
             icon:<FaBell/>,
+            action: setShowNotification(true),
         },
         {
             title: "privacy",
             icon: <FaLock/>,
+            action: setShowPrivacy(true),
         },
         {
             title: "theme",
-            icon: <FaPalette/>
+            icon: <FaPalette/>,
+            action: setShowTheme(true),
         },
         {
             title: "keyboard shortcuts",
             icon: <FaKeyboard/>,
+            action: setShowShortcuts(true),
         },
         {
             title: "help",
             icon: <FaQuestionCircle/>,
+            action: setShowHelp(true),
         }
     ]
 
-    const activeUser = useAppSelector((state) => state.activeUser)
+    const activeUser = useAppSelector((state) => state.activeUser);
     const dispatch = useAppDispatch();
 
 
@@ -51,7 +57,7 @@ const Settings = () => {
             <div id="settings-list" className=''>
                 {
                     settings_list.map((setting)=>
-                        <button className='capitalize text-[var(--text-primary)] text-lg flex items-center gap-5 p-3 w-full hover:bg-[var(--accent-color)] hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg'>
+                        <button onClick={() => dispatch(setting.action)} className='capitalize text-[var(--text-primary)] text-lg flex items-center gap-5 p-3 w-full hover:bg-[var(--accent-color)] hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg'>
                             <span>{setting.icon}</span>
                             <span>{setting.title}</span>
                         </button>

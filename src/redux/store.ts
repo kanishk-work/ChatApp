@@ -3,12 +3,14 @@ import activeUserSlice from "./slices/activeUserSlice";
 import chatsSlice from "./slices/chatsSlice";
 import profileSlice from "./slices/profileSlice";
 import searchSlice from "./slices/searchSlice";
+import settingsSlice from "./slices/settingsSlice";
 const store = configureStore({
   reducer: {
     activeUser: activeUserSlice,
     profile: profileSlice,
     search: searchSlice,
     chats: chatsSlice,
+    settings:settingsSlice,
   },
 });
 export default store;
