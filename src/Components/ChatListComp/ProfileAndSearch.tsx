@@ -1,3 +1,4 @@
+
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi"
 import { useAppDispatch } from '../../redux/hooks'
@@ -6,12 +7,11 @@ import { setShowProfile, setShowSettings } from '../../redux/slices/profileSlice
 
 const ProfileAndSearch = () => {
   const profile = {
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "kanishk",
-  }
+    img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name: "kanishk",
+  };
   const dispatch = useAppDispatch();
 
-  
   return (
     <div className="w-full flex items-center gap-2 mb-3">
       <button onClick={() => dispatch(setShowProfile(true))}>
@@ -24,9 +24,10 @@ const ProfileAndSearch = () => {
       </div>
 
       {/* <BiDotsVerticalRounded className="text-2xl text-slate-400 hover:bg-[var(--accent-color)] rounded-full"/> */}
-      
+
       <Menu as="div" className="relative inline-block text-left">
         <div>
+
           <MenuButton className="flex items-center text-2xl py-1 text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white">
             <BiDotsVerticalRounded className=""/>
           </MenuButton>
@@ -77,21 +78,11 @@ const ProfileAndSearch = () => {
                 License
               </button>
             </MenuItem>
-            {/* <form action="#" method="POST">
-              <MenuItem>
-                <button
-                  type="submit"
-                  className="block w-full px-4 py-2 text-left text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
-                >
-                  Sign out
-                </button>
-              </MenuItem>
-            </form> */}
           </div>
         </MenuItems>
       </Menu>
     </div>
-  )
-}
+  );
+};
 
-export default ProfileAndSearch
+export default ProfileAndSearch;

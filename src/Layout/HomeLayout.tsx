@@ -1,10 +1,9 @@
-
-import { Outlet } from "react-router-dom";
-//import Footer from "../Components/Shared/Footer";
 import { useAppSelector } from "../redux/hooks";
 import { ChatListComp, Profile, Settings } from "../Components";
-
+import ChatWindow from "../Components/ChatWindow/ChatWindow";
+import { useAppContext } from "../Context/AppContext";
 const HomeLayout = () => {
+      const { view, currentChatId } = useAppContext();
     const { showProfile, showNotifications, showSettings } = useAppSelector((state) => state.profile)
     const {showHelp, showNotification, showPrivacy, showShortcuts, showTheme} = useAppSelector((state) => state.settings);
 
@@ -37,12 +36,13 @@ const HomeLayout = () => {
                 }
                 
             </div>
-            <div className="">
-                <Outlet />
-            </div>
+        <div className="flex-1 h-full">
+        {view === "chatWindow" && currentChatId !== null && (
+          <ChatWindow chatId={currentChatId} />
+        )}
+      </div>
             
-            {/* <Footer/> */}
-        </div>
+    </div>
     );
 };
 
