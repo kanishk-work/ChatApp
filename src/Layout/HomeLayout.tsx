@@ -1,30 +1,23 @@
-
-import { Outlet } from "react-router-dom";
-//import Footer from "../Components/Shared/Footer";
+import React from "react";
 import ChatListComp from "../Components/ChatListComp/ChatListComp";
-import { useAppSelector } from "../redux/hooks";
-import { Chat } from "../Pages";
+import ChatWindow from "../Components/ChatWindow/ChatWindow";
+import { useAppContext } from "../Context/AppContext";
 
-const HomeLayout = () => {
-    const { showProfile, showNotifications } = useAppSelector((state) => state.profile)
-    return (
-        <div className="h-[100vh] flex bg-[var(--bg-color)]">
-            <div className="hidden sm:block w-[25vw] min-w-[320px] h-full">
-                {
-                    !showProfile ?
-                        <ChatListComp />
-                    :
-                        <Chat/>
-                }
-                
-            </div>
-            <div className="">
-                <Outlet />
-            </div>
-            
-            {/* <Footer/> */}
-        </div>
-    );
+const HomeLayout: React.FC = () => {
+  const { view, currentChatId } = useAppContext();
+
+  return (
+    <div className="h-[100vh] flex bg-[var(--bg-color)]">
+      <div className="hidden sm:block w-[25vw] min-w-[320px] h-full">
+        <ChatListComp />
+      </div>
+      <div className="flex-1 h-full">
+        {view === "chatWindow" && currentChatId !== null && (
+          <ChatWindow chatId={currentChatId} />
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default HomeLayout;
