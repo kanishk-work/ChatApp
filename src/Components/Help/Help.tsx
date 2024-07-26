@@ -10,6 +10,7 @@ import { MdDrafts } from "react-icons/md";
 import { FaChevronLeft, FaExclamationCircle, FaFileAlt, FaQuestionCircle, FaUsers } from 'react-icons/fa';
 import { useAppDispatch } from '../../redux/hooks';
 import { setShowHelp } from '../../redux/slices/settingsSlice';
+import SideHeader from '../Shared/SideHeader';
 
 
 const Help = () => {
@@ -17,14 +18,8 @@ const Help = () => {
     const dispatch = useAppDispatch();
     return (
         <Box sx={{ width: '100%', bgcolor: '', color:'white' }}>
-            <header className="flex justify-start items-center my-3 gap-5 text-lg text-[var(--text-primary)]">
-                <button onClick={() => dispatch(setShowHelp(false))} className='text-[var(--text-secondary)] hover:bg-[var(--accent-color)] rounded-full p-2'>
-                    <FaChevronLeft />
-                </button>
-                <h1>
-                    Help
-                </h1>
-            </header>
+            <SideHeader backFn={()=>dispatch(setShowHelp(false))} title='help'/>
+
             <List>
                 <ListItem disablePadding>
                     <ListItemButton>

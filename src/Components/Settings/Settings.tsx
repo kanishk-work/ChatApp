@@ -2,6 +2,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowProfile, setShowSettings } from '../../redux/slices/profileSlice'
 import { FaBell, FaChevronLeft, FaKeyboard, FaLock, FaPalette, FaQuestionCircle } from "react-icons/fa"
 import { setShowHelp, setShowNotification, setShowPrivacy, setShowShortcuts, setShowTheme } from '../../redux/slices/settingsSlice'
+import SideHeader from '../Shared/SideHeader'
 
 const Settings = () => {
     const settings_list = [
@@ -38,14 +39,8 @@ const Settings = () => {
 
     return (
         <div>
-            <header className="flex justify-start items-center my-3 gap-5 text-lg text-[var(--text-primary)]">
-                <button onClick={() => dispatch(setShowSettings(false))} className='text-[var(--text-secondary)] hover:bg-[var(--accent-color)] rounded-full p-2'>
-                    <FaChevronLeft />
-                </button>
-                <h1>
-                    Settings
-                </h1>
-            </header>
+            <SideHeader backFn={()=>dispatch(setShowSettings(false))} title='settings'/>
+            
             <button onClick={() => dispatch(setShowProfile(true))} className='w-full flex items-center gap-5 p-2 hover:bg-[var(--accent-color)] rounded-lg'>
                 <img src={activeUser.profilePic} alt="user profile pic" className='object-contain h-16 w-16 rounded-full items-start flex-shrink-0' />
                 <div className='capitalize text-left text-[var(--text-primary)] leading-none'>
