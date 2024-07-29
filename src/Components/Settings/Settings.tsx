@@ -1,46 +1,47 @@
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { setShowProfile, setShowSettings } from '../../redux/slices/profileSlice'
-import { FaBell, FaChevronLeft, FaKeyboard, FaLock, FaPalette, FaQuestionCircle } from "react-icons/fa"
+import { FaBell, FaKeyboard, FaLock, FaPalette, FaQuestionCircle } from "react-icons/fa"
 import { setShowHelp, setShowNotification, setShowPrivacy, setShowShortcuts, setShowTheme } from '../../redux/slices/settingsSlice'
 import SideHeader from '../Shared/SideHeader'
+import Options from '../Shared/Options'
 
 const Settings = () => {
-    const settings_list = [
+    const dispatch = useAppDispatch();
+
+    const settings_list= [
         {
             title: "notifications",
-            icon:<FaBell/>,
-            action: setShowNotification(true),
+            icon: <FaBell />,
+            action: () => dispatch(setShowNotification(true)),
         },
         {
             title: "privacy",
-            icon: <FaLock/>,
-            action: setShowPrivacy(true),
+            icon: <FaLock />,
+            action: () => dispatch(setShowPrivacy(true)),
         },
         {
             title: "theme",
-            icon: <FaPalette/>,
-            action: setShowTheme(true),
+            icon: <FaPalette />,
+            action: () => dispatch(setShowTheme(true)),
         },
         {
             title: "keyboard shortcuts",
-            icon: <FaKeyboard/>,
-            action: setShowShortcuts(true),
+            icon: <FaKeyboard />,
+            action: () => dispatch(setShowShortcuts(true)),
         },
         {
             title: "help",
-            icon: <FaQuestionCircle/>,
-            action: setShowHelp(true),
+            icon: <FaQuestionCircle />,
+            action: () => dispatch(setShowHelp(true)),
         }
     ]
 
     const activeUser = useAppSelector((state) => state.activeUser);
-    const dispatch = useAppDispatch();
-
 
     return (
         <div>
-            <SideHeader backFn={()=>dispatch(setShowSettings(false))} title='settings'/>
-            
+            <SideHeader backFn={() => dispatch(setShowSettings(false))} title='settings' />
+
             <button onClick={() => dispatch(setShowProfile(true))} className='w-full flex items-center gap-5 p-2 hover:bg-[var(--accent-color)] rounded-lg'>
                 <img src={activeUser.profilePic} alt="user profile pic" className='object-contain h-16 w-16 rounded-full items-start flex-shrink-0' />
                 <div className='capitalize text-left text-[var(--text-primary)] leading-none'>
@@ -49,16 +50,7 @@ const Settings = () => {
                 </div>
             </button>
 
-            <div id="settings-list" className=''>
-                {
-                    settings_list.map((setting)=>
-                        <button onClick={() => dispatch(setting.action)} className='capitalize text-[var(--text-primary)] text-lg flex items-center gap-5 p-3 w-full hover:bg-[var(--accent-color)] hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg'>
-                            <span>{setting.icon}</span>
-                            <span>{setting.title}</span>
-                        </button>
-                    )
-                }
-            </div>
+            <Options optionsList={settings_list} />
         </div>
     )
 }

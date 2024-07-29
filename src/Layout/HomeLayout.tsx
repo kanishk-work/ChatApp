@@ -3,8 +3,8 @@ import { ChatListComp, Help, Profile, Settings } from "../Components";
 import ChatWindow from "../Components/ChatWindow/ChatWindow";
 import { useAppContext } from "../Context/AppContext";
 const HomeLayout = () => {
-      const { view, currentChatId } = useAppContext();
-    const { showProfile, showNotifications, showSettings } = useAppSelector((state) => state.profile)
+    const { view, currentChatId } = useAppContext();
+    const { showProfile, showSettings } = useAppSelector((state) => state.profile)
     const {showHelp, showNotification, showPrivacy, showShortcuts, showTheme} = useAppSelector((state) => state.settings);
 
     return (

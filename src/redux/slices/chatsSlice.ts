@@ -1,5 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { toast } from 'react-toastify';
+import { createSlice } from '@reduxjs/toolkit';
+// import { createAsyncThunk} from '@reduxjs/toolkit';
+// import { toast } from 'react-toastify';
 // import { fetchAllChats } from '../apis/chat';
 const initialState = {
   chats: [],
