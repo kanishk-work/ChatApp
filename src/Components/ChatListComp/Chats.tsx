@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { Link } from "react-router-dom";
 import { useAppContext } from "../../Context/AppContext";
 const chats = [
   {
