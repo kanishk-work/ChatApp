@@ -50,7 +50,7 @@ const Settings = () => {
                 </div>
             </button>
 
-            <Options optionsList={settings_list} />
+            <Options optionsList={settings_list} btnClassName=''/>
         </div>
     )
 }

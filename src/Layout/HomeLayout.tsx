@@ -2,6 +2,7 @@ import { useAppSelector } from "../redux/hooks";
 import { ChatListComp, Help, Profile, Settings } from "../Components";
 import ChatWindow from "../Components/ChatWindow/ChatWindow";
 import { useAppContext } from "../Context/AppContext";
+
 const HomeLayout = () => {
     const { view, currentChatId } = useAppContext();
     const { showProfile, showSettings } = useAppSelector((state) => state.profile)

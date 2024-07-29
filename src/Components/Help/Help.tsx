@@ -1,62 +1,42 @@
-import Box from '@mui/material/Box';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
+
 import { FaExclamationCircle, FaFileAlt, FaQuestionCircle, FaUsers } from 'react-icons/fa';
 import { useAppDispatch } from '../../redux/hooks';
 import { setShowHelp } from '../../redux/slices/settingsSlice';
 import SideHeader from '../Shared/SideHeader';
+import Options from '../Shared/Options';
 
 
 const Help = () => {
+    const help_list= [
+        {
+            title: "help center",
+            icon: <FaQuestionCircle />,
+            action: () => {},
+        },
+        {
+            title: "contact us",
+            icon: <FaUsers />,
+            action: () => {}
+        },
+        {
+            title: "privacy policy",
+            icon: <FaFileAlt />,
+            action: () => {},
+        },
+        {
+            title: "report",
+            icon: <FaExclamationCircle />,
+            action: () => {},
+        }
+    ]
 
     const dispatch = useAppDispatch();
     return (
-        <Box sx={{ width: '100%', bgcolor: '', color:'white' }}>
-            <SideHeader backFn={()=>dispatch(setShowHelp(false))} title='help'/>
+        <div>
+            <SideHeader backFn={() => dispatch(setShowHelp(false))} title='help' />
 
-            <List>
-                <ListItem disablePadding>
-                    <ListItemButton>
-                        <ListItemIcon sx={{ color:'white' }}>
-                            <FaQuestionCircle />
-                        </ListItemIcon >
-                        <ListItemText primary="Help Center" />
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton>
-                        <ListItemIcon sx={{ color:'white' }}>
-                            <FaUsers />
-                        </ListItemIcon>
-                        <ListItemText primary="Contact Us" />
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton>
-                        <ListItemIcon sx={{ color:'white' }}>
-                            <FaFileAlt />
-                        </ListItemIcon>
-                        <ListItemText primary="Privacy policy" />
-                    </ListItemButton>
-                </ListItem>
-                
-                <ListItem disablePadding>
-                    <ListItemButton component="a" href="#simple-list">
-                        <ListItemIcon sx={{ color:'white' }}>
-                            <FaExclamationCircle />
-                        </ListItemIcon>
-                        <ListItemText primary="Report" />
-                    </ListItemButton>
-                </ListItem>
-            </List>
-            <Divider />
-        </Box>
+            <Options optionsList={help_list} btnClassName='hover:bg-green-600'/>
+        </div>
 
         
     )
