@@ -51,7 +51,7 @@ const Settings = () => {
                 </div>
             </button>
 
-            <Options optionsList={settings_list} btnClassName='' btnStyle={{backgroundColor:'red'}}/>
+            <Options optionsList={settings_list} btnClassName='' btnStyle={{}}/>
             <KeyboardShortcuts/>
         </div>
     )
