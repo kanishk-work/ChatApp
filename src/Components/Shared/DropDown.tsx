@@ -5,7 +5,7 @@ interface props {
     optionsList: {
         name: string;
         icon?: JSX.Element;
-        action: Function;
+        action?: Function;
     }[],
     btnClassName?: string,
     itemClassName?: string,
@@ -31,7 +31,7 @@ const DropDown = ({ optionsList, btnClassName, itemClassName }: props) => {
                             <MenuItem>
                                 <button
                                     key = {index}
-                                    onClick={() => option.action()}
+                                    onClick={() => {option.action()? option.action() : null}}
                                     className={`${itemClassName} capitalize text-left w-full flex gap-3 px-4 py-2 text-sm text-[var(--text-secondary)] data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white`}
                                 >
                                     {option.icon} {option.name}

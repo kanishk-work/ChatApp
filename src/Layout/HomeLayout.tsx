@@ -6,7 +6,7 @@ import { useAppContext } from "../Context/AppContext";
 const HomeLayout = () => {
     const { view, currentChatId } = useAppContext();
     const { showProfile, showSettings } = useAppSelector((state) => state.profile)
-    const {showHelp, showNotification, showPrivacy, showShortcuts, showTheme} = useAppSelector((state) => state.settings);
+    const {showHelp, showNotification, showPrivacy, showTheme} = useAppSelector((state) => state.settings);
 
     return (
         <div className="h-[100vh] flex bg-[var(--bg-color)]">
@@ -19,9 +19,6 @@ const HomeLayout = () => {
                     null
                     :
                     showPrivacy?
-                    null
-                    :
-                    showShortcuts?
                     null
                     :
                     showTheme?

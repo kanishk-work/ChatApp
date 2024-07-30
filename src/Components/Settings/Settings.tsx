@@ -4,6 +4,7 @@ import { FaBell, FaKeyboard, FaLock, FaPalette, FaQuestionCircle } from "react-i
 import { setShowHelp, setShowNotification, setShowPrivacy, setShowShortcuts, setShowTheme } from '../../redux/slices/settingsSlice'
 import SideHeader from '../Shared/SideHeader'
 import Options from '../Shared/Options'
+import KeyboardShortcuts from '../KeyShortcuts/KeyboardShortcuts'
 
 const Settings = () => {
     const dispatch = useAppDispatch();
@@ -50,7 +51,8 @@ const Settings = () => {
                 </div>
             </button>
 
-            <Options optionsList={settings_list} btnClassName=''/>
+            <Options optionsList={settings_list} btnClassName='' btnStyle={{backgroundColor:'red'}}/>
+            <KeyboardShortcuts/>
         </div>
     )
 }
