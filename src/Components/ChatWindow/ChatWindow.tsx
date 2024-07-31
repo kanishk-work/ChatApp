@@ -1,38 +1,43 @@
 import React, { useEffect } from "react";
 import { useWebSocket } from "../../apis/websocket";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../Redux/store";
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
-import { Message } from "../../types/message";
-import { useAppSelector } from "../../redux/hooks";
+import { Message } from "../../Types/message";
+import { useAppSelector } from "../../Redux/hooks";
 import StatusBar from "./StatusBar";
+import { ChatMessage } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
   const { sendMessage } = useWebSocket();
   const currentChatId = useAppSelector(
     (state: RootState) => state.chats.activeChat
   );
-  const chats = useAppSelector((state: RootState) => state.chats.chats);
-
+  const chats = useAppSelector((state: RootState) => state.chats.conversations);
+  const currentUserId = useAppSelector(
+    (state: RootState) => state.chats.currentUserId
+  );
+  console.log({ currentUserId });
+  console.log({ chats });
   const messages = currentChatId !== null ? chats[currentChatId] || [] : [];
   console.log({ messages });
   useEffect(() => {}, [currentChatId]);
   console.log({ currentChatId });
   const handleSend = (text: string) => {
     if (currentChatId !== null) {
-      const newMessage: Message = {
+      const newMessage: ChatMessage = {
         id: Date.now(),
-        chatId: currentChatId,
+        senderId: currentChatId,
         text,
-        sender: "user",
-        timestamp: new Date(),
+        timestamp: new Date().toString(),
       };
       sendMessage(newMessage);
     }
   };
 
-  const formatTime = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString([], {
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -40,13 +45,14 @@ const ChatWindow: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <StatusBar
-        statusBarStyles={{ backgroundColor: "InfoText", borderRadius: "1rem" }}
-      />
+      <StatusBar statusBarStyles={{ container: "text" }} />
       <div className="flex-1 overflow-auto p-4">
-        {messages.map((message: Message) => (
+        {messages.map((message: ChatMessage) => (
           <div key={message.id}>
-            <MessageBubble message={message.text} sender={message.sender} />
+            <MessageBubble
+              message={message.text}
+              sender={message.senderId === currentUserId ? "user" : "other"}
+            />
             <div className="text-center text-xs text-gray-500 my-2">
               {formatTime(message.timestamp)}
             </div>

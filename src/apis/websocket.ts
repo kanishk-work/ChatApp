@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
-import { addMessage } from "../redux/slices/chatsSlice";
-import { Message } from "../types/message";
-import { useAppDispatch } from "../redux/hooks";
+import { ChatMessage, addMessage } from "../Redux/slices/chatsSlice";
+import { Message } from "../Types/message";
+import { useAppDispatch } from "../Redux/hooks";
 
 // const socket = io("http://localhost:3000");
 
@@ -12,9 +12,9 @@ export const useWebSocket = () => {
   //   dispatch(addMessage(message));
   // });
 
-  const sendMessage = (message: Message) => {
+  const sendMessage = (message: ChatMessage) => {
     // socket.emit("message", message);
-    dispatch(addMessage({ chatId: message.chatId, message }));
+    dispatch(addMessage({ userId: message.senderId, message }));
   };
 
   return { sendMessage };
