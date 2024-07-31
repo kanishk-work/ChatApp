@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { useAppContext } from "../../Context/AppContext";
 import { Styles, applyStyles } from "../../utils/styleUtils";
 import { RootState } from "../../redux/store";
 import { setActiveChat } from "../../redux/slices/chatsSlice";

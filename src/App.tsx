@@ -1,14 +1,9 @@
 import React from "react";
 
-import { AppProvider } from "./Context/AppContext";
 import HomeLayout from "./Layout/HomeLayout";
 
 const App: React.FC = () => {
-  return (
-    <AppProvider>
-      <HomeLayout />
-    </AppProvider>
-  );
+  return <HomeLayout />;
 };
 
 export default App;
