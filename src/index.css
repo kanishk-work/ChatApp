@@ -14,7 +14,10 @@
   --text-primary: #fff;
   --text-secondary: #94a3b8;
 
-  --bg-light: #d0d0d4;
+  --bg-color-light: #f1f1f1;
+  --accent-color-light: #dbd9d9;
+  --text-primary-light: #242729;
+  --text-secondary-light: #515155;
 
   --color-primary: #247BF7;
   --color-secondary: #F7921E;

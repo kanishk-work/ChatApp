@@ -106,19 +106,19 @@ const KeyboardShortcuts = () => {
             <div className="flex items-center justify-center fixed inset-0 z-10">
                 <DialogPanel
                     transition
-                    className="flex flex-col justify-around gap-2 capitalize p-4 max-h-[90%] max-w-[70%] bg-[var(--bg-color)] relative transform rounded-lg text-left shadow-xl transition-all data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+                    className="flex flex-col justify-around gap-2 capitalize p-4 max-h-[90%] max-w-[70%] bg-[var(--bg-color-light)] dark:bg-[var(--bg-color)] relative transform rounded-lg text-left shadow-xl transition-all data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
                 >
 
-                    <DialogTitle as="h3" className="text-xl font-semibold leading-6 text-[var(--text-primary)]">
+                    <DialogTitle as="h3" className="text-xl font-semibold leading-6 text-[var(--text-primary-light)] dark:text-[var(--text-primary)]">
                         keyboard shortcuts 
                     </DialogTitle>
                     <div className="px-2 flex items-center justify-between flex-wrap gap-6 overflow-auto">
                         {list.map((item) =>
-                            <div key={item.key} className='text-[var(--text-secondary)] flex justify-between items-center w-[45%]'>
+                            <div key={item.key} className='text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] flex justify-between items-center w-[45%]'>
                                 <h3>{item.title}</h3>
                                 <div className='flex gap-2'>
                                     {item.combination.map((combo) =>
-                                        <button className='p-2 rounded-lg bg-[var(--accent-color)]'>
+                                        <button className='p-2 rounded-lg bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)]'>
                                             {combo}
                                         </button>
                                     )}
@@ -132,7 +132,7 @@ const KeyboardShortcuts = () => {
                         <button
                             data-autofocus
                             onClick={() => dispatch(setShowShortcuts(false))}
-                            className="rounded-md px-3 py-2 text-lg font-semibold text-[var(--text-primary)] hover:bg-[var(--accent-color)]"
+                            className="rounded-md px-3 py-2 text-lg font-semibold text-[var(--text-primary-light)] dark:text-[var(--text-primary)] hover:bg-[var(--accent-color-light)] dark:hover:bg-[var(--accent-color)]"
                         >
                             Okay
                         </button>

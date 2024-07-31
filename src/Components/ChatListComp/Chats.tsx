@@ -58,7 +58,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
         <div
           key={chat.id}
           style={style}
-          className={`flex items-center justify-center text-slate-100 w-full mb-2 p-1.5 hover:shadow-[0px_0px_20px_14px_#00000024] rounded-lg cursor-pointer ${className}`}
+          className={`flex items-center justify-center text-[var(--text-primary-light)] dark:text-[var(--text-primary)] w-full mb-2 p-1.5 hover:shadow-[0px_0px_20px_14px_#00000024] rounded-lg cursor-pointer ${className}`}
           onClick={() => handleChatClick(chat.id)}
         >
           <img

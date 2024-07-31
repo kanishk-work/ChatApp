@@ -38,8 +38,8 @@ const ProfileAndSearch = () => {
       </button>
 
       <div className="relative grow"> 
-            <input type="text" className="w-full placeholder-[var(--text-secondary)] bg-[var(--accent-color)] shadow-sm text-slate-200 rounded focus:outline-none py-1 px-3 focus:shadow-lg" placeholder="Search..."/> 
-            <BiSearch className="absolute right-3 top-2 text-slate-400"/>
+            <input type="text" className="w-full bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] rounded focus:outline-none py-1 px-3 focus:shadow-lg" placeholder="Search..."/> 
+            <BiSearch className="absolute right-3 top-2 text-[var(--text-secondary)]"/>
       </div>
 
       <DropDown optionsList={menu_items} />
