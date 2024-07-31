@@ -1,5 +1,15 @@
 import { FC } from "react";
 import { useAppContext } from "../../Context/AppContext";
+import { Styles, applyStyles } from "../../utils/styleUtils";
+import { RootState } from "../../redux/store";
+import { setActiveChat } from "../../redux/slices/chatsSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setView } from "../../redux/slices/viewSlice";
+
+interface ChatListProps {
+  listStyle?: Styles;
+}
+
 const chats = [
   {
     id: 1,
@@ -31,18 +41,25 @@ const chats = [
   },
 ];
 
-const Chats: FC<{}> = () => {
-  const { setView, setCurrentChatId } = useAppContext();
+const Chats: FC<ChatListProps> = ({ listStyle }) => {
+  const dispatch = useAppDispatch();
+  const { className, style } = applyStyles(listStyle);
+  const activeChat = useAppSelector(
+    (state: RootState) => state.chats.activeChat
+  );
+
   const handleChatClick = (chatId: number) => {
-    setCurrentChatId(chatId);
-    setView("chatWindow");
+    dispatch(setActiveChat(chatId));
+    dispatch(setView("chatWindow"));
   };
+
   return (
     <div>
       {chats.map((chat) => (
         <div
           key={chat.id}
-          className="flex items-center justify-center text-slate-100 w-full mb-2 p-1.5 hover:shadow-[0px_0px_20px_14px_#00000024] rounded-lg cursor-pointer"
+          style={style}
+          className={`flex items-center justify-center text-slate-100 w-full mb-2 p-1.5 hover:shadow-[0px_0px_20px_14px_#00000024] rounded-lg cursor-pointer ${className}`}
           onClick={() => handleChatClick(chat.id)}
         >
           <img
