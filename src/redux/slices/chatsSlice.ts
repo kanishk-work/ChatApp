@@ -43,6 +43,7 @@ const initialState: ChatsState = {
     ],
   },
   activeChat: 1,
+
   notifications: [],
 };
 

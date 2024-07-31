@@ -1,11 +1,30 @@
 
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi"
+import { BiSearch } from "react-icons/bi"
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowProfile, setShowSettings } from '../../redux/slices/profileSlice'
+import DropDown from '../Shared/DropDown';
 
 
 const ProfileAndSearch = () => {
+  const menu_items= [
+    {
+        name: "new group",
+        action: () => dispatch(setShowSettings(true)),
+    },
+    {
+        name: "starred message",
+        action: () => dispatch(setShowSettings(true)),
+    },
+    {
+        name: "pinned chats",
+        action: () => dispatch(setShowSettings(true)),
+    },
+    {
+        name: "settings",
+        action: () => dispatch(setShowSettings(true)),
+    }
+  ]
+
   const profile = {
     img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     name: "kanishk",
@@ -23,64 +42,8 @@ const ProfileAndSearch = () => {
             <BiSearch className="absolute right-3 top-2 text-slate-400"/>
       </div>
 
-      {/* <BiDotsVerticalRounded className="text-2xl text-slate-400 hover:bg-[var(--accent-color)] rounded-full"/> */}
+      <DropDown optionsList={menu_items} />
 
-      <Menu as="div" className="relative inline-block text-left">
-        <div>
-
-          <MenuButton className="flex items-center text-2xl py-1 text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white">
-            <BiDotsVerticalRounded className=""/>
-          </MenuButton>
-        </div>
-
-        <MenuItems
-          transition
-          className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-[var(--accent-color)] shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-        >
-          <div className="py-1">
-            <MenuItem>
-              <button
-                onClick={() => dispatch(setShowSettings(true))}
-                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
-              >
-                New group
-              </button>
-            </MenuItem>
-            <MenuItem>
-              <button
-                onClick={() => dispatch(setShowSettings(true))}
-                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
-              >
-                Starred messages
-              </button>
-            </MenuItem>
-            <MenuItem>
-              <button
-                onClick={() => dispatch(setShowSettings(true))}
-                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
-              >
-                Pinned chats
-              </button>
-            </MenuItem>
-            <MenuItem>
-              <button
-                onClick={() => dispatch(setShowSettings(true))}
-                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
-              >
-                Settings
-              </button>
-            </MenuItem>
-            <MenuItem>
-              <button
-                onClick={() => dispatch(setShowSettings(true))}
-                className="text-left w-full block px-4 py-2 text-sm text-slate-200 data-[focus]:bg-[var(--bg-color)] data-[focus]:text-white"
-              >
-                License
-              </button>
-            </MenuItem>
-          </div>
-        </MenuItems>
-      </Menu>
     </div>
   );
 };

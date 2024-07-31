@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { toast } from 'react-toastify';
+import { createSlice } from '@reduxjs/toolkit';
+// import { createAsyncThunk} from '@reduxjs/toolkit';
+// import { toast } from 'react-toastify';
 // import { searchUsers } from '../../apis/auth';
 const initialState = {
   searchResults: [],

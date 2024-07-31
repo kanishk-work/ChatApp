@@ -1,8 +1,6 @@
-import { Link, useRouteError } from "react-router-dom";
 
 
 const Error = () => {
-    const error = useRouteError();
     return (
         <main className="grid min-h-full items-center place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
         <div className="text-center">
