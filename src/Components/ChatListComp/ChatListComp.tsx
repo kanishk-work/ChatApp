@@ -1,15 +1,16 @@
-import Chats from "./Chats"
-import ProfileAndSearch from "./ProfileAndSearch"
-
+import Chats from "./Chats";
+import ProfileAndSearch from "./ProfileAndSearch";
 
 const ChatListComp = () => {
   return (
-    <div className="h-full w-full overflow-auto ">
-
-        <ProfileAndSearch/>
-        <Chats/>
+    <div className="w-full overflow-auto flex flex-col">
+      <ProfileAndSearch />
+      <Chats listStyle="bg-blue-500" />
+      <div className="flex flex-col justify-end p-2">
+        {/* <ThemeSwitcher /> */}
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChatListComp
+export default ChatListComp;
