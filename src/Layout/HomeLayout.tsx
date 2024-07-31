@@ -1,5 +1,5 @@
 import { useAppSelector } from "../redux/hooks";
-import { ChatListComp, Help, Profile, Settings } from "../Components";
+import { ChatListComp, Help, Profile, Settings, Theme } from "../Components";
 import ChatWindow from "../Components/ChatWindow/ChatWindow";
 import { useAppContext } from "../Context/AppContext";
 
@@ -9,7 +9,7 @@ const HomeLayout = () => {
     const {showHelp, showNotification, showPrivacy, showTheme} = useAppSelector((state) => state.settings);
 
     return (
-        <div className="h-[100vh] flex bg-[var(--bg-color)]">
+        <div className="h-[100vh] flex bg-[var(--bg-light)] dark:bg-[var(--bg-color)]">
             <div className="hidden sm:block w-[25vw] min-w-[320px] h-full p-3 shadow-[inset_-10px_0px_20px_0px_#00000024]">
                 {
                     showProfile ?
@@ -22,7 +22,7 @@ const HomeLayout = () => {
                     null
                     :
                     showTheme?
-                    null
+                    <Theme/>
                     :
                     showHelp?
                         <Help/>
