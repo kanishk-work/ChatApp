@@ -3,7 +3,7 @@ import { Styles, applyStyles } from "../../Utils/styleUtils";
 import { RootState } from "../../Redux/store";
 import { setActiveChat } from "../../Redux/slices/chatsSlice";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
-import { setView } from "../../Redux/slices/viewSlice";
+import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 
 interface ChatListProps {
   listStyle?: Styles;
@@ -50,7 +50,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
   const handleChatClick = (chatId: number) => {
     if (activeChat !== chatId) {
       dispatch(setActiveChat(chatId));
-      dispatch(setView("chatWindow"));
+      dispatch(setChatWindow(true));
     }
   };
 

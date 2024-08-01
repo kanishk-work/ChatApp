@@ -1,6 +1,7 @@
 import { BiSearch } from "react-icons/bi";
 import { useAppDispatch } from "../../Redux/hooks";
 import {
+  setShowNewGroup,
   setShowProfile,
   setShowSettings,
 } from "../../Redux/slices/profileSlice";
@@ -10,7 +11,7 @@ const ProfileAndSearch = () => {
   const menu_items = [
     {
       name: "new group",
-      action: () => dispatch(setShowSettings(true)),
+      action: () => dispatch(setShowNewGroup(true)),
     },
     {
       name: "starred message",
