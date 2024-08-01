@@ -1,7 +1,7 @@
 import { ChatListComp, Profile, Settings } from "../Components";
 import ChatWindow from "../Components/ChatWindow/ChatWindow";
-import { useAppSelector } from "../redux/hooks";
-import { RootState } from "../redux/store";
+import { useAppSelector } from "../Redux/hooks";
+import { RootState } from "../Redux/store";
 
 const HomeLayout = () => {
   const view = useAppSelector((state: RootState) => state.view.view);
