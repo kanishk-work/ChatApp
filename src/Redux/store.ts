@@ -1,10 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import activeUserReducer from "./slices/activeUserSlice";
-import chatsReducer from "./slices/chatsSlice";
-import profileReducer from "./slices/profileSlice";
-import searchReducer from "./slices/searchSlice";
-import settingsReducer from "./slices/settingsSlice";
-import viewReducer from "./slices/viewSlice";
 import {
   FLUSH,
   REHYDRATE,

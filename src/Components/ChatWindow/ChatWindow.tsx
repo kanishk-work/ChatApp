@@ -45,7 +45,12 @@ const ChatWindow: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <StatusBar statusBarStyles={{ container: "text" }} />
+      <StatusBar
+        statusBarStyles={{
+          container: { backgroundColor: "", borderRadius: "1rem" },
+          activityStatus: { color: "#27AE60" },
+        }}
+      />
       <div className="flex-1 overflow-auto p-4">
         {messages.map((message: ChatMessage) => (
           <div key={message.id}>
