@@ -50,4 +50,4 @@ const Theme = () => {
     )
 }
 
-export default Theme
+export default Theme;

@@ -1,9 +1,9 @@
 import { FC } from "react";
-import { Styles, applyStyles } from "../../utils/styleUtils";
-import { RootState } from "../../redux/store";
-import { setActiveChat } from "../../redux/slices/chatsSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { setView } from "../../redux/slices/viewSlice";
+import { Styles, applyStyles } from "../../Utils/styleUtils";
+import { RootState } from "../../Redux/store";
+import { setActiveChat } from "../../Redux/slices/chatsSlice";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
+import { setView } from "../../Redux/slices/viewSlice";
 
 interface ChatListProps {
   listStyle?: Styles;
@@ -48,30 +48,33 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
   );
 
   const handleChatClick = (chatId: number) => {
-    dispatch(setActiveChat(chatId));
-    dispatch(setView("chatWindow"));
+    if (activeChat !== chatId) {
+      dispatch(setActiveChat(chatId));
+      dispatch(setView("chatWindow"));
+    }
   };
 
   return (
     <div>
-      {chats.map((chat) => (
+      {chats.map((activeChat) => (
         <div
-          key={chat.id}
-          style={style}
+          key={activeChat.id}
+
           className={`flex items-center justify-center text-[var(--text-primary-light)] dark:text-[var(--text-primary)] w-full mb-2 p-1.5 hover:shadow-[0px_0px_20px_14px_#00000024] rounded-lg cursor-pointer ${className}`}
-          onClick={() => handleChatClick(chat.id)}
+          onClick={() => handleChatClick(activeChat.id)}
+
         >
           <img
-            src={chat.img}
+            src={activeChat.img}
             alt="user profile pic"
             className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 mr-3"
           />
           <div className="w-full">
             <div className="w-full flex justify-between">
-              <span className="font-semibold text-sm">{chat.name}</span>
-              <span className="text-xs">{chat.time}</span>
+              <span className="font-semibold text-sm">{activeChat.name}</span>
+              <span className="text-xs">{activeChat.time}</span>
             </div>
-            <span className="text-xs">{chat.text}</span>
+            <span className="text-xs">{activeChat.text}</span>
           </div>
         </div>
       ))}

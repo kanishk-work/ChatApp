@@ -1,11 +1,15 @@
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { setShowShortcuts } from '../../redux/slices/settingsSlice';
-
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
+import { setShowShortcuts } from "../../Redux/slices/settingsSlice";
 
 const KeyboardShortcuts = () => {
 
-    const list = [
+   const list = [
         {
             key: 0,
             title: 'Mark as unread ',
@@ -126,8 +130,7 @@ const KeyboardShortcuts = () => {
                             </div>
                         )}
                     </div>
-
-
+   
                     <div className="flex justify-end">
                         <button
                             data-autofocus
@@ -138,10 +141,9 @@ const KeyboardShortcuts = () => {
                         </button>
                     </div>
                 </DialogPanel>
+          </div>
+    </Dialog>
+  );
+};
 
-            </div>
-        </Dialog>
-    )
-}
-
-export default KeyboardShortcuts
+export default KeyboardShortcuts;

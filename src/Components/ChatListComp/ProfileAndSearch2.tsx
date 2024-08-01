@@ -1,11 +1,11 @@
 import { useState } from "react";
 // import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
 import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch } from "../../Redux/hooks";
 import {
   setShowProfile,
   setShowSettings,
-} from "../../redux/slices/profileSlice";
+} from "../../Redux/slices/profileSlice";
 import { Menu, MenuItem, IconButton, Box, InputBase } from "@mui/material";
 
 const ProfileAndSearch2 = () => {
@@ -77,7 +77,7 @@ const ProfileAndSearch2 = () => {
         onClick={handleClick}
         aria-controls="simple-menu"
         aria-haspopup="true"
-		sx={{p:0}}
+        sx={{ p: 0 }}
       >
         <BiDotsVerticalRounded
           style={{ fontSize: "1.5rem", color: "var(--text-secondary)" }}

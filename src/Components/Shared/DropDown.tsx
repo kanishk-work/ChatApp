@@ -1,15 +1,15 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { BiDotsVerticalRounded } from "react-icons/bi"
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { BiDotsVerticalRounded } from "react-icons/bi";
 
 interface props {
-    optionsList: {
-        name: string;
-        icon?: JSX.Element;
-        action?: Function;
-    }[],
-    btnClassName?: string,
-    itemClassName?: string,
-    dropBoxClassName?: string,
+  optionsList: {
+    name: string;
+    icon?: JSX.Element;
+    action?: Function;
+  }[];
+  btnClassName?: string;
+  itemClassName?: string;
+  dropBoxClassName?: string;
 }
 
 const DropDown = ({ optionsList, btnClassName, itemClassName }: props) => {
@@ -45,4 +45,4 @@ const DropDown = ({ optionsList, btnClassName, itemClassName }: props) => {
     )
 }
 
-export default DropDown
+export default DropDown;
