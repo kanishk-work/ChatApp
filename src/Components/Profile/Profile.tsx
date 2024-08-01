@@ -1,44 +1,27 @@
-import { FaChevronLeft } from "react-icons/fa";
-import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
-import { setShowProfile } from "../../Redux/slices/profileSlice";
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setShowProfile } from '../../redux/slices/profileSlice';
+import SideHeader from '../Shared/SideHeader';
 
 const Profile = () => {
+  const activeUser = useAppSelector((state) => state.activeUser)
   const dispatch = useAppDispatch();
-  const activeUser = useAppSelector((state) => state.activeUser);
+
 
   return (
     <div>
-      <header className="flex justify-start items-center my-3 gap-5 text-lg text-[var(--text-primary)]">
-        <button
-          onClick={() => dispatch(setShowProfile(false))}
-          className="text-[var(--text-secondary)] hover:bg-[var(--accent-color)] rounded-full p-2"
-        >
-          <FaChevronLeft />
-        </button>
-        <h1>Profile</h1>
-      </header>
-      <div
-        onClick={() => dispatch(setShowProfile(true))}
-        className="w-full flex items-center justify-center p-2 hover:bg-[var(--accent-color)] rounded-lg"
-      >
-        <img
-          src={activeUser.profilePic}
-          alt="user profile pic"
-          className="object-contain h-40 w-auto rounded-full flex-shrink-0"
-        />
+      <SideHeader title='profile' backFn={() => dispatch(setShowProfile(false))} />
+      <div className='w-full flex items-center justify-center p-2 rounded-lg'>
+        <img src={activeUser.profilePic} alt="user profile pic" className='object-contain h-40 w-auto rounded-full flex-shrink-0' />
       </div>
 
-      <div
-        id="userinfo"
-        className="capitalize text-[var(--text-primary)] text-lg"
-      >
-        <div className="flex flex-col items-start gap-2 p-3 w-full hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg">
-          <span className="text-[var(--text-secondary)]">name</span>
-          <span>{activeUser.name}</span>
+      <div id="userinfo" className='capitalize  text-lg'>
+        <div className='flex flex-col items-start gap-2 p-3 w-full hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg'>
+          <span className='dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]'>name</span>
+          <span className='dark:text-[var(--text-primary)] text-[var(--text-primary-light)]'>{activeUser.name}</span>
         </div>
-        <div className="flex flex-col items-start gap-2 p-3 w-full hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg">
-          <span className="text-[var(--text-secondary)]">bio</span>
-          <span>{activeUser.bio}</span>
+        <div className='flex flex-col items-start gap-2 p-3 w-full hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg'>
+          <span className='dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]'>bio</span>
+          <span className='dark:text-[var(--text-primary)] text-[var(--text-primary-light)]'>{activeUser.bio}</span>
         </div>
       </div>
     </div>
