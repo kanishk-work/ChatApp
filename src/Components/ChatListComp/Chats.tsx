@@ -55,7 +55,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
   };
 
   return (
-    <div>
+    <div className="scrollbar-custom overflow-auto">
       {chats.map((activeChat) => (
         <div
           key={activeChat.id}
