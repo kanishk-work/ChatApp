@@ -8,4 +8,8 @@ export { default as Help } from "./Help/Help";
 
 export { default as Theme } from "./Theme/Theme";
 
+export { default as NewGroup } from "./NewGroup/NewGroup";
 
+export { default as Notification } from "./Notification/Notification";
+
+export { default as Privacy } from "./Privacy/Privacy";
