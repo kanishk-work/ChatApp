@@ -3,7 +3,6 @@ import { useWebSocket } from "../../apis/websocket";
 import { RootState } from "../../Redux/store";
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
-import { Message } from "../../Types/message";
 import { useAppSelector } from "../../Redux/hooks";
 import StatusBar from "./StatusBar";
 import { ChatMessage } from "../../Redux/slices/chatsSlice";
@@ -51,7 +50,7 @@ const ChatWindow: React.FC = () => {
           activityStatus: { color: "#27AE60" },
         }}
       />
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto p-4 scrollbar-custom">
         {messages.map((message: ChatMessage) => (
           <div key={message.id}>
             <MessageBubble

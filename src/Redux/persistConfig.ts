@@ -6,7 +6,7 @@ import profileReducer from "./slices/profileSlice";
 import searchReducer from "./slices/searchSlice";
 import settingsReducer from "./slices/settingsSlice";
 import viewReducer from "./slices/viewSlice";
-
+import themeReducer from "./slices/themeSlice";
 const activeUserPersistConfig = {
   key: "activeUser",
   storage,
@@ -29,6 +29,10 @@ const settingsPersistConfig = {
 };
 const viewPersistConfig = {
   key: "view",
+  storage,
+};
+const themePersistConfig = {
+  key: "theme",
   storage,
 };
 
@@ -55,4 +59,8 @@ export const persistedSettingsReducer = persistReducer(
 export const persistedViewReducer = persistReducer(
   viewPersistConfig,
   viewReducer
+);
+export const persistedThemeReducer = persistReducer(
+  themePersistConfig,
+  themeReducer
 );

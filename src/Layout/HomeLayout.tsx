@@ -12,23 +12,29 @@ const HomeLayout = () => {
   const { showProfile, showSettings } = useAppSelector(
     (state: RootState) => state.profile
   );
-  const { showHelp, showNotification, showPrivacy, showTheme } =
-    useAppSelector((state: RootState) => state.settings);
+  const { showHelp, showNotification, showPrivacy, showTheme } = useAppSelector(
+    (state: RootState) => state.settings
+  );
 
   return (
     <div className="h-[100vh] flex bg-[var(--bg-color-light)] dark:bg-[var(--bg-color)]">
       <div className="w-[25vw] min-w-[320px] h-full p-3 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col justify-between">
         {showProfile ? (
           <Profile />
-        ) : showNotification ? null : showPrivacy ? null : showTheme ? <Theme/> : showHelp ? <Help/> : showSettings ? (
+        ) : showNotification ? null : showPrivacy ? null : showTheme ? (
+          <Theme />
+        ) : showHelp ? (
+          <Help />
+        ) : showSettings ? (
           <Settings />
         ) : (
           <ChatListComp />
         )}
       </div>
-      <div className="flex-1 h-full">
+      <div className="h-screen flex-grow flex-col">
         {view === "chatWindow" && currentChatId !== null && <ChatWindow />}
       </div>
+      <div className="w-[25vw] bg-gray-500"></div>
     </div>
   );
 };
