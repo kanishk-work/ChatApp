@@ -1,48 +1,61 @@
 import SideHeader from "../Shared/SideHeader";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FaMoon, FaSun } from "react-icons/fa";
 import Options from "../Shared/Options";
-import { useAppDispatch } from "../../Redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
+import {
+  detectSystemTheme,
+  setTheme,
+  toggleTheme,
+} from "../../Redux/slices/themeSlice";
 import { setShowTheme } from "../../Redux/slices/settingsSlice";
 
 const Theme = () => {
-  const [dark, setDark] = useState(false);
-  const icon = dark ? <FaMoon /> : <FaSun className="text-yellow-500" />;
+  const dispatch = useAppDispatch();
+  const { isDarkMode, theme } = useAppSelector((state) => state.theme);
+
+  const icon = isDarkMode ? <FaMoon /> : <FaSun className="text-yellow-500" />;
   const theme_list = [
     {
       title: "toggle theme",
       icon: icon,
       action: () => darkModeHandler(),
     },
+    {
+      title: "system theme",
+      action: () => dispatch(setTheme("system")),
+    },
+    {
+      title: "dark theme",
+      action: () => dispatch(setTheme("dark")),
+    },
+    {
+      title: "light theme",
+      action: () => dispatch(setTheme("light")),
+    },
   ];
-
+  console.log({ theme });
   useEffect(() => {
-    if (document.documentElement.classList.contains("dark")) {
-      setDark(true);
+    if (theme === "system") {
+      dispatch(setTheme(detectSystemTheme() ? "dark" : "light"));
     }
-  });
+  }, [dispatch, theme]);
 
   const darkModeHandler = () => {
-    setDark(!dark);
-    document.documentElement.classList.toggle("dark");
+    dispatch(toggleTheme());
   };
 
-  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+  }, [isDarkMode]);
 
   return (
     <div>
       <SideHeader title="theme" backFn={() => dispatch(setShowTheme(false))} />
-      {/* <div className="flex justify-between items-center p-3">
-                <h3 className={`text-lg ${dark? 'text-[var(--text-primary)]':'text-[var(--text-secondary-light)]'}`}>Theme mode</h3>
-                <button className="dark:text-slate-100 text-green-400 text-xl" onClick={() => darkModeHandler()}>
-                    {
-                        dark && <IoMoon /> // render sunny when dark is true
-                    }
-                    {
-                        !dark && <IoSunny /> // render moon when dark is false
-                    }
-                </button>
-            </div> */}
       <Options optionsList={theme_list} />
     </div>
   );

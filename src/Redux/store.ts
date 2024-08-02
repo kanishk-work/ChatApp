@@ -15,10 +15,12 @@ import {
   persistedSearchReducer,
   persistedSettingsReducer,
   persistedChatWindowReducer,
+  persistedThemeReducer,
 } from "./persistConfig";
 
 const store = configureStore({
   reducer: {
+    theme: persistedThemeReducer,
     activeUser: persistedActiveUserReducer,
     profile: persistedProfileReducer,
     search: persistedSearchReducer,

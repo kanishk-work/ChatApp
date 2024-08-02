@@ -6,6 +6,7 @@ import profileReducer from "./slices/profileSlice";
 import searchReducer from "./slices/searchSlice";
 import settingsReducer from "./slices/settingsSlice";
 import chatWindowReducer from "./slices/chatWindowSlice";
+import themeReducer from "./slices/themeSlice";
 
 const activeUserPersistConfig = {
   key: "activeUser",
@@ -29,6 +30,10 @@ const settingsPersistConfig = {
 };
 const chatWindowPersistConfig = {
   key: "chatWindow",
+  storage,
+};
+const themePersistConfig = {
+  key: "theme",
   storage,
 };
 
@@ -55,4 +60,8 @@ export const persistedSettingsReducer = persistReducer(
 export const persistedChatWindowReducer = persistReducer(
   chatWindowPersistConfig,
   chatWindowReducer
+);
+export const persistedThemeReducer = persistReducer(
+  themePersistConfig,
+  themeReducer
 );
