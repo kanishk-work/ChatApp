@@ -3,6 +3,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 export interface UserInfo {
   id: number;
   name: string;
+  img: string;
   status: "active" | "offline" | "away"; // Customize as needed
   lastOnline?: string;
 }
@@ -31,12 +32,14 @@ const initialState: ChatsState = {
     1: {
       id: 1,
       name: "John Doe",
+      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       status: "active",
       lastOnline: new Date().toString(),
     },
     2: {
       id: 2,
       name: "Jane Smith",
+      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       status: "away",
       lastOnline: new Date().toString(),
     },
@@ -104,37 +107,37 @@ const initialState: ChatsState = {
         timestamp: new Date().toString(),
       },
       {
-        id: 9,
+        id: 11,
         text: "Hello, how are you?",
         senderId: 1,
         timestamp: new Date().toString(),
       },
       {
-        id: 10,
+        id: 12,
         text: "I'm good, thanks! How about you?",
         senderId: 2,
         timestamp: new Date().toString(),
       },
       {
-        id: 9,
+        id: 13,
         text: "Hello, how are you?",
         senderId: 1,
         timestamp: new Date().toString(),
       },
       {
-        id: 10,
+        id: 14,
         text: "I'm good, thanks! How about you?",
         senderId: 2,
         timestamp: new Date().toString(),
       },
       {
-        id: 9,
+        id: 15,
         text: "Hello, how are you?",
         senderId: 1,
         timestamp: new Date().toString(),
       },
       {
-        id: 10,
+        id: 16,
         text: "I'm good, thanks! How about you?",
         senderId: 2,
         timestamp: new Date().toString(),

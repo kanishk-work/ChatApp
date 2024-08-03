@@ -23,6 +23,12 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
     setMessage("");
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSend();
+    }
+  };
+
   return (
     <div className="flex items-center">
       <input
@@ -31,11 +37,13 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         onChange={(e) => setMessage(e.target.value)}
         className="flex-grow p-2 rounded-l-lg border border-gray-300"
         style={messageComposerStyle}
+        onKeyPress={handleKeyPress}
       />
       <button
         onClick={handleSend}
         className="p-2 rounded-r-lg bg-blue-500 text-white flex items-center"
         style={sendButtonStyle}
+        type="submit"
       >
         {buttonIcon}
         <span className="ml-2">{buttonText}</span>

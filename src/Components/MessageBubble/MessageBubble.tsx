@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
+import DropDown from "../Shared/DropDown";
 
 interface MessageBubbleProps {
   message: string;
@@ -8,12 +9,23 @@ interface MessageBubbleProps {
   textStyle?: React.CSSProperties;
 }
 
+const messageOptions = [
+  {
+    name: "Reply",
+    action: () => console.log("options"),
+  },
+];
+
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   sender,
   bubbleStyle,
   textStyle,
 }) => {
+  const [showOptions, setShowOptions] = useState(false);
+  const toggleOptions = () => {
+    setShowOptions(true);
+  };
   return (
     <div
       className={`flex ${
@@ -28,9 +40,31 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         }`}
         style={bubbleStyle}
       >
-        <span className="flex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        {/* <span
+          className="flex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          onClick={toggleOptions}
+        >
+          {showOptions && (
+            <DropDown
+              optionsList={messageOptions}
+              triggerElement={<FaChevronDown />}
+            />
+          )}
+        </span> */}
+        {/* <span className="flex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <FaChevronDown />
-        </span>
+        </span> */}
+        {showOptions && (
+          <div
+            className="lex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            onClick={toggleOptions}
+          >
+            <DropDown
+              optionsList={messageOptions}
+              triggerElement={<FaChevronDown />}
+            />
+          </div>
+        )}
         <span style={textStyle}>{message}</span>
       </div>
     </div>
