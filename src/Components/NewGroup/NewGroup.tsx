@@ -8,7 +8,13 @@ import GroupProfile from "./GroupProfile";
 const NewGroup = () => {
   const [addMembers, setAddMembers] = useState(true);
   const [groupProfile, setGroupProfile] = useState(true);
+  const [members, setMembers] = useState([]);
 
+  const append = (newMember:never) =>{
+    setMembers([...members, newMember])
+  }
+  console.log(members);
+  
   const dispatch = useAppDispatch();
   return (
     <div>
@@ -17,7 +23,7 @@ const NewGroup = () => {
         backFn={() => dispatch(setShowNewGroup(false))}
       />
       {addMembers ? (
-        <AddMembers submitFn={() => setAddMembers(false)} />
+        <AddMembers appendFn={append} submitFn={() => setAddMembers(false)} />
       ) : (
         groupProfile && (
           <GroupProfile

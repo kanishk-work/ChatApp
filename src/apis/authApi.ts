@@ -8,8 +8,8 @@ export interface Users {
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.BASE_URL,
-    headers: { Authorization: `Bearer ${import.meta.env.TOKEN}` },
+    baseUrl: import.meta.env.VITE_HOST_URL,
+    headers: { Authorization: `Bearer ${import.meta.env.VITE_TOKEN}` },
   }),
   endpoints: (builder) => ({
     searchUsers: builder.query<Users[], string>({
