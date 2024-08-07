@@ -129,7 +129,7 @@ const NewGroup = () => {
   ];
 
   return (
-    <div>
+    <div className="h-full flex flex-col overflow-auto relative">
       {!showGroupProfile ? (
         <>
           <SideHeader
@@ -159,51 +159,49 @@ const NewGroup = () => {
             ))}
           </div>
 
-          <div>
-            {isLoading ? (
-              <p className="dark:text-text-primary text-text-primary-light">
-                Loading...
-              </p>
-            ) : error ? (
-              <p className="dark:text-text-primary text-text-primary-light">
-                Error fetching users
-              </p>
-            ) : (
-              <ul className="scrollbar-custom overflow-auto relative">
-                {usersList?.map(
-                  (user: members) => (
-                    <li
-                      key={user.id}
-                      onClick={() => selectHandler(user)}
-                      className={`dark:text-text-primary text-text-primary-light text-lg flex items-center gap-5 p-3 w-full dark:hover:bg-accent-color hover:bg-accent-color-light hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg cursor-pointer`}
-                    >
-                      <img
-                        src={user.img}
-                        alt="user profile pic"
-                        className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 "
-                      />
-                      <div className="grow">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-sm">
-                            {user.name}
-                          </span>
-                          <span className="text-xs">{user.email}</span>
-                        </div>
+          {isLoading ? (
+            <p className="dark:text-text-primary text-text-primary-light">
+              Loading...
+            </p>
+          ) : error ? (
+            <p className="dark:text-text-primary text-text-primary-light">
+              Error fetching users
+            </p>
+          ) : (
+            <ul className="scrollbar-custom overflow-auto">
+              {usersList?.map(
+                (user: members) => (
+                  <li
+                    key={user.id}
+                    onClick={() => selectHandler(user)}
+                    className={`dark:text-text-primary text-text-primary-light text-lg flex items-center gap-5 p-3 w-full dark:hover:bg-accent-color hover:bg-accent-color-light hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg cursor-pointer`}
+                  >
+                    <img
+                      src={user.img}
+                      alt="user profile pic"
+                      className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 "
+                    />
+                    <div className="grow">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">
+                          {user.name}
+                        </span>
+                        <span className="text-xs">{user.email}</span>
                       </div>
-                    </li>
-                  )
-                )}
-                <button
-                  className="p-2 rounded-lg dark:bg-accent-color bg-accent-color-light dark:text-text-secondary text-text-secondary-light text-xl absolute right-3 bottom-2"
-                  onClick={() => {
-                    setShowGroupProfile(true);
-                  }}
-                >
-                  <FaArrowRight />
-                </button>
-              </ul>
-            )}
-          </div>
+                    </div>
+                  </li>
+                )
+              )}
+            </ul>
+          )}
+          <button
+            className="p-2 rounded-lg dark:bg-accent-color bg-accent-color-light dark:text-text-secondary text-text-secondary-light text-xl absolute right-3 bottom-2"
+            onClick={() => {
+              setShowGroupProfile(true);
+            }}
+          >
+            <FaArrowRight />
+          </button>
         </>
       ) : (
         <GroupProfile
