@@ -2,13 +2,16 @@ import { BiSearch } from "react-icons/bi";
 import { Key, useState } from "react";
 import { useSearchUsersQuery } from "../../apis/authApi";
 import { FaArrowRight } from "react-icons/fa";
+import SideHeader from "../Shared/SideHeader";
 
-interface AddMembersProps {
+interface MembersSelectProps {
+  title: string;
+  backFn: Function;
   submitFn: () => void;
   appendFn: Function;
 }
 
-const AddMembers: React.FC<AddMembersProps> = ({ submitFn, appendFn }) => {
+const MembersSelect: React.FC<MembersSelectProps> = ({ title, backFn, submitFn, appendFn }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const {
     data: users,
@@ -38,8 +41,13 @@ const AddMembers: React.FC<AddMembersProps> = ({ submitFn, appendFn }) => {
       img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   ];
+
   return (
     <div className="">
+      <SideHeader
+        title={title}
+        backFn={backFn}
+      />
       <div className="relative mb-2">
         <input
           type="text"
@@ -85,4 +93,4 @@ const AddMembers: React.FC<AddMembersProps> = ({ submitFn, appendFn }) => {
   );
 };
 
-export default AddMembers;
+export default MembersSelect;
