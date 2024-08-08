@@ -16,6 +16,7 @@ import {
   persistedSettingsReducer,
   persistedChatWindowReducer,
   persistedThemeReducer,
+  persistedChatInfoReducer,
 } from "./persistConfig";
 
 const store = configureStore({
@@ -27,6 +28,7 @@ const store = configureStore({
     chats: persistedChatsReducer,
     settings: persistedSettingsReducer,
     chatWindow: persistedChatWindowReducer,
+    chatInfo: persistedChatInfoReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
