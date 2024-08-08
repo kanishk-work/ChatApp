@@ -18,6 +18,7 @@ import {
   persistedThemeReducer,
   persistedChatInfoReducer,
 } from "./persistConfig";
+import { authApi } from "../apis/authApi"; // Adjust the path as needed
 
 const store = configureStore({
   reducer: {
@@ -28,6 +29,7 @@ const store = configureStore({
     chats: persistedChatsReducer,
     settings: persistedSettingsReducer,
     chatWindow: persistedChatWindowReducer,
+    [authApi.reducerPath]: authApi.reducer,
     chatInfo: persistedChatInfoReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -35,7 +37,7 @@ const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
+    }).concat(authApi.middleware),
 });
 export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;

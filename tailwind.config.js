@@ -14,6 +14,9 @@ export default {
         "accent-color-light": "#dbd9d9",
         "text-primary-light": "#242729",
         "text-secondary-light": "#515155",
+
+        "focus-primary": "#5f14c7",
+        "focus-secondary": "#855ebb"
       },
     },
   },

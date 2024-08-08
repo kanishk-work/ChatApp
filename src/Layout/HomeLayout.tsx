@@ -42,7 +42,7 @@ const HomeLayout = () => {
       <div
         className={`${
           width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
-        } h-full p-3 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col justify-between`}
+        } h-full p-3 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col overflow-auto`}
       >
         {showProfile ? (
           <Profile />
