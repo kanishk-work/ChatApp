@@ -1,11 +1,13 @@
 import { FaPlus } from "react-icons/fa";
 import SideHeader from "../Shared/SideHeader";
+import { useCreateGroupApi } from "../../apis/chatApi";
 
-interface members {
+interface usersData {
   id: number;
-  name: string;
-  img: string;
-  email: string;
+  full_name: string;
+  short_name: string;
+  role: string;
+  profile_pic: string;
 }
 
 const GroupProfile = ({
@@ -15,8 +17,15 @@ const GroupProfile = ({
 }: {
   backFn: Function;
   submitFn: Function;
-  members: members[];
+  members: usersData[];
 }) => {
+  // const {
+  //   data: users,
+  //   error,
+  //   isLoading,
+  // } = useCreateGroupApi(searchTerm, {
+  //   skip: !searchTerm,
+  // });
   return (
     <>
       <SideHeader title="group profile" backFn={backFn} />
@@ -54,7 +63,7 @@ const GroupProfile = ({
             {members?.map((member) => (
               <div key={member.id}>
                 <img
-                  src={member.img}
+                  src={member.profile_pic}
                   alt="user profile pic"
                   className="object-contain h-9 w-9 rounded-full"
                 />

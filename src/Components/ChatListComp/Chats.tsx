@@ -57,7 +57,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
               <span className="text-xs">
                 {lastMessage && lastMessage.textMessage
                   ? lastMessage.textMessage
-                  : lastMessage.file
+                  : lastMessage?.file
                   ? `Image`
                   : "No messages yet"}
               </span>

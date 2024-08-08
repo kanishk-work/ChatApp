@@ -16,7 +16,7 @@ export default {
         "text-secondary-light": "#515155",
 
         "focus-primary": "#5f14c7",
-        "focus-secondary": "#855ebb"
+        "focus-secondary": "#cdb7eb"
       },
     },
   },

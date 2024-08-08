@@ -4,21 +4,24 @@ import { useState } from "react";
 import MembersSelect from "./MembersSelect";
 import GroupProfile from "./GroupProfile";
 import SideHeader from "../Shared/SideHeader";
-import { FaArrowRight } from "react-icons/fa";
+import { FaArrowRight, FaExclamationCircle } from "react-icons/fa";
 import { BiSearch } from "react-icons/bi";
 import { useSearchUsersQuery } from "../../apis/authApi";
 
-interface members {
+interface usersData {
   id: number;
-  name: string;
-  img: string;
-  email: string;
+  full_name: string;
+  short_name: string;
+  role: string;
+  profile_pic: string;
 }
 
 const NewGroup = () => {
   const [showGroupProfile, setShowGroupProfile] = useState(false);
-  const [members, setMembers] = useState<members[]>([]);
+  const [members, setMembers] = useState<usersData[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+
   const dispatch = useAppDispatch();
 
   const {
@@ -28,105 +31,22 @@ const NewGroup = () => {
   } = useSearchUsersQuery(searchTerm, {
     skip: !searchTerm,
   });
-  console.log(users);
+  console.log(users?.list);
+  console.log(error);
 
-  const selectHandler = (newMember: members) => {
+  const selectHandler = (newMember: usersData) => {
     setMembers([...members, newMember]);
   };
   console.log(members);
 
-  const usersList = [
-    {
-      id: 1,
-      name: "user1",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 2,
-      name: "user2",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 3,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 4,
-      name: "user1",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 5,
-      name: "user2",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 6,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 7,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 8,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 9,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 10,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 11,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 12,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 13,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 14,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 15,
-      name: "user3",
-      email: "abc@email.com",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ];
+  const nextHandler = () => {
+    if (!members.length) {
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 2000);
+    } else {
+      setShowGroupProfile(true);
+    }
+  };
 
   return (
     <div className="h-full flex flex-col overflow-auto relative">
@@ -151,7 +71,7 @@ const NewGroup = () => {
             {members?.map((member) => (
               <div key={member.id}>
                 <img
-                  src={member.img}
+                  src={member.profile_pic}
                   alt="user profile pic"
                   className="object-contain h-9 w-9 rounded-full"
                 />
@@ -159,49 +79,66 @@ const NewGroup = () => {
             ))}
           </div>
 
-          {isLoading ? (
+          {searchTerm?.length < 2 ? (
+            <p className="dark:text-text-primary text-text-primary-light">
+              Enter atleast 2 letters to search
+            </p>
+          ) : isLoading ? (
             <p className="dark:text-text-primary text-text-primary-light">
               Loading...
             </p>
           ) : error ? (
             <p className="dark:text-text-primary text-text-primary-light">
-              Error fetching users
+              Error: {error.data.message}
+            </p>
+          ) : !users?.list?.length ? (
+            <p className="dark:text-text-primary text-text-primary-light">
+              Users not found
             </p>
           ) : (
             <ul className="scrollbar-custom overflow-auto">
-              {usersList?.map(
-                (user: members) => (
-                  <li
-                    key={user.id}
-                    onClick={() => selectHandler(user)}
-                    className={`dark:text-text-primary text-text-primary-light text-lg flex items-center gap-5 p-3 w-full dark:hover:bg-accent-color hover:bg-accent-color-light hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg cursor-pointer`}
-                  >
-                    <img
-                      src={user.img}
-                      alt="user profile pic"
-                      className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 "
-                    />
-                    <div className="grow">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-sm">
-                          {user.name}
-                        </span>
-                        <span className="text-xs">{user.email}</span>
-                      </div>
+              {users?.list.map((user: usersData) => (
+                <li
+                  key={user.id}
+                  onClick={() => selectHandler(user)}
+                  className={`dark:text-text-primary text-text-primary-light text-lg flex items-center gap-5 p-3 w-full dark:hover:bg-accent-color hover:bg-accent-color-light hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg cursor-pointer`}
+                >
+                  <img
+                    src={user.profile_pic}
+                    alt="user profile pic"
+                    className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 "
+                  />
+                  <div className="grow">
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-sm">
+                        {user.full_name} ({user.role})
+                      </span>
+                      <span className="text-xs">{user.short_name}</span>
                     </div>
-                  </li>
-                )
-              )}
+                  </div>
+                </li>
+              ))}
             </ul>
           )}
-          <button
-            className="p-2 rounded-lg dark:bg-accent-color bg-accent-color-light dark:text-text-secondary text-text-secondary-light text-xl absolute right-3 bottom-2"
-            onClick={() => {
-              setShowGroupProfile(true);
-            }}
-          >
-            <FaArrowRight />
-          </button>
+          <div className="flex gap-2 items-center absolute right-3 bottom-2">
+            {showAlert && (
+              <div className="transition-all ease-in-out delay-150 p-1 rounded-lg bg-focus-secondary text-focus-primary text-base">
+                <span className="flex items-center gap-2">
+                  <FaExclamationCircle />
+                  At least 1 member must be selected
+                </span>
+              </div>
+            )}
+
+            <button
+              className="p-2 rounded-lg dark:bg-accent-color bg-accent-color-light dark:text-text-secondary text-text-secondary-light text-xl"
+              onClick={() => {
+                nextHandler();
+              }}
+            >
+              <FaArrowRight />
+            </button>
+          </div>
         </>
       ) : (
         <GroupProfile

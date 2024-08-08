@@ -1,6 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ReactNode } from "react";
-import { BiDotsVerticalRounded } from "react-icons/bi";
 
 interface props {
   optionsList: {

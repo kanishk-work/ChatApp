@@ -1,15 +1,19 @@
 import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi";
 import { useAppDispatch } from "../../Redux/hooks";
 import {
+  setShowNewChat,
   setShowNewGroup,
   setShowProfile,
   setShowSettings,
 } from "../../Redux/slices/profileSlice";
 import DropDown from "../Shared/DropDown";
-import { MenuButton } from "@headlessui/react";
 
 const ProfileAndSearch = () => {
   const menu_items = [
+    {
+      name: "new chat",
+      action: () => dispatch(setShowNewChat(true)),
+    },
     {
       name: "new group",
       action: () => dispatch(setShowNewGroup(true)),
@@ -35,7 +39,7 @@ const ProfileAndSearch = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <div className="w-full flex items-center gap-2 mb-3">
+    <div className="w-full flex items-center gap-3 mb-3">
       <button onClick={() => dispatch(setShowProfile(true))}>
         <img
           src={profile.img}
@@ -55,13 +59,8 @@ const ProfileAndSearch = () => {
 
       <DropDown
         optionsList={menu_items}
-        triggerElement={
-          <MenuButton
-            className={`flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white`}
-          >
-            <BiDotsVerticalRounded />
-          </MenuButton>
-        }
+        btnClassName={"flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white"}
+        triggerElement={<BiDotsVerticalRounded />}
       />
     </div>
   );

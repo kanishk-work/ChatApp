@@ -33,7 +33,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   return (
-    <div className="p-4  w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full">
+    <div className="p-4 w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full relative">
       <div className="flex items-center">
         <img
           src={userProfileImage}
