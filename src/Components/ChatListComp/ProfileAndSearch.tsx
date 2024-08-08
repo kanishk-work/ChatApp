@@ -1,4 +1,4 @@
-import { BiSearch } from "react-icons/bi";
+import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi";
 import { useAppDispatch } from "../../Redux/hooks";
 import {
   setShowNewGroup,
@@ -6,6 +6,7 @@ import {
   setShowSettings,
 } from "../../Redux/slices/profileSlice";
 import DropDown from "../Shared/DropDown";
+import { MenuButton } from "@headlessui/react";
 
 const ProfileAndSearch = () => {
   const menu_items = [
@@ -43,13 +44,25 @@ const ProfileAndSearch = () => {
         />
       </button>
 
-
-      <div className="relative grow"> 
-            <input type="text" className="w-full bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] rounded focus:outline-none py-1 px-3 focus:shadow-lg" placeholder="Search..."/> 
-            <BiSearch className="absolute right-3 top-2 text-[var(--text-secondary)]"/>
+      <div className="relative grow">
+        <input
+          type="text"
+          className="w-full bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] rounded focus:outline-none py-1 px-3 focus:shadow-lg"
+          placeholder="Search..."
+        />
+        <BiSearch className="absolute right-3 top-2 text-[var(--text-secondary)]" />
       </div>
 
-      <DropDown optionsList={menu_items} />
+      <DropDown
+        optionsList={menu_items}
+        triggerElement={
+          <MenuButton
+            className={`flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white`}
+          >
+            <BiDotsVerticalRounded />
+          </MenuButton>
+        }
+      />
     </div>
   );
 };

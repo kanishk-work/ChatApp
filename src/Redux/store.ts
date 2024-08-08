@@ -16,6 +16,7 @@ import {
   persistedSettingsReducer,
   persistedChatWindowReducer,
   persistedThemeReducer,
+  persistedChatInfoReducer,
 } from "./persistConfig";
 import { authApi } from "../apis/authApi"; // Adjust the path as needed
 
@@ -29,6 +30,7 @@ const store = configureStore({
     settings: persistedSettingsReducer,
     chatWindow: persistedChatWindowReducer,
     [authApi.reducerPath]: authApi.reducer,
+    chatInfo: persistedChatInfoReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
