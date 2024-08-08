@@ -5,6 +5,7 @@ import { setActiveChat } from "../../Redux/slices/chatsSlice";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { formatTime } from "../../Utils/formatTimeStamp";
+import { FaImage } from "react-icons/fa";
 
 interface ChatListProps {
   listStyle?: Styles;
@@ -53,7 +54,11 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
                 </span>
               </div>
               <span className="text-xs">
-                {lastMessage ? lastMessage.text : "No messages yet"}
+                {lastMessage && lastMessage.textMessage
+                  ? lastMessage.textMessage
+                  : lastMessage.file
+                  ? `Image`
+                  : "No messages yet"}
               </span>
             </div>
           </div>
