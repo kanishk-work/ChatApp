@@ -89,7 +89,7 @@ const NewGroup = () => {
             </p>
           ) : error ? (
             <p className="dark:text-text-primary text-text-primary-light">
-              Error: {error.data.message}
+              Error {error?.data?.message}
             </p>
           ) : !users?.list?.length ? (
             <p className="dark:text-text-primary text-text-primary-light">

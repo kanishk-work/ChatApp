@@ -31,7 +31,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
 
   return (
 
-    <div>
+    <div className="overflow-auto scrollbar-custom">
       {Object.values(users).map((user) => {
         const userConversations = conversations[user.id] || [];
         const lastMessage = userConversations[userConversations.length - 1];

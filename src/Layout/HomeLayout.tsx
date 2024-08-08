@@ -39,7 +39,7 @@ const HomeLayout = () => {
     console.log("User blocked");
   };
   return (
-    <div className="h-[100svh] flex bg-[var(--bg-color-light)] dark:bg-[var(--bg-color)]">
+    <div className="h-[100svh] flex dynamic-background-color">
       <div
         className={`${
           width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"

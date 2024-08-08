@@ -5,14 +5,20 @@ import Options from "../Shared/Options";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import {
   detectSystemTheme,
+  setBgColorDark,
+  setBgColorLight,
+  setFontSize,
   setTheme,
   toggleTheme,
 } from "../../Redux/slices/themeSlice";
 import { setShowTheme } from "../../Redux/slices/settingsSlice";
+import { RootState } from "../../Redux/store";
+
 
 const Theme = () => {
   const dispatch = useAppDispatch();
-  const { isDarkMode, theme } = useAppSelector((state) => state.theme);
+  const { isDarkMode, theme, bgColorDark, bgColorLight, fontSize } = useAppSelector((state: RootState) => state.theme);
+
 
   const icon = isDarkMode ? <FaMoon /> : <FaSun className="text-yellow-500" />;
   const theme_list = [
@@ -54,11 +60,38 @@ const Theme = () => {
   }, [isDarkMode]);
 
   return (
-    <div>
+    <>
       <SideHeader title="theme" backFn={() => dispatch(setShowTheme(false))} />
       <Options optionsList={theme_list} />
-    </div>
+      <label className="dynamic-font-size">Font Size: </label>
+      <input
+        type="range"
+        min="10"
+        max="50"
+        value={fontSize}
+        onChange={(e) => dispatch(setFontSize(parseInt(e.target.value)))}
+      />
+      <div>
+        <h2>Dark Mode styles</h2>
+        <label>Choose Color: </label>
+        <input
+          type="color"
+          value={bgColorDark}
+          onChange={(e) => dispatch(setBgColorDark(e.target.value))}
+        />
+      </div>
+      <div>
+        <h2>Light Mode styles</h2>
+        <label>Choose Color: </label>
+        <input
+          type="color"
+          value={bgColorLight}
+          onChange={(e) => dispatch(setBgColorLight(e.target.value))}
+        />
+      </div>
+    </>
   );
 };
 
 export default Theme;
+
