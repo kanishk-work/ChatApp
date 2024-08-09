@@ -2,6 +2,7 @@ import { FaImage, FaInfoCircle, FaStar } from "react-icons/fa";
 import {
   ChatListComp,
   Help,
+  NewChat,
   NewGroup,
   Notification,
   Privacy,
@@ -25,7 +26,7 @@ const HomeLayout = () => {
   );
   console.log({ currentChatId });
 
-  const { showProfile, showSettings, showNewGroup } = useAppSelector(
+  const { showProfile, showSettings, showNewGroup, showNewChat } = useAppSelector(
     (state: RootState) => state.profile
   );
   const { showHelp, showNotification, showPrivacy, showTheme } = useAppSelector(
@@ -38,14 +39,16 @@ const HomeLayout = () => {
     console.log("User blocked");
   };
   return (
-    <div className="h-[100svh] flex bg-[var(--bg-color-light)] dark:bg-[var(--bg-color)]">
+    <div className="h-[100svh] flex dynamic-background-color">
       <div
         className={`${
           width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
-        } h-full p-3 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col overflow-auto`}
+        } h-full p-2 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col overflow-auto`}
       >
         {showProfile ? (
           <Profile />
+        ) : showNewChat ? (
+          <NewChat />
         ) : showNewGroup ? (
           <NewGroup />
         ) : showNotification ? (
@@ -59,33 +62,7 @@ const HomeLayout = () => {
         ) : showSettings ? (
           <Settings />
         ) : width <= 764 ? (
-          chatWindow === true && currentChatId !== null ? (
-            <ChatWindow />
-          ) : (
-            <ChatListComp />
-          )
-        ) : (
-          <ChatListComp />
-        )}
-      </div>
-      {width > 764 && (
-        <>
-          <div className="flex-1 h-full">
-            {(chatWindow === true && currentChatId !== null && (
-              <ChatWindow />
-            )) || (
-              <div className="flex items-center justify-center h-screen">
-                <div className="text-white">
-                  Click on chat to start conversation
-                </div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-      <>
-        {showChatInfo && (
-          <div className={`${width < 1024 ? "w-full" : "w-[25vw"}`}>
+          showChatInfo ? (
             <UserProfile
               userProfileImage="https://via.placeholder.com/150"
               userName="John Doe"
@@ -114,9 +91,67 @@ const HomeLayout = () => {
                 },
               ]}
             />
+          ) : chatWindow === true && currentChatId !== null ? (
+            <ChatWindow />
+          ) : (
+            <ChatListComp />
+          )
+        ) : (
+          <ChatListComp />
+        )}
+      </div>
+      {width > 764 && (
+        <>
+          <div className="flex-1 h-full">
+            {(chatWindow === true && currentChatId !== null && (
+              <ChatWindow />
+            )) || (
+              <div className="flex items-center justify-center h-screen">
+                <div className="text-white">
+                  Click on chat to start conversation
+                </div>
+              </div>
+            )}
           </div>
-        )}{" "}
-      </>
+          {showChatInfo && (
+            <div
+              className={`${
+                width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
+              } h-full`}
+            >
+              <UserProfile
+                userProfileImage="https://via.placeholder.com/150"
+                userName="John Doe"
+                userBio="Lorem ipsum dolor sit amet."
+                media={[
+                  "https://via.placeholder.com/150",
+                  "https://via.placeholder.com/150",
+                ]}
+                starredMessages={["Message 1", "Message 2"]}
+                onBlockUser={handleBlockUser}
+                profileOptions={[
+                  {
+                    name: "Starred Messages",
+                    icon: <FaStar />,
+                    action: () => console.log("Starred Messages"),
+                  },
+                  {
+                    name: "Shared Media",
+                    icon: <FaImage />,
+                    action: () => console.log("Shared Media"),
+                  },
+                  {
+                    name: "User Details",
+                    icon: <FaInfoCircle />,
+                    action: () => console.log("User Details"),
+                  },
+                ]}
+              />
+            </div>
+          )}
+        </>
+      )}
+      <></>
     </div>
   );
 };

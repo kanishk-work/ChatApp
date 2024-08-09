@@ -3,7 +3,7 @@ import ProfileAndSearch from "./ProfileAndSearch";
 
 const ChatListComp = () => {
   return (
-    <div className="w-full overflow-auto flex flex-col">
+    <div className="w-full h-full flex flex-col">
       <ProfileAndSearch />
       <Chats listStyle="" />
     </div>

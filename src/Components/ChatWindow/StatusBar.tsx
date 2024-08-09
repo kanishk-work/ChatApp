@@ -49,13 +49,13 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
         </button>
       )}
       <div
-        className="grid grid-cols-2"
+        className="flex gap-5"
         onClick={() => dispatch(setShowChatInfo(true))}
       >
         <img
           src="https://via.placeholder.com/40"
           alt="User profile"
-          className="w-10 h-10 rounded-full mr-3 cursor-pointer"
+          className="w-10 h-10 rounded-full cursor-pointer"
         />
         <div className="cursor-pointer">
           <div

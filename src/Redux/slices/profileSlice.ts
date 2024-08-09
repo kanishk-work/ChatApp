@@ -4,6 +4,7 @@ const initialState = {
   showNotifications: false,
   showSettings: false,
   showNewGroup: false,
+  showNewChat: false,
 };
 const profileSlice = createSlice({
   name: "profile",
@@ -21,7 +22,10 @@ const profileSlice = createSlice({
     setShowNewGroup: (state, { payload }) => {
       state.showNewGroup = payload;
     },
+    setShowNewChat: (state, { payload }) => {
+      state.showNewChat = payload;
+    },
   },
 });
-export const { setShowProfile, setShowNotifications, setShowSettings, setShowNewGroup } = profileSlice.actions;
+export const { setShowProfile, setShowNotifications, setShowSettings, setShowNewGroup, setShowNewChat } = profileSlice.actions;
 export default profileSlice.reducer;
