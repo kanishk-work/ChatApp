@@ -8,7 +8,15 @@ html {
 
 body {
   font-family: "kanit", sans-serif;
+  font-size: var(--fluid-typography);
 }
+
+h1 { font-size: calc(var(--fluid-typography) * 2.5); }
+h2 { font-size: calc(var(--fluid-typography) * 2.0); }
+h3 { font-size: calc(var(--fluid-typography) * 1.75); }
+h4 { font-size: calc(var(--fluid-typography) * 1.5); }
+h5 { font-size: calc(var(--fluid-typography) * 1.25); }
+h6 { font-size: calc(var(--fluid-typography) * 1.1); }
 
 .text-shadow {
   text-shadow: rgba(0, 0, 0, 0.498039) -1px -1px 0px,

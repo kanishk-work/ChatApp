@@ -63,11 +63,11 @@ const Theme = () => {
     <>
       <SideHeader title="theme" backFn={() => dispatch(setShowTheme(false))} />
       <Options optionsList={theme_list} />
-      <label className="dynamic-font-size">Font Size: </label>
+      <label className="dynamic-font-size">Font Size:{fontSize} </label>
       <input
         type="range"
         min="10"
-        max="50"
+        max="22"
         value={fontSize}
         onChange={(e) => dispatch(setFontSize(parseInt(e.target.value)))}
       />
