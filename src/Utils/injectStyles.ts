@@ -1,12 +1,23 @@
 export const injectStyles = (
-    bgColorDark: string,
-    bgColorLight: string,
-    fontSize: number,
-    isDarkMode: boolean
+  bgColorDark: string,
+  accentColorDark: string,
+  textColorPrimaryDark: string,
+  textColorSecondaryDark: string,
+  
+  bgColorLight: string,
+  accentColorLight: string,
+  textColorPrimaryLight: string,
+  textColorSecondaryLight: string,
+
+  focusColorPrimary: string,
+  focusColorSecondary: string,
+
+  fontSize: number,
+  isDarkMode: boolean,
 ): void => {
-    const styleElement = document.getElementById("dynamic-styles");
-    if (styleElement && styleElement.tagName === "STYLE") {
-        styleElement.innerHTML = `
+  const styleElement = document.getElementById("dynamic-styles");
+  if (styleElement && styleElement.tagName === "STYLE") {
+    styleElement.innerHTML = `
         :root {
         	--fluid-typography: calc(${fontSize}px + 0.390625vw);
     	}
@@ -28,15 +39,27 @@ export const injectStyles = (
         font-size: ${fontSize}px;
         background-color: ${isDarkMode ? bgColorDark : bgColorLight};
         }
+
         .dynamic-font-size{font-size: ${fontSize}px}
-        .dynamic-background-color{background-color: ${isDarkMode ? bgColorDark : bgColorLight
-            }}
+        .dynamic-background-color{background-color: ${
+            isDarkMode ? bgColorDark : bgColorLight
+        }}
+        .dynamic-accent-color{background-color: ${
+            isDarkMode ? accentColorDark : accentColorLight
+        }}
+        .dynamic-text-color-primary{color: ${
+            isDarkMode ? textColorPrimaryDark : textColorPrimaryLight
+        }}
+        .dynamic-text-color-secondary{color: ${
+            isDarkMode ? textColorSecondaryDark : textColorSecondaryLight
+        }}
+        .dynamic-notif{background-color: ${focusColorSecondary}; color: ${focusColorPrimary};}
         `;
-        console.log({fontSize})
-    } else {
-        const newStyleElement = document.createElement("style");
-        newStyleElement.id = "dynamic-styles";
-        newStyleElement.innerHTML = `
+    console.log({ fontSize });
+  } else {
+    const newStyleElement = document.createElement("style");
+    newStyleElement.id = "dynamic-styles";
+    newStyleElement.innerHTML = `
         :root {
         	--fluid-typography: calc(${fontSize}px + 0.390625vw);
     	}
@@ -58,10 +81,11 @@ export const injectStyles = (
         background-color: ${isDarkMode ? bgColorDark : bgColorLight};
         }
         .dynamic-font-size{font-size: ${fontSize}px}
-        .dynamic-background-color{background-color: ${isDarkMode ? bgColorDark : bgColorLight
-            }}
+        .dynamic-background-color{background-color: ${
+          isDarkMode ? bgColorDark : bgColorLight
+        }}
         `;
-        document.head.appendChild(newStyleElement);
-    }
-    console.log(document.head);
+    document.head.appendChild(newStyleElement);
+  }
+  console.log(document.head);
 };

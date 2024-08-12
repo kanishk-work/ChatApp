@@ -122,7 +122,7 @@ const NewGroup = () => {
           )}
           <div className="flex gap-2 items-center absolute right-3 bottom-2">
             {showAlert && (
-              <div className="transition-all ease-in-out delay-150 p-1 rounded-lg bg-focus-secondary text-focus-primary text-base">
+              <div className="transition-all ease-in-out delay-150 p-1 rounded-lg dynamic-notif text-base">
                 <span className="flex items-center gap-2">
                   <FaExclamationCircle />
                   At least 1 member must be selected
