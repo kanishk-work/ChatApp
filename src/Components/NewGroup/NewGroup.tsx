@@ -5,6 +5,8 @@ import MembersSelect from "./MembersSelect";
 import GroupProfile from "./GroupProfile";
 import SideHeader from "../Shared/SideHeader";
 import { FaArrowRight, FaExclamationCircle } from "react-icons/fa";
+import { GiCancel } from "react-icons/gi";
+import { MdCancel } from "react-icons/md";
 import { BiSearch } from "react-icons/bi";
 import { useSearchUsersQuery } from "../../apis/authApi";
 
@@ -21,6 +23,8 @@ const NewGroup = () => {
   const [members, setMembers] = useState<usersData[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [showAddAlert, setShowAddAlert] = useState<boolean>(false);
+
 
   const dispatch = useAppDispatch();
 
@@ -35,8 +39,20 @@ const NewGroup = () => {
   console.log(error);
 
   const selectHandler = (newMember: usersData) => {
-    setMembers([...members, newMember]);
+    if(newMember !== members.find(member => member.id === newMember.id)){
+      setMembers([...members, newMember]);
+    }
+    else{
+      setShowAddAlert(true);
+      setTimeout(() => setShowAddAlert(false), 2000);
+    }
   };
+
+  const deleteItem = (memberRem: usersData) => {
+    const newMembers = members.filter((member) => member.id !== memberRem.id);
+    setMembers(newMembers);
+  };
+
   console.log(members);
 
   const nextHandler = () => {
@@ -67,14 +83,15 @@ const NewGroup = () => {
             <BiSearch className="absolute right-3 top-2 text-text-secondary" />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-lg shadow-[inset_0px_0px_20px_0px_#00000024]">
+          <div className="flex flex-wrap items-center p-1.5 gap-1.5 rounded-lg shadow-[inset_0px_0px_20px_0px_#00000024]">
             {members?.map((member) => (
-              <div key={member.id}>
+              <div key={member.id} className="relative p-1.5 dynamic-notif rounded-full">
                 <img
                   src={member.profile_pic}
                   alt="user profile pic"
                   className="object-contain h-9 w-9 rounded-full"
                 />
+                <GiCancel onClick={() => deleteItem(member)} className="absolute right-0 bottom-0" />
               </div>
             ))}
           </div>
@@ -125,7 +142,15 @@ const NewGroup = () => {
               <div className="transition-all ease-in-out delay-150 p-1 rounded-lg dynamic-notif text-base">
                 <span className="flex items-center gap-2">
                   <FaExclamationCircle />
-                  At least 1 member must be selected
+                  Members not selected
+                </span>
+              </div>
+            )}
+            {showAddAlert && (
+              <div className="transition-all ease-in-out delay-150 p-1 rounded-lg dynamic-notif text-base">
+                <span className="flex items-center gap-2">
+                  <FaExclamationCircle />
+                  Member already selected
                 </span>
               </div>
             )}
