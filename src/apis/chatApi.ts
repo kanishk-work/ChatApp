@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { MessagePayload } from "../Types/message";
 
 export interface Group {
   toUsersList: Array<number>;
@@ -19,7 +20,14 @@ export const chatApi = createApi({
         body,
       }),
     }),
+    sendMessage: builder.mutation<string, MessagePayload>({
+      query: (body) => ({
+        url: `chat/send`,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useCreateGroupApi} = chatApi as any;
+export const { useCreateGroupApi, useSendMessageMutation } = chatApi as any;

@@ -9,3 +9,9 @@ export interface Message {
   mediaUrl?: string;
   reactions?: { [userId: string]: string[] };
 }
+export interface MessagePayload {
+  receiver_id: number;
+  message: string;
+  chat_room_id: number;
+  files_list: string[];
+}

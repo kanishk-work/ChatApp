@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { formatTime } from "../../Utils/formatTimeStamp";
 import { FaImage } from "react-icons/fa";
+import useSocket from "../../apis/websocket";
 
 interface ChatListProps {
   listStyle?: Styles;
@@ -21,16 +22,17 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
   const conversations = useAppSelector(
     (state: RootState) => state.chats.conversations
   );
+  // const { sendMessage, joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
 
-  const handleChatClick = (chatId: number) => {
+  const handleChatClick = async (chatId: number) => {
     if (activeChat !== chatId) {
       dispatch(setActiveChat(chatId));
       dispatch(setChatWindow(true));
+      // joinRoom(chatId);
     }
   };
 
   return (
-
     <div className="overflow-auto scrollbar-custom">
       {Object.values(users).map((user) => {
         const userConversations = conversations[user.id] || [];

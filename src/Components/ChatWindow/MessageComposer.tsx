@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   FaArrowRight,
   FaPaperclip,
@@ -9,16 +9,16 @@ import {
 import { convertFileToUrl } from "../../Utils/convertFileToUrl";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import { init, SearchIndex } from "emoji-mart";
+import { init } from "emoji-mart";
 
 init({ data });
+
 interface MessageComposerProps {
   onSend: (textMessage: string, file: string[] | null) => void;
   buttonText?: string;
   buttonIcon?: React.ReactNode;
   sendButtonStyle?: React.CSSProperties;
   messageComposerStyle?: React.CSSProperties;
-  showEmojiPicker: boolean;
 }
 
 const MessageComposer: React.FC<MessageComposerProps> = ({
@@ -32,7 +32,11 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const [files, setFiles] = useState<File[]>([]);
   const [showOptions, setShowOptions] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const messageComposerRef = useRef<HTMLDivElement>(null);
+
   const handleSend = async () => {
+    setShowEmojiPicker(false);
     if (message.trim() || files.length > 0) {
       let fileUrls: string[] = [];
 
@@ -54,12 +58,11 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
     }
   };
 
-  const handleEmojiSelect = async (emoji: any) => {
+  const handleEmojiSelect = (emoji: any) => {
     setMessage((prevMessage) => prevMessage + emoji.native);
-    const searchResults = await SearchIndex.search(emoji);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
       setFiles((prevFiles) => [...prevFiles, ...newFiles]);
@@ -70,8 +73,25 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
     setFiles((prevFiles) => prevFiles.filter((f) => f !== file));
   };
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      messageComposerRef.current &&
+      !messageComposerRef.current.contains(event.target as Node)
+    ) {
+      setShowEmojiPicker(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div
+      ref={messageComposerRef}
       className="flex flex-col sm:flex-row items-center p-4 border-t border-gray-200 relative"
       style={messageComposerStyle}
     >
@@ -95,11 +115,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
               />
               {showEmojiPicker && (
                 <div className="absolute bottom-12 left-0 z-10">
-                  <Picker
-                    data={data}
-                    onEmojiSelect={handleEmojiSelect}
-                    clickOutside
-                  />
+                  <Picker data={data} onEmojiSelect={handleEmojiSelect} />
                 </div>
               )}
             </button>

@@ -7,6 +7,7 @@ import SideHeader from "../Shared/SideHeader";
 import { FaArrowRight, FaExclamationCircle } from "react-icons/fa";
 import { BiSearch } from "react-icons/bi";
 import { useSearchUsersQuery } from "../../apis/authApi";
+import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
 
 interface usersData {
   id: number;
@@ -23,16 +24,17 @@ const NewGroup = () => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
+  const debounceSearch = useDebounce(searchTerm, 500);
 
   const {
     data: users,
     error,
     isLoading,
-  } = useSearchUsersQuery(searchTerm, {
-    skip: !searchTerm,
+  } = useSearchUsersQuery(debounceSearch, {
+    skip: !debounceSearch,
   });
   console.log(users?.list);
-  console.log(error);
+  // console.log(error);
 
   const selectHandler = (newMember: usersData) => {
     setMembers([...members, newMember]);
