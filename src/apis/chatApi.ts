@@ -1,10 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
 import { MessagePayload } from "../Types/message";
+import { ChatRoom } from "../Types/joinGroup";
 
 export interface Group {
-  toUsersList: Array<number>;
+  toUsersList: number[];
   group_name: string;
 }
+
 
 export const chatApi = createApi({
   reducerPath: "chatApi",
@@ -13,7 +16,7 @@ export const chatApi = createApi({
     headers: { Authorization: `Bearer ${import.meta.env.VITE_TOKEN}` },
   }),
   endpoints: (builder) => ({
-    createGroup: builder.query<string, Group>({
+    createGroup: builder.mutation<ChatRoom, Group>({
       query: (body) => ({
         url: `chat/group/join`,
         method: "POST",
@@ -30,4 +33,5 @@ export const chatApi = createApi({
   }),
 });
 
-export const { useCreateGroupApi, useSendMessageMutation } = chatApi as any;
+
+export const { useCreateGroupMutation,useSendMessageMutation } = chatApi as any;

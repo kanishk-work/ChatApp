@@ -1,6 +1,7 @@
-import { FaPlus } from "react-icons/fa";
+import { FaCheck, FaPlus } from "react-icons/fa";
 import SideHeader from "../Shared/SideHeader";
-import { useCreateGroupApi } from "../../apis/chatApi";
+import { useCreateGroupMutation } from "../../apis/chatApi";
+import { useState } from "react";
 
 interface usersData {
   id: number;
@@ -19,13 +20,27 @@ const GroupProfile = ({
   submitFn: Function;
   members: usersData[];
 }) => {
-  // const {
-  //   data: users,
-  //   error,
-  //   isLoading,
-  // } = useCreateGroupApi(searchTerm, {
-  //   skip: !searchTerm,
-  // });
+  const [groupName, setGroupName] = useState("");
+  const membersIds = members.map((member) => member.id);
+
+  const body = {
+    toUsersList: membersIds,
+    group_name: groupName,
+  };
+  console.log(body);
+  const [createGroup] = useCreateGroupMutation();
+
+  const handleSubmit = async (body: Object) => {
+    const {
+      data: res,
+      isError,
+      error,
+      isLoading,
+    } = await (createGroup(body)).then(submitFn());
+    
+    console.log(error);
+  }
+
   return (
     <>
       <SideHeader title="group profile" backFn={backFn} />
@@ -43,9 +58,13 @@ const GroupProfile = ({
           <span className="dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]">
             group name
           </span>
-          <span className="dark:text-[var(--text-primary)] text-[var(--text-primary-light)]">
-            Group 1
-          </span>
+          <input
+            type="text"
+            placeholder="Enter group name"
+            className="w-full bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] rounded focus:outline-none py-1 px-3 focus:shadow-lg"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+          />
         </div>
         <div className="flex flex-col items-start gap-2 p-3 w-full hover:shadow-[0px_0px_20px_0px_#00000024] rounded-lg">
           <span className="dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]">
@@ -73,8 +92,8 @@ const GroupProfile = ({
         </div>
       </div>
       <div className="flex items-center justify-center">
-        <button className="p-3 rounded-full hover:bg-accent-color">
-          <FaPlus className="text-lg dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]" />
+        <button onClick={() => handleSubmit(body)} className="p-3 rounded-full hover:bg-accent-color">
+          <FaCheck className="text-lg dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]" />
         </button>
       </div>
     </>

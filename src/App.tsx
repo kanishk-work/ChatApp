@@ -8,6 +8,7 @@ import { useLogInMutation } from "./apis/authApi";
 import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
+
   const dispatch = useAppDispatch();
   const { joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
   const { bgColorDark, bgColorLight, fontSize, isDarkMode } = useAppSelector(
@@ -48,10 +49,50 @@ const App: React.FC = () => {
         });
     }
   }, [activeUser, dispatch, logIn]);
+  const {
+    bgColorDark,
+    accentColorDark,
+    textColorPrimaryDark,
+    textColorSecondaryDark,
+    bgColorLight,
+    accentColorLight,
+    textColorPrimaryLight,
+    textColorSecondaryLight,
+    focusColorPrimary,
+    focusColorSecondary,
+    fontSize,
+    isDarkMode,
+  } = useAppSelector((state: RootState) => state.theme);
 
   useEffect(() => {
-    injectStyles(bgColorDark, bgColorLight, fontSize, isDarkMode);
-  }, [bgColorDark, bgColorLight, fontSize, isDarkMode]);
+    injectStyles(
+      bgColorDark,
+      accentColorDark,
+      textColorPrimaryDark,
+      textColorSecondaryDark,
+      bgColorLight,
+      accentColorLight,
+      textColorPrimaryLight,
+      textColorSecondaryLight,
+      focusColorPrimary,
+      focusColorSecondary,
+      fontSize,
+      isDarkMode
+    );
+  }, [
+    bgColorDark,
+    accentColorDark,
+    textColorPrimaryDark,
+    textColorSecondaryDark,
+    bgColorLight,
+    accentColorLight,
+    textColorPrimaryLight,
+    textColorSecondaryLight,
+    focusColorPrimary,
+    focusColorSecondary,
+    fontSize,
+    isDarkMode,
+  ]);
 
   useEffect(() => {
     if (currentUserId) {
