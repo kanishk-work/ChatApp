@@ -20,6 +20,7 @@ const GroupProfile = ({
   submitFn: Function;
   members: usersData[];
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
 
@@ -31,14 +32,21 @@ const GroupProfile = ({
   const [createGroup] = useCreateGroupMutation();
 
   const handleSubmit = async (body: Object) => {
+    setIsLoading(true);
+
     const {
       data: res,
-      isError,
       error,
-      isLoading,
-    } = await (createGroup(body)).then(submitFn());
+    } = await (createGroup(body));
     
-    console.log(error);
+    if(error){
+      console.log(error);
+    }else{
+      submitFn();
+      console.log(res);
+    }
+
+    setIsLoading(false);
   }
 
   return (

@@ -3,7 +3,10 @@ import { LoginDetails, LoginResponse } from "../Types/login";
 
 export interface Users {
   id: string;
-  name: string;
+  full_name: string;
+  short_name: string;
+  role: string;
+  profile_pic: string;
 }
 
 export const authApi = createApi({

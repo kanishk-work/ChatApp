@@ -3,7 +3,7 @@ import { Styles, applyStyles } from "../../Utils/styleUtils";
 import { FaChevronLeft } from "react-icons/fa";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
-import { setActiveChat } from "../../Redux/slices/chatsSlice";
+import { setActiveChatId } from "../../Redux/slices/chatsSlice";
 import { RootState } from "../../Redux/store";
 import { useWindowSize } from "../../Utils/windowSizeUtil";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
@@ -26,10 +26,13 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
   const backBtnStyles = applyStyles(statusBarStyles?.backBtn);
 
   const dispatch = useAppDispatch();
-  const activeChat = useAppSelector(
-    (state: RootState) => state.chats.activeChat
+  const activeChatId = useAppSelector(
+    (state: RootState) => state.chats.activeChatId
   );
-  const user = useAppSelector((state: RootState) => state.chats.users);
+
+  const chats = useAppSelector((state: RootState) => state.chats.chats);
+  const activeChat = chats.find((chat)=> chat.id===activeChatId);
+
   const { width, height } = useWindowSize();
   return (
     <div
@@ -40,7 +43,7 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
         <button
           onClick={() => {
             dispatch(setChatWindow(false));
-            dispatch(setActiveChat(null));
+            dispatch(setActiveChatId(null));
           }}
           style={backBtnStyles.style}
           className={`${backBtnStyles.className} dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] hover:bg-[var(--accent-color-light)] dark:hover:bg-[var(--accent-color)] rounded-full p-2`}
@@ -62,13 +65,13 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
             className={`font-bold ${userNameStyles.className}`}
             style={userNameStyles.style}
           >
-            {activeChat && user[activeChat].name}
+            {activeChatId && activeChat?.name}
           </div>
           <div
             className={`text-sm ${activityStyles.className}`}
             style={activityStyles.style}
           >
-            {activeChat && user[activeChat].status}
+            {activeChatId && activeChat?.status}
           </div>
         </div>
       </div>

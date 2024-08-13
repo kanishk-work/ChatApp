@@ -22,7 +22,7 @@ const HomeLayout = () => {
     (state: RootState) => state.chatWindow.chatWindow
   );
   const currentChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChat
+    (state: RootState) => state.chats.activeChatId
   );
   console.log({ currentChatId });
 
