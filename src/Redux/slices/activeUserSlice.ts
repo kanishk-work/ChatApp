@@ -1,29 +1,72 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ActiveUser } from "../../Types/login";
 
-const initialState = {
-  id: '',
-  email: '',
-  profilePic: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  bio: 'available',
-  name: 'kanishk',
+const initialState: ActiveUser = {
+  id: 0,
+  updatedAt: "",
+  createdAt: "",
+  deletedAt: null,
+  client_id: 0,
+  client: {
+    id: 0,
+    updatedAt: "",
+    createdAt: "",
+    deletedAt: null,
+    name: "",
+    email: "",
+    status: "",
+  },
+  full_name: "",
+  short_name: null,
+  client_user_id: "",
+  role: "",
+  email: "",
+  mobile_no: null,
+  profile_pic: null,
+  status: "",
 };
 
 const activeUserSlice = createSlice({
-  name: 'activeUser',
+  name: "activeUser",
   initialState,
   reducers: {
-    setActiveUser: (state, { payload }) => {
-      state.id = payload.id;
-      state.email = payload.email;
-      state.profilePic = payload.profilePic;
-      state.bio = payload.bio;
-      state.name = payload.name;
+    setActiveUser: (state, action: PayloadAction<ActiveUser>) => {
+      const {
+        id,
+        updatedAt,
+        createdAt,
+        deletedAt,
+        client_id,
+        client,
+        full_name,
+        short_name,
+        client_user_id,
+        role,
+        email,
+        mobile_no,
+        profile_pic,
+        status,
+      } = action.payload;
+      state.id = id;
+      state.updatedAt = updatedAt;
+      state.createdAt = createdAt;
+      state.deletedAt = deletedAt;
+      state.client_id = client_id;
+      state.client = client;
+      state.full_name = full_name;
+      state.short_name = short_name;
+      state.client_user_id = client_user_id;
+      state.role = role;
+      state.email = email;
+      state.mobile_no = mobile_no;
+      state.profile_pic = profile_pic;
+      state.status = status;
     },
-    setUserNameAndBio: (state, { payload }) => {
-      state.name = payload.name;
-      state.bio = payload.bio;
+    setUserNameAndBio: (state, action: PayloadAction<{ name: string }>) => {
+      state.full_name = action.payload.name;
     },
   },
 });
+
 export const { setActiveUser, setUserNameAndBio } = activeUserSlice.actions;
 export default activeUserSlice.reducer;

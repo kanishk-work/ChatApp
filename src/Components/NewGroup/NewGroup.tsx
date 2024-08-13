@@ -9,6 +9,7 @@ import { GiCancel } from "react-icons/gi";
 import { MdCancel } from "react-icons/md";
 import { BiSearch } from "react-icons/bi";
 import { useSearchUsersQuery } from "../../apis/authApi";
+import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
 
 interface usersData {
   id: number;
@@ -27,16 +28,17 @@ const NewGroup = () => {
 
 
   const dispatch = useAppDispatch();
+  const debounceSearch = useDebounce(searchTerm, 500);
 
   const {
     data: users,
     error,
     isLoading,
-  } = useSearchUsersQuery(searchTerm, {
-    skip: !searchTerm,
+  } = useSearchUsersQuery(debounceSearch, {
+    skip: !debounceSearch,
   });
   console.log(users?.list);
-  console.log(error);
+  // console.log(error);
 
   const selectHandler = (newMember: usersData) => {
     if(newMember !== members.find(member => member.id === newMember.id)){

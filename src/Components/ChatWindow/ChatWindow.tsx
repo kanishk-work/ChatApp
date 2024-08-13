@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useWebSocket } from "../../apis/websocket";
+// import { useWebSocket } from "../../apis/websocket";
 import { RootState } from "../../Redux/store";
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
@@ -7,9 +7,11 @@ import { useAppSelector, useAppDispatch } from "../../Redux/hooks";
 import StatusBar from "./StatusBar";
 import { ChatMessage, addMessage } from "../../Redux/slices/chatsSlice";
 import { formatTime } from "../../Utils/formatTimeStamp";
+import { useSendMessageMutation } from "../../apis/chatApi"; // Import the hook
+import useSocket from "../../apis/websocket";
 
 const ChatWindow: React.FC = () => {
-  const { sendMessage } = useWebSocket();
+  // const { sendMessage } = useWebSocket();
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentChatId = useAppSelector(
@@ -21,7 +23,8 @@ const ChatWindow: React.FC = () => {
     (state: RootState) => state.chats.currentUserId
   );
   const messages = currentChatId !== null ? chats[currentChatId] || [] : [];
-  useEffect(() => {}, [showEmojiPicker]);
+  const [sendMessageApi] = useSendMessageMutation();
+  const { sendMessage } = useSocket(import.meta.env.VITE_HOST_URL);
   useEffect(() => {
     // Scroll to the bottom of the messages container when new messages arrive
     if (messagesEndRef.current) {
@@ -29,7 +32,7 @@ const ChatWindow: React.FC = () => {
     }
   }, [messages]);
 
-  const handleSend = (textMessage: string, file: string[] | null) => {
+  const handleSend = async (textMessage: string, file: string[] | null) => {
     if (currentChatId !== null) {
       const newMessage: ChatMessage = {
         id: Date.now(),
@@ -38,11 +41,23 @@ const ChatWindow: React.FC = () => {
         file,
         timestamp: new Date().toString(),
       };
+
       dispatch(addMessage({ userId: currentChatId, message: newMessage }));
-      // sendMessage(newMessage); // Uncomment if sending through WebSocket
+
+      try {
+        const result = await sendMessageApi({
+          receiver_id: 1,
+          message: textMessage,
+          chat_room_id: 13,
+          files_list: file || [],
+        }).unwrap();
+        sendMessage(newMessage);
+        console.log({ result });
+      } catch (error) {
+        console.error("Failed to send message: ", error);
+      }
     }
   };
-
   return (
     <div
       className="flex flex-col h-full"
@@ -72,7 +87,6 @@ const ChatWindow: React.FC = () => {
         <MessageComposer
           onSend={handleSend}
           messageComposerStyle={{ backgroundColor: "#CED9E4" }}
-          showEmojiPicker
         />
       </div>
     </div>

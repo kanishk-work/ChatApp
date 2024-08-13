@@ -1,21 +1,36 @@
-import { io } from "socket.io-client";
-import { ChatMessage, addMessage } from "../Redux/slices/chatsSlice";
-import { Message } from "../Types/message";
-import { useAppDispatch } from "../Redux/hooks";
+import { useState, useEffect } from "react";
+import { io, Socket } from "socket.io-client";
 
-// const socket = io("http://localhost:3000");
+const useSocket = (url: string) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-export const useWebSocket = () => {
-  const dispatch = useAppDispatch();
+  useEffect(() => {
+    console.log({ url });
+    const socketInstance = io(url, {
+      // withCredentials: true,
+    });
+    setSocket(socketInstance);
 
-  // socket.on("message", (message: any) => {
-  //   dispatch(addMessage(message));
-  // });
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, [url]);
 
-  const sendMessage = (message: ChatMessage) => {
-    // socket.emit("message", message);
-    dispatch(addMessage({ userId: message.senderId, message }));
+  const sendMessage = (message: any) => {
+    if (socket) {
+      console.log({ message });
+      socket.emit("send", message);
+    }
   };
 
-  return { sendMessage };
+  const joinRoom = (roomId: number | string) => {
+    if (socket) {
+      console.log({ roomId });
+      socket.emit("join", { frq: roomId });
+    }
+  };
+
+  return { sendMessage, joinRoom, socket };
 };
+
+export default useSocket;

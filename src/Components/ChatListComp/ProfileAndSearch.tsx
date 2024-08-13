@@ -1,5 +1,5 @@
 import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi";
-import { useAppDispatch } from "../../Redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import {
   setShowNewChat,
   setShowNewGroup,
@@ -7,6 +7,11 @@ import {
   setShowSettings,
 } from "../../Redux/slices/profileSlice";
 import DropDown from "../Shared/DropDown";
+import profilePlaceHolder from "./../../assets/profilePlaceHolder.jpg";
+import SearchBar from "../SearchBar/SearchBar";
+import { useState } from "react";
+import { useSearchUsersQuery } from "../../apis/authApi";
+import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
 
 const ProfileAndSearch = () => {
   const menu_items = [
@@ -31,35 +36,44 @@ const ProfileAndSearch = () => {
       action: () => dispatch(setShowSettings(true)),
     },
   ];
-
-  const profile = {
-    img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    name: "kanishk",
-  };
+  const activeUser = useAppSelector((state) => state.activeUser);
   const dispatch = useAppDispatch();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const debounceSearch = useDebounce(searchTerm, 500);
+  const {
+    data: users,
+    error,
+    isLoading,
+  } = useSearchUsersQuery(debounceSearch, {
+    skip: debounceSearch.length < 2 || !debounceSearch,
+  });
+
+  console.log("searchResult", users?.list);
 
   return (
     <div className="w-full flex items-center gap-3 mb-3">
       <button onClick={() => dispatch(setShowProfile(true))}>
         <img
-          src={profile.img}
+          src={
+            (activeUser.profile_pic && activeUser.profile_pic) ||
+            profilePlaceHolder
+          }
           alt="user profile pic"
           className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0"
         />
       </button>
 
-      <div className="relative grow">
-        <input
-          type="text"
-          className="w-full bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] rounded focus:outline-none py-1 px-3 focus:shadow-lg"
-          placeholder="Search..."
-        />
-        <BiSearch className="absolute right-3 top-2 text-[var(--text-secondary)]" />
-      </div>
+      <SearchBar
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        searchBarStyles={{ flex: 1 }}
+      />
 
       <DropDown
         optionsList={menu_items}
-        btnClassName={"flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white"}
+        btnClassName={
+          "flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white"
+        }
         triggerElement={<BiDotsVerticalRounded />}
       />
     </div>
