@@ -7,11 +7,50 @@ import { injectStyles } from "./Utils/injectStyles";
 const value = detectSystemTheme();
 console.log({ value });
 const App: React.FC = () => {
-  const { bgColorDark, bgColorLight, fontSize, isDarkMode } = useAppSelector((state: RootState) => state.theme);
+  const {
+    bgColorDark,
+    accentColorDark,
+    textColorPrimaryDark,
+    textColorSecondaryDark,
+    bgColorLight,
+    accentColorLight,
+    textColorPrimaryLight,
+    textColorSecondaryLight,
+    focusColorPrimary,
+    focusColorSecondary,
+    fontSize,
+    isDarkMode,
+  } = useAppSelector((state: RootState) => state.theme);
 
   useEffect(() => {
-    injectStyles(bgColorDark, bgColorLight, fontSize, isDarkMode);
-  }, [bgColorDark, bgColorLight, fontSize, isDarkMode]);
+    injectStyles(
+      bgColorDark,
+      accentColorDark,
+      textColorPrimaryDark,
+      textColorSecondaryDark,
+      bgColorLight,
+      accentColorLight,
+      textColorPrimaryLight,
+      textColorSecondaryLight,
+      focusColorPrimary,
+      focusColorSecondary,
+      fontSize,
+      isDarkMode
+    );
+  }, [
+    bgColorDark,
+    accentColorDark,
+    textColorPrimaryDark,
+    textColorSecondaryDark,
+    bgColorLight,
+    accentColorLight,
+    textColorPrimaryLight,
+    textColorSecondaryLight,
+    focusColorPrimary,
+    focusColorSecondary,
+    fontSize,
+    isDarkMode,
+  ]);
 
   useEffect(() => {
     if (isDarkMode) {

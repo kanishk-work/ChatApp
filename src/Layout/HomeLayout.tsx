@@ -26,9 +26,8 @@ const HomeLayout = () => {
   );
   console.log({ currentChatId });
 
-  const { showProfile, showSettings, showNewGroup, showNewChat } = useAppSelector(
-    (state: RootState) => state.profile
-  );
+  const { showProfile, showSettings, showNewGroup, showNewChat } =
+    useAppSelector((state: RootState) => state.profile);
   const { showHelp, showNotification, showPrivacy, showTheme } = useAppSelector(
     (state: RootState) => state.settings
   );
@@ -102,21 +101,24 @@ const HomeLayout = () => {
       </div>
       {width > 764 && (
         <>
-          <div className="flex-1 h-full">
-            {(chatWindow === true && currentChatId !== null && (
-              <ChatWindow />
-            )) || (
-              <div className="flex items-center justify-center h-screen">
-                <div className="text-white">
-                  Click on chat to start conversation
+          {!(width <= 1300 && showChatInfo) && (
+            <div className={`flex-1 h-full`}>
+              {(chatWindow === true && currentChatId !== null && (
+                <ChatWindow />
+              )) || (
+                <div className="flex items-center justify-center h-screen">
+                  <div className="text-white">
+                    Click on chat to start conversation
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
+
           {showChatInfo && (
             <div
               className={`${
-                width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
+                width > 1300 ? "w-[25vw] min-w-[320px]" : "w-full"
               } h-full`}
             >
               <UserProfile
@@ -151,7 +153,6 @@ const HomeLayout = () => {
           )}
         </>
       )}
-      <></>
     </div>
   );
 };
