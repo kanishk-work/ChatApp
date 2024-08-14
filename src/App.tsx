@@ -8,12 +8,8 @@ import { useLogInMutation } from "./apis/authApi";
 import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
-
   const dispatch = useAppDispatch();
   const { joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
-  const { bgColorDark, bgColorLight, fontSize, isDarkMode } = useAppSelector(
-    (state: RootState) => state.theme
-  );
   const activeUser = useAppSelector((state: RootState) => state.activeUser);
   const currentUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
