@@ -7,12 +7,14 @@ import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { formatTime } from "../../Utils/formatTimeStamp";
 import useSocket from "../../apis/websocket";
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg"
+import { useGetChatsQuery } from "../../apis/chatApi";
 
 interface ChatListProps {
   listStyle?: Styles;
 }
 
 const Chats: FC<ChatListProps> = ({ listStyle }) => {
+  const { refetch: refetchChats } = useGetChatsQuery();
   const dispatch = useAppDispatch();
   const { className, style } = applyStyles(listStyle);
   const activeChatId = useAppSelector(
@@ -45,7 +47,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
             onClick={() => handleChatClick(chat.id)}
           >
             <img
-              src={ placeholderImage}
+              src={placeholderImage}
               alt="user profile pic"
               className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 mr-3"
             />
@@ -60,8 +62,8 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
                 {lastMessage && lastMessage.textMessage
                   ? lastMessage.textMessage
                   : lastMessage?.file
-                  ? `Image`
-                  : "No messages yet"}
+                    ? `Image`
+                    : "No messages yet"}
               </span>
             </div>
           </div>

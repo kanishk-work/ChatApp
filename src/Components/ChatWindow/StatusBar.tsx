@@ -52,7 +52,7 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
         </button>
       )}
       <div
-        className="flex gap-5"
+        className="flex items-center gap-5"
         onClick={() => dispatch(setShowChatInfo(true))}
       >
         <img
@@ -71,7 +71,7 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
             className={`text-sm ${activityStyles.className}`}
             style={activityStyles.style}
           >
-            {activeChatId && activeChat?.status}
+            {activeChatId && activeChat?.status || 'status unavailable'}
           </div>
         </div>
       </div>
