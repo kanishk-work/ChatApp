@@ -197,12 +197,14 @@
 // export default chatsSlice.reducer;
 
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { chatApi } from "../../apis/chatApi";
+import { Chat } from "../../Types/chats";
 
-export interface UserInfo {
+export interface ChatInfo {
   id: number;
   name: string;
-  img: string;
-  status: "active" | "offline" | "away"; // Customize as needed
+  img?: string;
+  status?: "active" | "offline" | "away"; // Customize as needed
   lastOnline?: string;
 }
 
@@ -215,39 +217,37 @@ export interface ChatMessage {
 }
 
 export interface ChatsState {
-  users: {
-    [userId: number]: UserInfo; // User information by ID
-  };
+  chats: Chat[];
   conversations: {
     [userId: number]: ChatMessage[]; // Messages for each user
   };
-  activeChat: number | null; // Currently active chat user ID
+  activeChatId: number | null; // Currently active chat user ID
   notifications: string[];
   currentUserId: number;
 }
 
 const initialState: ChatsState = {
-  users: {
-    1: {
-      id: 1,
-      name: "John Doe",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      status: "active",
-      lastOnline: new Date().toString(),
-    },
-    2: {
-      id: 2,
-      name: "Jane Smith",
-      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      status: "away",
-      lastOnline: new Date().toString(),
-    },
-  },
+  chats: [
+    // {
+    //   id: 1,
+    //   name: "John Doe",
+    //   img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    //   status: "active",
+    //   lastOnline: new Date().toString(),
+    // },
+    // {
+    //   id: 2,
+    //   name: "Jane Smith",
+    //   img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    //   status: "away",
+    //   lastOnline: new Date().toString(),
+    // },
+  ],
   conversations: {
     1: [], // Initialize with empty conversations
     2: [], // Initialize with empty conversations
   },
-  activeChat: null,
+  activeChatId: null,
   notifications: [],
   currentUserId: 1,
 };
@@ -256,8 +256,8 @@ const chatsSlice = createSlice({
   name: "chats",
   initialState,
   reducers: {
-    setActiveChat: (state, action: PayloadAction<number | null>) => {
-      state.activeChat = action.payload;
+    setActiveChatId: (state, action: PayloadAction<number | null>) => {
+      state.activeChatId = action.payload;
     },
     addMessage: (
       state,
@@ -281,8 +281,16 @@ const chatsSlice = createSlice({
       state.notifications = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      chatApi.endpoints.getChats.matchFulfilled,
+      (state, action: PayloadAction<{ list: Chat[] }>) => {
+        state.chats = action.payload.list;
+      }
+    );
+  },
 });
 
-export const { setActiveChat, addMessage, setNotifications } =
+export const { setActiveChatId, addMessage, setNotifications } =
   chatsSlice.actions;
 export default chatsSlice.reducer;

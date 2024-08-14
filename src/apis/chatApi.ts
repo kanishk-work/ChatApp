@@ -1,13 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { MessagePayload } from "../Types/message";
-import { ChatRoom } from "../Types/joinGroup";
+import { ChatRoom } from "../Types/chatRoom";
+import { ChatResponse } from "../Types/chats";
 
-export interface Group {
+export interface JoinGroup {
   toUsersList: number[];
   group_name: string;
 }
-
+export interface JoinChat {
+  toUserId: number;
+}
 
 export const chatApi = createApi({
   reducerPath: "chatApi",
@@ -16,9 +19,16 @@ export const chatApi = createApi({
     headers: { Authorization: `Bearer ${import.meta.env.VITE_TOKEN}` },
   }),
   endpoints: (builder) => ({
-    createGroup: builder.mutation<ChatRoom, Group>({
+    createGroup: builder.mutation<ChatRoom, JoinGroup>({
       query: (body) => ({
         url: `chat/group/join`,
+        method: "POST",
+        body,
+      }),
+    }),
+    startChat: builder.mutation<ChatRoom, JoinChat>({
+      query: (body) => ({
+        url: `chat/join`,
         method: "POST",
         body,
       }),
@@ -30,8 +40,14 @@ export const chatApi = createApi({
         body,
       }),
     }),
+    getChats: builder.query<ChatResponse, void>({
+      query: () => ({
+        url: `chat`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 
-export const { useCreateGroupMutation,useSendMessageMutation } = chatApi as any;
+export const { useCreateGroupMutation, useStartChatMutation, useSendMessageMutation, useGetChatsQuery } = chatApi as any;

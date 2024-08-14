@@ -1,6 +1,6 @@
 import { FaCheck, FaPlus } from "react-icons/fa";
 import SideHeader from "../Shared/SideHeader";
-import { useCreateGroupMutation } from "../../apis/chatApi";
+import { useCreateGroupMutation, useGetChatsQuery } from "../../apis/chatApi";
 import { useState } from "react";
 
 interface usersData {
@@ -20,8 +20,10 @@ const GroupProfile = ({
   submitFn: Function;
   members: usersData[];
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
+  const { refetch: refetchChats } = useGetChatsQuery();
 
   const body = {
     toUsersList: membersIds,
@@ -31,14 +33,22 @@ const GroupProfile = ({
   const [createGroup] = useCreateGroupMutation();
 
   const handleSubmit = async (body: Object) => {
+    setIsLoading(true);
+
     const {
       data: res,
-      isError,
       error,
-      isLoading,
-    } = await (createGroup(body)).then(submitFn());
+    } = await (createGroup(body));
     
-    console.log(error);
+    if(error){
+      console.log(error);
+    }else{
+      await refetchChats();
+      submitFn();
+      console.log(res);
+    }
+
+    setIsLoading(false);
   }
 
   return (

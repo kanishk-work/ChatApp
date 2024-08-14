@@ -29,8 +29,19 @@ const useSocket = (url: string) => {
       socket.emit("join", { frq: roomId });
     }
   };
-
-  return { sendMessage, joinRoom, socket };
+  const newInvite = ({
+    roomId,
+    socketRoom,
+  }: {
+    roomId: string;
+    socketRoom: string;
+  }) => {
+    if (socket) {
+      console.log("new invite data:", { roomId, socketRoom });
+      socket.emit("newInvite", { frq: roomId, chatFrq: socketRoom });
+    }
+  };
+  return { sendMessage, joinRoom, newInvite, socket };
 };
 
 export default useSocket;

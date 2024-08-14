@@ -90,9 +90,11 @@ const App: React.FC = () => {
     isDarkMode,
   ]);
 
+  const activeUserRoom = `${activeUser?.client?.email.split('@')[0]}_${activeUser?.email.split('@')[0]}`;
+  console.log(activeUserRoom);
   useEffect(() => {
     if (currentUserId) {
-      joinRoom("hr_mayur");
+      joinRoom(activeUserRoom);
     }
   }, [currentUserId]);
 

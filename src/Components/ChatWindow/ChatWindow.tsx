@@ -15,7 +15,7 @@ const ChatWindow: React.FC = () => {
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChat
+    (state: RootState) => state.chats.activeChatId
   );
   const chats = useAppSelector((state: RootState) => state.chats.conversations);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
