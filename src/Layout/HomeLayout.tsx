@@ -21,10 +21,10 @@ const HomeLayout = () => {
   const chatWindow = useAppSelector(
     (state: RootState) => state.chatWindow.chatWindow
   );
-  const currentChatId = useAppSelector(
+  const activeRoomId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
-  console.log({ currentChatId });
+  console.log({ activeRoomId });
 
   const { showProfile, showSettings, showNewGroup, showNewChat } =
     useAppSelector((state: RootState) => state.profile);
@@ -90,7 +90,7 @@ const HomeLayout = () => {
                 },
               ]}
             />
-          ) : chatWindow === true && currentChatId !== null ? (
+          ) : chatWindow === true && activeRoomId !== null ? (
             <ChatWindow />
           ) : (
             <ChatListComp />
@@ -103,7 +103,7 @@ const HomeLayout = () => {
         <>
           {!(width <= 1300 && showChatInfo) && (
             <div className={`flex-1 h-full`}>
-              {(chatWindow === true && currentChatId !== null && (
+              {(chatWindow === true && activeRoomId !== null && (
                 <ChatWindow />
               )) || (
                 <div className="flex items-center justify-center h-screen">
