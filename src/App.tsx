@@ -21,12 +21,24 @@ const App: React.FC = () => {
   const [logIn] = useLogInMutation();
 
   // for test purpose
+  // const userCredentials = {
+  //   user_id: "2",
+  //   client_email: "hr@wafer.ee",
+  //   client_name: "Wafer",
+  //   email: "mayur@wafer.ee",
+  //   firstName: "Mayur",
+  //   lastName: "Wafer",
+  //   role: "Developer",
+  //   profile_pic_url:
+  //     "https://img.freepik.com/premium-photo/stylish-man-flat-vector-profile-picture-ai-generated_606187-309.jpg",
+  // };
+
   const userCredentials = {
     user_id: "2",
     client_email: "hr@wafer.ee",
     client_name: "Wafer",
-    email: "mayur@wafer.ee",
-    firstName: "Mayur",
+    email: "kanishk@wafer.ee",
+    firstName: "kanishk",
     lastName: "Wafer",
     role: "Developer",
     profile_pic_url:

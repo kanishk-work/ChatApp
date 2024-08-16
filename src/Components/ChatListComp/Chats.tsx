@@ -25,6 +25,9 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
     (state: RootState) => state.chats.conversations
   );
   // const { sendMessage, joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
+  const activeUserId = useAppSelector(
+    (state: RootState) => state.activeUser.id
+  );
 
   const handleChatClick = async (chatId: number) => {
     if (activeChatId !== chatId) {
@@ -39,6 +42,12 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
       {chats.map((chat) => {
         const userConversations = conversations[chat.id] || [];
         const lastMessage = userConversations[userConversations.length - 1];
+        let chatName = chat.is_group
+          ? chat.name
+          : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)?.user.full_name || "Unknown";
+          let chatProfilePic = chat.is_group
+          ? chat.profile_pic || placeholderImage
+          : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)?.user.profile_pic || placeholderImage;
 
         return (
           <div
@@ -47,13 +56,13 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
             onClick={() => handleChatClick(chat.id)}
           >
             <img
-              src={placeholderImage}
+              src={chatProfilePic}
               alt="user profile pic"
               className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 mr-3"
             />
             <div className="w-full">
               <div className="w-full flex justify-between">
-                <span className="font-semibold text-sm">{chat.name}</span>
+                <span className="font-semibold text-sm">{chatName}</span>
                 <span className="text-xs">
                   {lastMessage ? formatTime(lastMessage.timestamp) : ""}
                 </span>
