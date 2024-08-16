@@ -2,6 +2,11 @@ import { FaCheck, FaPlus } from "react-icons/fa";
 import SideHeader from "../Shared/SideHeader";
 import { useCreateGroupMutation, useGetChatsQuery } from "../../apis/chatApi";
 import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
+import { setActiveChatId } from "../../Redux/slices/chatsSlice";
+import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
+import { RootState } from "../../Redux/store";
+import Loader from "../Shared/Loader";
 
 interface usersData {
   id: number;
@@ -20,10 +25,14 @@ const GroupProfile = ({
   submitFn: Function;
   members: usersData[];
 }) => {
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
   const { refetch: refetchChats } = useGetChatsQuery();
+  const activeChatId = useAppSelector(
+    (state: RootState) => state.chats.activeChatId
+  );
 
   const body = {
     toUsersList: membersIds,
@@ -35,21 +44,24 @@ const GroupProfile = ({
   const handleSubmit = async (body: Object) => {
     setIsLoading(true);
 
-    const {
-      data: res,
-      error,
-    } = await (createGroup(body));
-    
-    if(error){
+    const { data: res, error } = await createGroup(body);
+
+    if (error) {
       console.log(error);
-    }else{
+    } else {
       await refetchChats();
       submitFn();
       console.log(res);
+      if (activeChatId !== res?.newChatRoom?.id) {
+        dispatch(setActiveChatId(res?.newChatRoom?.id));
+        dispatch(setChatWindow(true));
+        // joinRoom(chatId);
+      }
+      console.log(res?.newChatRoom);
     }
 
     setIsLoading(false);
-  }
+  };
 
   return (
     <>
@@ -102,9 +114,16 @@ const GroupProfile = ({
         </div>
       </div>
       <div className="flex items-center justify-center">
-        <button onClick={() => handleSubmit(body)} className="p-3 rounded-full hover:bg-accent-color">
-          <FaCheck className="text-lg dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]" />
-        </button>
+        {isLoading ? (
+          <Loader loaderStyles={'text-focus-secondary'}/>
+        ) : (
+          <button
+            onClick={() => handleSubmit(body)}
+            className="p-3 rounded-full hover:bg-accent-color"
+          >
+            <FaCheck className="text-lg dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]" />
+          </button>
+        )}
       </div>
     </>
   );
