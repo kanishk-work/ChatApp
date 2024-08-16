@@ -9,7 +9,7 @@ import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
+  const { joinRoom, listenNewInvite } = useSocket(import.meta.env.VITE_HOST_URL);
   const activeUser = useAppSelector((state: RootState) => state.activeUser);
   const currentUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
@@ -97,6 +97,10 @@ const App: React.FC = () => {
       joinRoom(activeUserRoom);
     }
   }, [currentUserId]);
+
+  useEffect(() => {
+      listenNewInvite();
+  });
 
   useEffect(() => {
     if (isDarkMode) {

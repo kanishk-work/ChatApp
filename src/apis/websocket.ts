@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
+import { setNotifications } from "../Redux/slices/chatsSlice";
 
 const useSocket = (url: string) => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -16,6 +17,7 @@ const useSocket = (url: string) => {
     };
   }, [url]);
 
+  // sending
   const sendMessage = (message: any) => {
     if (socket) {
       console.log({ message });
@@ -41,7 +43,18 @@ const useSocket = (url: string) => {
       socket.emit("newInvite", { frq: roomId, chatFrq: socketRoom });
     }
   };
-  return { sendMessage, joinRoom, newInvite, socket };
+
+  // listeing
+
+  const listenNewInvite = () => {
+    if (socket) {
+      socket.on("newInviteNotification", (data) => {
+        console.log(data);
+        setNotifications(data);
+      });
+    }
+  };
+  return { sendMessage, joinRoom, newInvite, listenNewInvite, socket };
 };
 
 export default useSocket;

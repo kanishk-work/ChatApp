@@ -4,13 +4,12 @@ import { useState } from "react";
 import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
 import SideHeader from "../Shared/SideHeader";
 import { useSearchUsersQuery } from "../../apis/authApi";
-import { BiSearch } from "react-icons/bi";
-import { FaExclamationCircle } from "react-icons/fa";
 import { useGetChatsQuery, useStartChatMutation } from "../../apis/chatApi";
 import { setActiveChatId } from "../../Redux/slices/chatsSlice";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import useSocket from "../../apis/websocket";
+import SearchBar from "../SearchBar/SearchBar";
 
 interface usersData {
   id: number;
@@ -21,9 +20,9 @@ interface usersData {
   notif_room: string;
 }
 const NewChat = () => {
+  const [isNewChatLoading, setIsNewChatLoading] = useState(false);
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [showAlert, setShowAlert] = useState<boolean>(false);
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
@@ -44,6 +43,8 @@ const NewChat = () => {
   const { refetch: refetchChats } = useGetChatsQuery();
 
   const handleSelect = async (user: usersData) => {
+    setIsNewChatLoading(true);
+    
     const body = {
       toUserId: user.id,
     };
@@ -66,6 +67,8 @@ const NewChat = () => {
       }
       console.log(res?.newChatRoom);
     }
+
+    setIsNewChatLoading(false);
   };
 
   return (
@@ -74,16 +77,11 @@ const NewChat = () => {
         title="new chat"
         backFn={() => dispatch(setShowNewChat(false))}
       />
-      <div className="relative mb-2">
-        <input
-          type="text"
-          className="w-full bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] rounded focus:outline-none py-1 px-3 focus:shadow-lg"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <BiSearch className="absolute right-3 top-2 text-text-secondary" />
-      </div>
+      <SearchBar
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        searchBarStyles={'mb-2'}
+      />
 
       {searchTerm?.length < 2 ? (
         <p className="dark:text-text-primary text-text-primary-light">
@@ -126,16 +124,6 @@ const NewChat = () => {
           ))}
         </ul>
       )}
-      <div className="flex gap-2 items-center absolute right-3 bottom-2">
-        {showAlert && (
-          <div className="transition-all ease-in-out delay-150 p-1 rounded-lg dynamic-notif text-base">
-            <span className="flex items-center gap-2">
-              <FaExclamationCircle />
-              Members not selected
-            </span>
-          </div>
-        )}
-      </div>
     </>
   );
 };

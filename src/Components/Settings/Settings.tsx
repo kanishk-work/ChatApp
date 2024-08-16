@@ -20,6 +20,7 @@ import {
 import SideHeader from "../Shared/SideHeader";
 import Options from "../Shared/Options";
 import KeyboardShortcuts from "../KeyShortcuts/KeyboardShortcuts";
+import profilePlaceHolder from "./../../assets/profilePlaceHolder.jpg";
 
 const Settings = () => {
   const dispatch = useAppDispatch();
@@ -66,14 +67,17 @@ const Settings = () => {
         className="w-full flex items-center gap-5 p-2 dark:hover:bg-[var(--accent-color)] hover:bg-[var(--accent-color-light)] rounded-lg"
       >
         <img
-          src={activeUser.profilePic}
+          src={
+            (activeUser.profile_pic && activeUser.profile_pic) ||
+            profilePlaceHolder
+          }
           alt="user profile pic"
           className="object-contain h-16 w-16 rounded-full items-start flex-shrink-0"
         />
         <div className="capitalize text-left dark:text-[var(--text-primary)] text-[var(--text-primary-light)] leading-none">
-          <h1 className="text-lg">{activeUser.name}</h1>
+          <h1 className="text-lg">{activeUser.full_name}</h1>
           <span className="text-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)]">
-            {activeUser.bio}
+            {activeUser.role}
           </span>
         </div>
       </button>

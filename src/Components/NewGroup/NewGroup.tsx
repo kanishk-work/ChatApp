@@ -1,15 +1,13 @@
 import { useAppDispatch } from "../../Redux/hooks";
 import { setShowNewGroup } from "../../Redux/slices/profileSlice";
 import { useState } from "react";
-import MembersSelect from "./MembersSelect";
 import GroupProfile from "./GroupProfile";
 import SideHeader from "../Shared/SideHeader";
 import { FaArrowRight, FaExclamationCircle } from "react-icons/fa";
 import { GiCancel } from "react-icons/gi";
-import { MdCancel } from "react-icons/md";
-import { BiSearch } from "react-icons/bi";
 import { useSearchUsersQuery } from "../../apis/authApi";
 import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
+import SearchBar from "../SearchBar/SearchBar";
 
 interface usersData {
   id: number;
@@ -41,10 +39,10 @@ const NewGroup = () => {
   // console.log(error);
 
   const selectHandler = (newMember: usersData) => {
-    if(newMember !== members.find(member => member.id === newMember.id)){
+    if (newMember !== members.find(member => member.id === newMember.id)) {
       setMembers([...members, newMember]);
     }
-    else{
+    else {
       setShowAddAlert(true);
       setTimeout(() => setShowAddAlert(false), 2000);
     }
@@ -74,16 +72,11 @@ const NewGroup = () => {
             title="new group"
             backFn={() => dispatch(setShowNewGroup(false))}
           />
-          <div className="relative mb-2">
-            <input
-              type="text"
-              className="w-full bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-sm dark:text-[var(--text-secondary)] text-[var(--text-secondary-light)] rounded focus:outline-none py-1 px-3 focus:shadow-lg"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <BiSearch className="absolute right-3 top-2 text-text-secondary" />
-          </div>
+          <SearchBar
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            searchBarStyles={'mb-2'}
+          />
 
           <div className="flex flex-wrap items-center p-1.5 gap-1.5 rounded-lg shadow-[inset_0px_0px_20px_0px_#00000024]">
             {members?.map((member) => (
