@@ -37,10 +37,10 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
   );
   const activeChat = chats.find((chat) => chat.id === activeChatId);
 
-  // Set the chat name, status, and profile picture
+  // Set the default (group) chat name, status, and profile picture
   let chatName = activeChat?.name || "";
   let userStatus = "status unavailable";
-  let userProfilePic = placeholderImage;
+  let userProfilePic = activeChat?.profile_pic || placeholderImage;
 
   if (activeChat) {
     if (activeChat.is_group) {
@@ -56,7 +56,7 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
       const otherUser = activeChat.chatUsers.find(
         (chatUser) => chatUser.user.id !== activeUserId
       );
-
+      // Set the chat name, status, and profile picture for one-one chat
       if (otherUser) {
         chatName = otherUser.user.full_name;
         userStatus = otherUser.user.status || userStatus;

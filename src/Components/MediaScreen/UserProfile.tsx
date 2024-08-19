@@ -1,8 +1,11 @@
 import React from "react";
 import { FaStar, FaImage, FaInfoCircle, FaBan } from "react-icons/fa";
-import { useAppDispatch } from "../../Redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
 import { RxCross2 } from "react-icons/rx";
+import { RootState } from "../../Redux/store";
+import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
+
 
 interface UserProfileProps {
   userProfileImage?: string;
@@ -32,17 +35,54 @@ const UserProfile: React.FC<UserProfileProps> = ({
   ],
 }) => {
   const dispatch = useAppDispatch();
+  const activeChatId = useAppSelector(
+    (state: RootState) => state.chats.activeChatId
+  );
+
+  const chats = useAppSelector((state: RootState) => state.chats.chats);
+  const activeUserId = useAppSelector(
+    (state: RootState) => state.activeUser.id
+  );
+  const activeChat = chats.find((chat) => chat.id === activeChatId);
+
+  // Set the chat name, status, and profile picture
+  let chatName = activeChat?.name || "";
+  let userStatus = "status unavailable";
+  let userProfilePic = activeChat?.profile_pic || placeholderImage;
+
+  if (activeChat) {
+    if (activeChat.is_group) {
+      // Group members except the active user
+      userStatus =
+        "Members: " +
+        activeChat.chatUsers.filter(
+          (chatUser) => chatUser.user.id !== activeUserId
+        ).length;
+      // .map((chatUser) => chatUser.user.full_name)
+      // .join(", ") || "No other users";
+    } else {
+      const otherUser = activeChat.chatUsers.find(
+        (chatUser) => chatUser.user.id !== activeUserId
+      );
+
+      if (otherUser) {
+        chatName = otherUser.user.full_name;
+        userStatus = otherUser.user.status || userStatus;
+        userProfilePic = otherUser.user.profile_pic || userProfilePic;
+      }
+    }
+  }
   return (
     <div className="p-4 w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full relative">
       <div className="flex items-center">
         <img
-          src={userProfileImage}
-          alt={userName}
+          src={userProfilePic}
+          alt={chatName}
           className="w-16 h-16 rounded-full"
         />
         <div className="ml-4">
-          <h2 className="text-xl font-semibold dark:text-white">{userName}</h2>
-          <p className="text-gray-500 dark:text-gray-400">{userBio}</p>
+          <h2 className="text-xl font-semibold dark:text-white">{chatName}</h2>
+          <p className="text-gray-500 dark:text-gray-400">{userStatus}</p>
         </div>
         <span
           className="absolute top-2 right-2 cursor-pointer"

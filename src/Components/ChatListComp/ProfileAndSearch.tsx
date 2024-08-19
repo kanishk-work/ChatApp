@@ -1,4 +1,4 @@
-import { BiDotsVerticalRounded, BiSearch } from "react-icons/bi";
+import { BiDotsVerticalRounded } from "react-icons/bi";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import {
   setShowNewChat,
