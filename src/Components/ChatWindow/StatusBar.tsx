@@ -7,6 +7,7 @@ import { setActiveChatId } from "../../Redux/slices/chatsSlice";
 import { RootState } from "../../Redux/store";
 import { useWindowSize } from "../../Utils/windowSizeUtil";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
+import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 
 interface StatusBarStyles {
   container?: Styles;
@@ -31,9 +32,41 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
   );
 
   const chats = useAppSelector((state: RootState) => state.chats.chats);
-  const activeChat = chats.find((chat)=> chat.id===activeChatId);
+  const activeUserId = useAppSelector(
+    (state: RootState) => state.activeUser.id
+  );
+  const activeChat = chats.find((chat) => chat.id === activeChatId);
 
-  const { width, height } = useWindowSize();
+  // Set the chat name, status, and profile picture
+  let chatName = activeChat?.name || "";
+  let userStatus = "status unavailable";
+  let userProfilePic = placeholderImage;
+
+  if (activeChat) {
+    if (activeChat.is_group) {
+      // Group members except the active user
+      userStatus =
+        "Members: " +
+        activeChat.chatUsers.filter(
+          (chatUser) => chatUser.user.id !== activeUserId
+        ).length;
+      // .map((chatUser) => chatUser.user.full_name)
+      // .join(", ") || "No other users";
+    } else {
+      const otherUser = activeChat.chatUsers.find(
+        (chatUser) => chatUser.user.id !== activeUserId
+      );
+
+      if (otherUser) {
+        chatName = otherUser.user.full_name;
+        userStatus = otherUser.user.status || userStatus;
+        userProfilePic = otherUser.user.profile_pic || userProfilePic;
+      }
+    }
+  }
+
+  const { width } = useWindowSize();
+
   return (
     <div
       className={`flex items-center p-4 bg-gray-800 text-white ${containerStyles.className}`}
@@ -56,7 +89,7 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
         onClick={() => dispatch(setShowChatInfo(true))}
       >
         <img
-          src="https://via.placeholder.com/40"
+          src={userProfilePic}
           alt="User profile"
           className="w-10 h-10 rounded-full cursor-pointer"
         />
@@ -65,13 +98,13 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
             className={`font-bold ${userNameStyles.className}`}
             style={userNameStyles.style}
           >
-            {activeChatId && activeChat?.name}
+            {chatName}
           </div>
           <div
             className={`text-sm ${activityStyles.className}`}
             style={activityStyles.style}
           >
-            {activeChatId && activeChat?.status || 'status unavailable'}
+            {userStatus}
           </div>
         </div>
       </div>
