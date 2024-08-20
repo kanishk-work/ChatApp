@@ -1,8 +1,10 @@
 import React from "react";
 import { FaStar, FaImage, FaInfoCircle, FaBan } from "react-icons/fa";
-import { useAppDispatch } from "../../Redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
 import { RxCross2 } from "react-icons/rx";
+import { RootState } from "../../Redux/store";
+import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 
 interface UserProfileProps {
   userProfileImage?: string;
@@ -32,17 +34,55 @@ const UserProfile: React.FC<UserProfileProps> = ({
   ],
 }) => {
   const dispatch = useAppDispatch();
+  const activeChatId = useAppSelector(
+    (state: RootState) => state.chats.activeChatId
+  );
+
+  const chats = useAppSelector((state: RootState) => state.chats.chats);
+  const activeUserId = useAppSelector(
+    (state: RootState) => state.activeUser.id
+  );
+  const activeChat = chats.find((chat) => chat.id === activeChatId);
+
+  // Set the chat name, status, and profile picture
+  let chatName = activeChat?.name || "";
+  let userStatus = "status unavailable";
+  let userProfilePic = activeChat?.profile_pic || placeholderImage;
+
+  if (activeChat) {
+    if (activeChat.is_group) {
+      // Group members except the active user
+      userStatus = "Members: " + activeChat.chatUsers.length;
+      // userStatus =
+      // "Members: " +
+      // activeChat.chatUsers.filter(
+      //   (chatUser) => chatUser.user.id !== activeUserId
+      // ).length;
+      // .map((chatUser) => chatUser.user.full_name)
+      // .join(", ") || "No other users";
+    } else {
+      const otherUser = activeChat.chatUsers.find(
+        (chatUser) => chatUser.user.id !== activeUserId
+      );
+
+      if (otherUser) {
+        chatName = otherUser.user.full_name;
+        userStatus = otherUser.user.status || userStatus;
+        userProfilePic = otherUser.user.profile_pic || userProfilePic;
+      }
+    }
+  }
   return (
     <div className="p-4 w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full relative">
       <div className="flex items-center">
         <img
-          src={userProfileImage}
-          alt={userName}
+          src={userProfilePic}
+          alt={chatName}
           className="w-16 h-16 rounded-full"
         />
         <div className="ml-4">
-          <h2 className="text-xl font-semibold dark:text-white">{userName}</h2>
-          <p className="text-gray-500 dark:text-gray-400">{userBio}</p>
+          <h2 className="text-xl font-semibold dark:text-white">{chatName}</h2>
+          <p className="text-gray-500 dark:text-gray-400">{userStatus}</p>
         </div>
         <span
           className="absolute top-2 right-2 cursor-pointer"
@@ -73,7 +113,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
       </div>
 
       <div className="mt-4">
-        <h3 className="text-lg font-semibold dark:text-white">Media</h3>
+        <h3 className="text-lg font-semibold dynamic-text-color-primary">
+          Media
+        </h3>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {media.map((src, index) => (
             <img
@@ -85,6 +127,40 @@ const UserProfile: React.FC<UserProfileProps> = ({
           ))}
         </div>
       </div>
+
+      {activeChat?.is_group && (
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold dynamic-text-color-secondary">
+            {userStatus}
+          </h3>
+            {activeChat?.chatUsers?.map((chatUser, index) => (
+              <div
+                key={index}
+                className="mt-2 flex items-center gap-3 dynamic-text-color-primary"
+                onClick={() => dispatch(setShowChatInfo(true))}
+              >
+                <img
+                  src={chatUser.user.profile_pic || placeholderImage}
+                  alt="User profile"
+                  className="w-8 h-8 rounded-full cursor-pointer"
+                />
+                <div className="cursor-pointer w-full">
+                  <div className={`flex items-center justify-between`}>
+                    <span>{chatUser.user.full_name}</span>
+                    {chatUser.is_group_admin && (
+                      <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
+                        Group Admin
+                      </span>
+                    )}
+                  </div>
+                  <div className={`text-sm`}>
+                    <span>{chatUser.user.status}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
 
       <div className="mt-4">
         <h3 className="text-lg font-semibold dark:text-white">
