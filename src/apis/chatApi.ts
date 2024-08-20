@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { MessagePayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
-import { ChatResponse } from "../Types/chats";
+import { ChatResponse, ConversationsType } from "../Types/chats";
 
 export interface JoinGroup {
   toUsersList: number[];
@@ -34,11 +34,13 @@ export const chatApi = createApi({
       }),
     }),
     sendMessage: builder.mutation<string, MessagePayload>({
-      query: (body) => ({
-        url: `chat/send`,
-        method: "POST",
-        body,
-      }),
+      query: (body) => {
+        return {
+          url: `chat/send`,
+          method: "POST",
+          body: body,
+        };
+      },
     }),
     getChats: builder.query<ChatResponse, void>({
       query: () => ({
@@ -46,8 +48,20 @@ export const chatApi = createApi({
         method: "GET",
       }),
     }),
+    getConversations: builder.mutation<ConversationsType, number>({
+      query: (chatRoomId) => ({
+        url: `chat/messages`,
+        method: "POST",
+        body: { chatRoomId },
+      }),
+    }),
   }),
 });
 
-
-export const { useCreateGroupMutation, useStartChatMutation, useSendMessageMutation, useGetChatsQuery } = chatApi as any;
+export const {
+  useCreateGroupMutation,
+  useStartChatMutation,
+  useSendMessageMutation,
+  useGetChatsQuery,
+  useGetConversationsMutation,
+} = chatApi as any;
