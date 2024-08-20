@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { Styles, applyStyles } from "../../Utils/styleUtils";
 import { RootState } from "../../Redux/store";
 import { setActiveChatId } from "../../Redux/slices/chatsSlice";
@@ -6,8 +6,11 @@ import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { formatTime } from "../../Utils/formatTimeStamp";
 import useSocket from "../../apis/websocket";
-import placeholderImage from "./../../assets/profilePlaceHolder.jpg"
-import { useGetChatsQuery } from "../../apis/chatApi";
+import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
+import {
+  useGetChatsQuery,
+  useGetConversationsMutation,
+} from "../../apis/chatApi";
 
 interface ChatListProps {
   listStyle?: Styles;
@@ -16,6 +19,7 @@ interface ChatListProps {
 const Chats: FC<ChatListProps> = ({ listStyle }) => {
   const { refetch: refetchChats } = useGetChatsQuery();
   const dispatch = useAppDispatch();
+  // const [conversations, setConversations] = useState([]);
   const { className, style } = applyStyles(listStyle);
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
@@ -28,26 +32,47 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
+  const [getConversations] = useGetConversationsMutation();
+  useEffect(() => {
+    const fetchConversations = async () => {
+      if (activeChatId !== null) {
+        try {
+          const res = await getConversations().unwrap();
+          console.log("Conversations fetched:", res);
+        } catch (error) {
+          console.error("Failed to fetch conversations:", error);
+        }
+      }
+    };
 
+    fetchConversations();
+  }, [activeChatId, getConversations]);
   const handleChatClick = async (chatId: number) => {
     if (activeChatId !== chatId) {
       dispatch(setActiveChatId(chatId));
       dispatch(setChatWindow(true));
       // joinRoom(chatId);
+      try {
+        const response = await getConversations(chatId).unwrap();
+        console.log("API response:", response);
+      } catch (err) {
+        console.error("API error:", err);
+      }
     }
   };
 
   return (
     <div className="overflow-auto scrollbar-custom">
       {chats.map((chat) => {
-        const userConversations = conversations[chat.id] || [];
-        const lastMessage = userConversations[userConversations.length - 1];
+        // const lastMessage = conversations?.[chat.id - 1]?.message;
         let chatName = chat.is_group
           ? chat.name
-          : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)?.user.full_name || "Unknown";
-          let chatProfilePic = chat.is_group
+          : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
+              ?.user.full_name || "Unknown";
+        let chatProfilePic = chat.is_group
           ? chat.profile_pic || placeholderImage
-          : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)?.user.profile_pic || placeholderImage;
+          : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
+              ?.user.profile_pic || placeholderImage;
 
         return (
           <div
@@ -63,17 +88,11 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
             <div className="w-full">
               <div className="w-full flex justify-between">
                 <span className="font-semibold text-sm">{chatName}</span>
-                <span className="text-xs">
-                  {lastMessage ? formatTime(lastMessage.timestamp) : ""}
-                </span>
+                {/* <span className="text-xs">
+                  {lastMessage ? formatTime(conversations.created) : ""}
+                </span> */}
               </div>
-              <span className="text-xs">
-                {lastMessage && lastMessage.textMessage
-                  ? lastMessage.textMessage
-                  : lastMessage?.file
-                    ? `Image`
-                    : "No messages yet"}
-              </span>
+              {/* <span className="text-xs">{lastMessage}</span> */}
             </div>
           </div>
         );

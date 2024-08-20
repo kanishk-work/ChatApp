@@ -6,7 +6,6 @@ const useSocket = (url: string) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    console.log({ url });
     const socketInstance = io(url, {
       // withCredentials: true,
     });
@@ -17,20 +16,24 @@ const useSocket = (url: string) => {
     };
   }, [url]);
 
-  // sending
   const sendMessage = (message: any) => {
     if (socket) {
-      console.log({ message });
       socket.emit("send", message);
+    }
+  };
+
+  const getNewMessage = (callback: (data: any) => void) => {
+    if (socket) {
+      socket.on("resp", callback);
     }
   };
 
   const joinRoom = (roomId: number | string) => {
     if (socket) {
-      console.log({ roomId });
       socket.emit("join", { frq: roomId });
     }
   };
+
   const newInvite = ({
     roomId,
     socketRoom,
@@ -49,12 +52,19 @@ const useSocket = (url: string) => {
   const listenNewInvite = () => {
     if (socket) {
       socket.on("newInviteNotification", (data) => {
-        console.log(data);
         setNotifications(data);
       });
     }
   };
-  return { sendMessage, joinRoom, newInvite, listenNewInvite, socket };
+
+  return {
+    sendMessage,
+    joinRoom,
+    newInvite,
+    listenNewInvite,
+    socket,
+    getNewMessage,
+  };
 };
 
 export default useSocket;
