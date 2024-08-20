@@ -47,9 +47,12 @@ const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
       // Group members except the active user
       userStatus =
         "Members: " +
-        activeChat.chatUsers.filter(
-          (chatUser) => chatUser.user.id !== activeUserId
-        ).length;
+        activeChat.chatUsers.length;
+      // userStatus =
+      //   "Members: " +
+      //   activeChat.chatUsers.filter(
+      //     (chatUser) => chatUser.user.id !== activeUserId
+      //   ).length;
       // .map((chatUser) => chatUser.user.full_name)
       // .join(", ") || "No other users";
     } else {
