@@ -6,6 +6,8 @@ import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { formatTime } from "../../Utils/formatTimeStamp";
 import useSocket from "../../apis/websocket";
+
+
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import {
   useGetChatsQuery,
@@ -17,6 +19,7 @@ interface ChatListProps {
 }
 
 const Chats: FC<ChatListProps> = ({ listStyle }) => {
+  const { joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
   const { refetch: refetchChats } = useGetChatsQuery();
   const dispatch = useAppDispatch();
   // const [conversations, setConversations] = useState([]);
@@ -60,6 +63,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
       }
     }
   };
+  console.log(chats)
 
   return (
     <div className="overflow-auto scrollbar-custom">
@@ -73,7 +77,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
           ? chat.profile_pic || placeholderImage
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
               ?.user.profile_pic || placeholderImage;
-
+        joinRoom(chat.chatSocket[0].socket_room)
         return (
           <div
             key={chat.id}

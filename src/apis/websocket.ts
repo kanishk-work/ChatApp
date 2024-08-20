@@ -1,37 +1,42 @@
 import { useState, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import { setNotifications } from "../Redux/slices/chatsSlice";
 
 const useSocket = (url: string) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
 
-  useEffect(() => {
-    const socketInstance = io(url, {
+  /* useEffect(() => {
+     socket = io(url, {
       // withCredentials: true,
     });
-    setSocket(socketInstance);
 
     return () => {
-      socketInstance.disconnect();
+      socket.disconnect();
     };
-  }, [url]);
+  }, [url]); */
+
+  const socketurl = import.meta.env.VITE_SOCKET_URL;
+  console.log(`Socket URL ${socketurl}`);
+  let socket = io(socketurl, {
+    // withCredentials: true,
+  });
 
   const sendMessage = (message: any) => {
-    if (socket) {
+
       socket.emit("send", message);
-    }
+    
   };
 
-  const getNewMessage = (callback: (data: any) => void) => {
-    if (socket) {
-      socket.on("resp", callback);
-    }
-  };
+  // const getNewMessage = (callback: (data: any) => void) => {
+  //   if (socket) {
+  //     socket.on("resp", callback);
+  //   }
+  // };
 
-  const joinRoom = (roomId: number | string) => {
-    if (socket) {
+  const joinRoom = (roomId: string) => {
+    // if (socket) {
+      console.log({roomId})
       socket.emit("join", { frq: roomId });
-    }
+    // }
   };
 
   const newInvite = ({
@@ -41,20 +46,20 @@ const useSocket = (url: string) => {
     roomId: string;
     socketRoom: string;
   }) => {
-    if (socket) {
+
       console.log("new invite data:", { roomId, socketRoom });
       socket.emit("newInvite", { frq: roomId, chatFrq: socketRoom });
-    }
+    
   };
 
   // listeing
 
   const listenNewInvite = () => {
-    if (socket) {
-      socket.on("newInviteNotification", (data) => {
+
+      socket.on("newInviteNotification", (data: any) => {
         setNotifications(data);
       });
-    }
+    
   };
 
   return {
@@ -62,8 +67,7 @@ const useSocket = (url: string) => {
     joinRoom,
     newInvite,
     listenNewInvite,
-    socket,
-    getNewMessage,
+    // getNewMessage,
   };
 };
 

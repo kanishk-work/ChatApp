@@ -59,6 +59,7 @@ const NewChat = () => {
         roomId: user.notif_room,
         socketRoom: res?.newChatRoom?.chatSocket[0]?.socket_room,
       };
+      
       newInvite(newInviteData);
       if (activeChatId !== res?.newChatRoom?.id) {
         dispatch(setActiveChatId(res?.newChatRoom?.id));
