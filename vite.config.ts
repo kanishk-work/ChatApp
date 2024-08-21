@@ -39,14 +39,14 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
-    proxy: {
-      "/socket.io": {
-        target: "https://chat.wafer.ee",
-        changeOrigin: true,
-        secure: false,
-        ws: true,
-      },
-    },
-  },
+  // server: {
+  //   proxy: {
+  //     "/socket.io": {
+  //       target: "https://chat.wafer.ee",
+  //       changeOrigin: true,
+  //       secure: false,
+  //       ws: true,
+  //     },
+  //   },
+  // },
 });

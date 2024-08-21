@@ -27,7 +27,7 @@ const NewChat = () => {
     (state: RootState) => state.chats.activeChatId
   );
   const debounceSearch = useDebounce(searchTerm, 500);
-  const { newInvite } = useSocket(import.meta.env.VITE_HOST_URL);
+  const { newInvite } = useSocket();
 
   const {
     data: users,
@@ -59,6 +59,7 @@ const NewChat = () => {
         roomId: user.notif_room,
         socketRoom: res?.newChatRoom?.chatSocket[0]?.socket_room,
       };
+      
       newInvite(newInviteData);
       if (activeChatId !== res?.newChatRoom?.id) {
         dispatch(setActiveChatId(res?.newChatRoom?.id));

@@ -9,7 +9,7 @@ import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { joinRoom, listenNewInvite } = useSocket(import.meta.env.VITE_HOST_URL);
+  const { joinRoom, listenNewInvite } = useSocket();
   const activeUser = useAppSelector((state: RootState) => state.activeUser);
   const currentUserId = useAppSelector(
     (state: RootState) => state.activeUser.id

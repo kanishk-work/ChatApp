@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { setNotifications } from "../Redux/slices/chatsSlice";
 
-const useSocket = (url: string) => {
+const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
-
+let url=import.meta.env.VITE_SOCKET_URL
   useEffect(() => {
     const socketInstance = io(url, {
       // withCredentials: true,
