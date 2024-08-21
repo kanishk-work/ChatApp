@@ -34,6 +34,16 @@ let url=import.meta.env.VITE_SOCKET_URL
     }
   };
 
+  const joinChatRoom = (roomId: string) => {
+    if (socket) {
+      socket.emit("join", { frq: roomId });
+
+      socket.on("resp", (data) => {
+        console.log(`Chat Resp data ${JSON.stringify(data)}`);
+      });
+    }
+  };
+
   const newInvite = ({
     roomId,
     socketRoom,
@@ -64,6 +74,7 @@ let url=import.meta.env.VITE_SOCKET_URL
     listenNewInvite,
     socket,
     getNewMessage,
+    joinChatRoom
   };
 };
 

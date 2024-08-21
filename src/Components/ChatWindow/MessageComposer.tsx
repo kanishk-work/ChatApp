@@ -15,6 +15,12 @@ init({ data });
 
 interface MessageComposerProps {
   onSend: (textMessage: string, file: string[] | null) => void;
+  onReply: (textMessage: string, file: string[] | null) => void;
+  isReply: boolean;
+  replyMessage: {
+    textMessage: string;
+    sender: "user" | "other";
+  } | null
   buttonText?: string;
   buttonIcon?: React.ReactNode;
   sendButtonStyle?: React.CSSProperties;
@@ -23,6 +29,9 @@ interface MessageComposerProps {
 
 const MessageComposer: React.FC<MessageComposerProps> = ({
   onSend,
+  isReply,
+  onReply,
+  replyMessage, // Accept replyMessage prop
   buttonText = "Send",
   buttonIcon = <FaArrowRight />,
   sendButtonStyle,
@@ -46,8 +55,11 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         );
         setFiles([]);
       }
-
-      onSend(message, fileUrls.length > 0 ? fileUrls : null);
+      {
+        !isReply
+          ? onSend(message, fileUrls.length > 0 ? fileUrls : null)
+          : onReply(message, fileUrls.length > 0 ? fileUrls : null);
+      }
       setMessage("");
     }
   };
@@ -95,6 +107,13 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       className="flex flex-col sm:flex-row items-center p-4 border-t border-gray-200 relative"
       style={messageComposerStyle}
     >
+      {replyMessage && (
+        <div className="w-full p-2 mb-2 bg-gray-100 rounded-lg">
+          <div className={`text-sm ${replyMessage.sender === 'user' ? 'text-blue-500' : 'text-gray-700'}`}>
+            {replyMessage.textMessage}
+          </div>
+        </div>
+      )}
       <div className="flex items-center w-full sm:w-auto mb-2 sm:mb-0">
         <button
           className="mr-4 text-gray-500 hover:text-gray-700 relative"

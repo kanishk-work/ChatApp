@@ -4,31 +4,43 @@ import DropDown from "../Shared/DropDown";
 
 interface MessageBubbleProps {
   message: {
+    messageId:number;
     textMessage: string;
     file: string[] | null; // Change from string to string[]
   };
   sender: "user" | "other";
+  setIsReply: React.Dispatch<React.SetStateAction<boolean>>
+  setReplyMessage: React.Dispatch<React.SetStateAction<{
+    messageId: number;
+    textMessage: string;
+    sender: "user" | "other";
+} | null>>
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
 }
 
-const messageOptions = [
-  {
-    name: "Reply",
-    action: () => console.log("Reply option selected"),
-  },
-  {
-    name: "Download",
-    action: () => console.log("Download option selected"),
-  },
-];
-
 const MessageBubble: React.FC<MessageBubbleProps> = ({
+  setIsReply,
   message,
   sender,
+  setReplyMessage, // Pass down the setReplyMessage from ChatWindow
   bubbleStyle,
   textStyle,
 }) => {
+
+  const messageOptions = [
+    {
+      name: "Reply",
+      action: () => {
+        setIsReply(true);
+        setReplyMessage({ messageId:message.messageId, textMessage: message.textMessage, sender }); // Set the reply message
+      },
+    },
+    {
+      name: "Download",
+      action: () => console.log("Download option selected"),
+    },
+  ];
   const [showOptions, setShowOptions] = useState(false);
 
   const toggleOptions = () => {
@@ -99,16 +111,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   return (
     <div
-      className={`flex ${
-        sender === "user" ? "justify-end" : "justify-start"
-      } mb-2`}
+      className={`flex ${sender === "user" ? "justify-end" : "justify-start"
+        } mb-2`}
     >
       <div
-        className={`max-w-[70%] rounded-lg pr-4 pl-4 pb-4 pt-6 relative group ${
-          sender === "user"
+        className={`max-w-[70%] rounded-lg pr-4 pl-4 pb-4 pt-6 relative group ${sender === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-200 text-black"
-        }`}
+          }`}
         style={bubbleStyle}
       >
         <div className="flex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200">

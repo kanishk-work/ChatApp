@@ -19,7 +19,7 @@ interface ChatListProps {
 }
 
 const Chats: FC<ChatListProps> = ({ listStyle }) => {
-  const { joinRoom } = useSocket();
+  const { joinRoom,joinChatRoom } = useSocket();
   const { refetch: refetchChats } = useGetChatsQuery();
   const dispatch = useAppDispatch();
   // const [conversations, setConversations] = useState([]);
@@ -64,6 +64,8 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
     }
   };
   console.log(chats)
+  
+  const roomJoin = () => joinChatRoom('1');
 
   return (
     <div className="overflow-auto scrollbar-custom">
@@ -77,7 +79,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
           ? chat.profile_pic || placeholderImage
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
               ?.user.profile_pic || placeholderImage;
-        joinRoom(chat.chatSocket[0].socket_room)
+        // joinRoom(chat.chatSocket[0].socket_room)
         return (
           <div
             key={chat.id}
@@ -101,6 +103,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
           </div>
         );
       })}
+      <button onClick={roomJoin}> joinroom</button>
     </div>
   );
 };

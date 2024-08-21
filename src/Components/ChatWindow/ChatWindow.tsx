@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RootState } from "../../Redux/store";
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
@@ -8,11 +8,19 @@ import { formatTime } from "../../Utils/formatTimeStamp";
 import {
   useGetConversationsMutation,
   useSendMessageMutation,
+  useSendReplyMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
 // import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
+  const [isReply, setIsReply] = useState(false);
+  const [replyMessage, setReplyMessage] = useState<{
+    messageId: number;
+    textMessage: string;
+    sender: "user" | "other";
+  } | null>(null); 
+  
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeChatId = useAppSelector(
@@ -28,8 +36,9 @@ const ChatWindow: React.FC = () => {
   );
   const [getConversations] = useGetConversationsMutation();
   const [sendMessageApi] = useSendMessageMutation();
-  const { getNewMessage, socket, sendMessage } = useSocket(
-  );
+  const [sendReplyApi] = useSendReplyMutation();
+
+  const { getNewMessage, socket, sendMessage } = useSocket();
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -58,6 +67,8 @@ const ChatWindow: React.FC = () => {
   }, [socket]);
 
   const handleSend = async (textMessage: string, file: string[] | null) => {
+    setReplyMessage(null); // Reset reply message after sending
+    setIsReply(false); // Reset isReply state after sending
     if (activeChatId !== null) {
       const newMessage = {
         receiver_id: activeChat?.chatUsers.find(
@@ -87,6 +98,40 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const handleReply = async (
+    textMessage: string,
+    file: string[] | null,
+  ) => {
+    setReplyMessage(null); // Reset reply message after sending
+    setIsReply(false); // Reset isReply state after sending
+    if (activeChatId !== null) {
+      const messageReply = {
+        message: textMessage,
+        chat_id: replyMessage?.messageId,
+        files_list: file || [],
+      };
+      try {
+        await sendReplyApi(messageReply).unwrap();
+        const socketPayload = {
+          chat: {
+            fromId: activeUserId,
+            toId: activeChat?.chatUsers.find(
+              (user) => user.user.id !== activeUserId
+            )?.user_id,
+            msg: textMessage,
+            roomId: activeChatId,
+            filesList: file,
+            frq: activeChat?.chatSocket[0]?.socket_room,
+          },
+        };
+        sendMessage(socketPayload);
+        await getConversations(activeChatId);
+      } catch (error) {
+        console.error("Failed to send message:", error);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <StatusBar
@@ -102,10 +147,13 @@ const ChatWindow: React.FC = () => {
             <div key={index}>
               <MessageBubble
                 message={{
+                  messageId: message.id,
                   textMessage: message.message,
                   file: message.chatFiles,
                 }}
                 sender={message.sender_id === activeUserId ? "user" : "other"}
+                setIsReply= {setIsReply}
+                setReplyMessage={setReplyMessage} // Pass it here
               />
               <div className="text-center text-xs text-gray-500 my-2">
                 {formatTime(message.createdAt)}
@@ -117,6 +165,9 @@ const ChatWindow: React.FC = () => {
       <div className="p-4">
         <MessageComposer
           onSend={handleSend}
+          isReply = {isReply}
+          onReply={handleReply}
+          replyMessage={replyMessage} // Pass the reply message to the composer
           messageComposerStyle={{ backgroundColor: "#CED9E4" }}
         />
       </div>
