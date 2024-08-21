@@ -29,7 +29,6 @@ const ChatWindow: React.FC = () => {
   const [getConversations] = useGetConversationsMutation();
   const [sendMessageApi] = useSendMessageMutation();
   const { getNewMessage, socket, sendMessage } = useSocket(
-    import.meta.env.VITE_HOST_URL
   );
 
   useEffect(() => {

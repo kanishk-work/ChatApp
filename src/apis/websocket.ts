@@ -1,42 +1,37 @@
 import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { setNotifications } from "../Redux/slices/chatsSlice";
 
-const useSocket = (url: string) => {
-
-  /* useEffect(() => {
-     socket = io(url, {
+const useSocket = () => {
+  const [socket, setSocket] = useState<Socket | null>(null);
+let url=import.meta.env.VITE_SOCKET_URL
+  useEffect(() => {
+    const socketInstance = io(url, {
       // withCredentials: true,
     });
+    setSocket(socketInstance);
 
     return () => {
-      socket.disconnect();
+      socketInstance.disconnect();
     };
-  }, [url]); */
-
-  const socketurl = import.meta.env.VITE_SOCKET_URL;
-  console.log(`Socket URL ${socketurl}`);
-  let socket = io(socketurl, {
-    // withCredentials: true,
-  });
+  }, [url]);
 
   const sendMessage = (message: any) => {
-
+    if (socket) {
       socket.emit("send", message);
-    
+    }
   };
 
-  // const getNewMessage = (callback: (data: any) => void) => {
-  //   if (socket) {
-  //     socket.on("resp", callback);
-  //   }
-  // };
+  const getNewMessage = (callback: (data: any) => void) => {
+    if (socket) {
+      socket.on("resp", callback);
+    }
+  };
 
-  const joinRoom = (roomId: string) => {
-    // if (socket) {
-      console.log({roomId})
+  const joinRoom = (roomId: number | string) => {
+    if (socket) {
       socket.emit("join", { frq: roomId });
-    // }
+    }
   };
 
   const newInvite = ({
@@ -46,20 +41,20 @@ const useSocket = (url: string) => {
     roomId: string;
     socketRoom: string;
   }) => {
-
+    if (socket) {
       console.log("new invite data:", { roomId, socketRoom });
       socket.emit("newInvite", { frq: roomId, chatFrq: socketRoom });
-    
+    }
   };
 
   // listeing
 
   const listenNewInvite = () => {
-
-      socket.on("newInviteNotification", (data: any) => {
+    if (socket) {
+      socket.on("newInviteNotification", (data) => {
         setNotifications(data);
       });
-    
+    }
   };
 
   return {
@@ -67,7 +62,8 @@ const useSocket = (url: string) => {
     joinRoom,
     newInvite,
     listenNewInvite,
-    // getNewMessage,
+    socket,
+    getNewMessage,
   };
 };
 

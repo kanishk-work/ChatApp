@@ -27,7 +27,7 @@ const NewChat = () => {
     (state: RootState) => state.chats.activeChatId
   );
   const debounceSearch = useDebounce(searchTerm, 500);
-  const { newInvite } = useSocket(import.meta.env.VITE_HOST_URL);
+  const { newInvite } = useSocket();
 
   const {
     data: users,

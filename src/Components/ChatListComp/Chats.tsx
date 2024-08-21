@@ -19,7 +19,7 @@ interface ChatListProps {
 }
 
 const Chats: FC<ChatListProps> = ({ listStyle }) => {
-  const { joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
+  const { joinRoom } = useSocket();
   const { refetch: refetchChats } = useGetChatsQuery();
   const dispatch = useAppDispatch();
   // const [conversations, setConversations] = useState([]);
