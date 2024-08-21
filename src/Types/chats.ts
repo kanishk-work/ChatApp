@@ -83,9 +83,3 @@ export interface ChatMessage {
 export interface ConversationsType {
   list: ChatMessage[];
 }
-
-export interface ReplyPayload {
-  message: string;
-  chat_id: number;
-  files_list: any[]; // You can replace `any` with a more specific type if you know the structure of the items in the files_list array
-}

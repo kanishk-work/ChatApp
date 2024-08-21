@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import { MessagePayload } from "../Types/message";
+import { MessagePayload, ReplyPayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
-import { ChatResponse, ConversationsType, ReplyPayload } from "../Types/chats";
+import { ChatResponse, ConversationsType } from "../Types/chats";
 
 export interface JoinGroup {
   toUsersList: number[];

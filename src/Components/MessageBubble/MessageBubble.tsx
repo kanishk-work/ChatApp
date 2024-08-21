@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { FaChevronDown, FaDownload, FaFile } from "react-icons/fa";
 import DropDown from "../Shared/DropDown";
+import { ChatMessage } from "../../Types/chats";
 
 interface MessageBubbleProps {
   message: {
-    messageId:number;
+    messageId: number;
     textMessage: string;
     file: string[] | null; // Change from string to string[]
   };
+  parentMessage: ChatMessage | undefined;
   sender: "user" | "other";
-  setIsReply: React.Dispatch<React.SetStateAction<boolean>>
-  setReplyMessage: React.Dispatch<React.SetStateAction<{
-    messageId: number;
-    textMessage: string;
-    sender: "user" | "other";
-} | null>>
+  setIsReply: React.Dispatch<React.SetStateAction<boolean>>;
+  setReplyMessage: React.Dispatch<
+    React.SetStateAction<{
+      messageId: number;
+      textMessage: string;
+      file: string[] | null;
+    } | null>
+  >;
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
 }
@@ -22,18 +26,22 @@ interface MessageBubbleProps {
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   setIsReply,
   message,
+  parentMessage,
   sender,
   setReplyMessage, // Pass down the setReplyMessage from ChatWindow
   bubbleStyle,
   textStyle,
 }) => {
-
   const messageOptions = [
     {
       name: "Reply",
       action: () => {
         setIsReply(true);
-        setReplyMessage({ messageId:message.messageId, textMessage: message.textMessage, sender }); // Set the reply message
+        setReplyMessage({
+          messageId: message.messageId,
+          textMessage: message.textMessage,
+          file: message.file,
+        }); // Set the reply message
       },
     },
     {
@@ -97,13 +105,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const renderMessageContent = () => {
     return (
-      <div>
+      <div className="flex flex-col gap-3 items-center">
         {message.file &&
           message.file.map((fileUrl, index) => (
             <div key={index} className="mb-2">
               {getFilePreview(fileUrl)}
             </div>
           ))}
+        {parentMessage && (
+          <span className="w-full text-center dynamic-accent-color py-2 px-4 rounded-lg" style={textStyle}>{parentMessage.message}</span>
+        )}
         <span style={textStyle}>{message.textMessage}</span>
       </div>
     );
@@ -111,21 +122,23 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   return (
     <div
-      className={`flex ${sender === "user" ? "justify-end" : "justify-start"
-        } mb-2`}
+      className={`flex ${
+        sender === "user" ? "justify-end" : "justify-start"
+      } mb-2`}
     >
       <div
-        className={`max-w-[70%] rounded-lg pr-4 pl-4 pb-4 pt-6 relative group ${sender === "user"
+        className={`max-w-[70%] rounded-lg pr-4 pl-4 pb-4 pt-6 relative group ${
+          sender === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-200 text-black"
-          }`}
+        }`}
         style={bubbleStyle}
       >
         <div className="flex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <DropDown
             optionsList={messageOptions}
             triggerElement={<FaChevronDown size={15} />}
-            dropBoxClassName={`${sender === "user" ? 'right-0' : 'left-0'}`}
+            dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
           />
         </div>
         {renderMessageContent()}

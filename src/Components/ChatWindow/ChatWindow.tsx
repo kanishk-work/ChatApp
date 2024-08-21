@@ -18,9 +18,9 @@ const ChatWindow: React.FC = () => {
   const [replyMessage, setReplyMessage] = useState<{
     messageId: number;
     textMessage: string;
-    sender: "user" | "other";
-  } | null>(null); 
-  
+    file: string[] | null;
+  } | null>(null);
+
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeChatId = useAppSelector(
@@ -70,40 +70,75 @@ const ChatWindow: React.FC = () => {
     setReplyMessage(null); // Reset reply message after sending
     setIsReply(false); // Reset isReply state after sending
     if (activeChatId !== null) {
-      const newMessage = {
-        receiver_id: activeChat?.chatUsers.find(
-          (user) => user.user.id !== activeUserId
-        )?.user_id,
-        message: textMessage,
-        chat_room_id: activeChatId,
-        files_list: file || [],
-      };
-      try {
-        await sendMessageApi(newMessage).unwrap();
-        const socketPayload = {
+      let newMessage;
+      let messageReply;
+      let socketPayload;
+
+      // sending reply
+      if (replyMessage) {
+        console.log(
+          `this is a reply: ${textMessage} to-messageid: ${replyMessage?.messageId}`
+        );
+        messageReply = {
+          message: textMessage,
+          chat_id: replyMessage?.messageId,
+          files_list: file || [],
+        };
+
+        socketPayload = {
           chat: {
             fromId: activeUserId,
-            toId: newMessage.receiver_id,
+            toId: activeChat?.chatUsers.find(
+              (user) => user.user.id !== activeUserId
+            )?.user_id,
             msg: textMessage,
             roomId: activeChatId,
             filesList: file,
             frq: activeChat?.chatSocket[0]?.socket_room,
           },
         };
-        sendMessage(socketPayload);
-        await getConversations(activeChatId);
+        //sending normal message
+      } else {
+        console.log(`this is a normal message: ${textMessage}`);
+        newMessage = {
+          receiver_id: activeChat?.chatUsers.find(
+            (user) => user.user.id !== activeUserId
+          )?.user_id,
+          message: textMessage,
+          chat_room_id: activeChatId,
+          files_list: file || [],
+        };
+
+        socketPayload = {
+          chat: {
+            fromId: activeUserId,
+            toId: newMessage?.receiver_id,
+            msg: textMessage,
+            roomId: activeChatId,
+            filesList: file,
+            frq: activeChat?.chatSocket[0]?.socket_room,
+          },
+        };
+      }
+
+      try {
+        {
+          replyMessage
+            ? await sendReplyApi(messageReply).unwrap()
+            : await sendMessageApi(newMessage).unwrap();
+          sendMessage(socketPayload);
+          await getConversations(activeChatId);
+        }
       } catch (error) {
         console.error("Failed to send message:", error);
       }
     }
   };
 
-  const handleReply = async (
-    textMessage: string,
-    file: string[] | null,
-  ) => {
-    setReplyMessage(null); // Reset reply message after sending
-    setIsReply(false); // Reset isReply state after sending
+  const handleReply = async (textMessage: string, file: string[] | null) => {
+    console.log(
+      `this is a reply: ${textMessage} to-messageid: ${replyMessage?.messageId}`
+    );
     if (activeChatId !== null) {
       const messageReply = {
         message: textMessage,
@@ -129,6 +164,8 @@ const ChatWindow: React.FC = () => {
       } catch (error) {
         console.error("Failed to send message:", error);
       }
+      setReplyMessage(null); // Reset reply message after sending
+      setIsReply(false); // Reset isReply state after sending
     }
   };
 
@@ -143,29 +180,36 @@ const ChatWindow: React.FC = () => {
       <div className="flex-1 overflow-auto p-4 scrollbar-custom">
         {chatMessages
           .filter((message) => message.chat_room_id === activeChatId)
-          .map((message, index) => (
-            <div key={index}>
-              <MessageBubble
-                message={{
-                  messageId: message.id,
-                  textMessage: message.message,
-                  file: message.chatFiles,
-                }}
-                sender={message.sender_id === activeUserId ? "user" : "other"}
-                setIsReply= {setIsReply}
-                setReplyMessage={setReplyMessage} // Pass it here
-              />
-              <div className="text-center text-xs text-gray-500 my-2">
-                {formatTime(message.createdAt)}
+          .map((message, index) => {
+            // Find parent message if it exists
+            const parentMessage = chatMessages.find(
+              (m) => m.id === message.parent_chat_id
+            );
+            return (
+              <div key={index}>
+                <MessageBubble
+                  message={{
+                    messageId: message.id,
+                    textMessage: message.message,
+                    file: message.chatFiles,
+                  }}
+                  parentMessage={parentMessage} // Pass parent message to MessageBubble
+                  sender={message.sender_id === activeUserId ? "user" : "other"}
+                  setIsReply={setIsReply}
+                  setReplyMessage={setReplyMessage} // Pass it here
+                />
+                <div className="text-center text-xs text-gray-500 my-2">
+                  {formatTime(message.createdAt)}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         <div ref={messagesEndRef} />
       </div>
       <div className="p-4">
         <MessageComposer
           onSend={handleSend}
-          isReply = {isReply}
+          isReply={isReply}
           onReply={handleReply}
           replyMessage={replyMessage} // Pass the reply message to the composer
           messageComposerStyle={{ backgroundColor: "#CED9E4" }}

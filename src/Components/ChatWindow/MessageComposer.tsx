@@ -19,7 +19,7 @@ interface MessageComposerProps {
   isReply: boolean;
   replyMessage: {
     textMessage: string;
-    sender: "user" | "other";
+    file: string[] | null;
   } | null
   buttonText?: string;
   buttonIcon?: React.ReactNode;
@@ -31,7 +31,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   onSend,
   isReply,
   onReply,
-  replyMessage, // Accept replyMessage prop
+  replyMessage, 
   buttonText = "Send",
   buttonIcon = <FaArrowRight />,
   sendButtonStyle,
@@ -55,11 +55,12 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         );
         setFiles([]);
       }
-      {
-        !isReply
-          ? onSend(message, fileUrls.length > 0 ? fileUrls : null)
-          : onReply(message, fileUrls.length > 0 ? fileUrls : null);
-      }
+      onSend(message, fileUrls.length > 0 ? fileUrls : null);
+      // {
+      //   replyMessage
+      //     ? onReply(message, fileUrls.length > 0 ? fileUrls : null)
+      //     : onSend(message, fileUrls.length > 0 ? fileUrls : null);
+      // }
       setMessage("");
     }
   };
@@ -109,7 +110,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
     >
       {replyMessage && (
         <div className="w-full p-2 mb-2 bg-gray-100 rounded-lg">
-          <div className={`text-sm ${replyMessage.sender === 'user' ? 'text-blue-500' : 'text-gray-700'}`}>
+          <div className={`text-sm text-blue-500`}>
             {replyMessage.textMessage}
           </div>
         </div>
