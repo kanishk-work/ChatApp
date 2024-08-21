@@ -125,6 +125,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           <DropDown
             optionsList={messageOptions}
             triggerElement={<FaChevronDown size={15} />}
+            dropBoxClassName={`${sender === "user" ? 'right-0' : 'left-0'}`}
           />
         </div>
         {renderMessageContent()}

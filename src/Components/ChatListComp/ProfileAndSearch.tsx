@@ -75,6 +75,7 @@ const ProfileAndSearch = () => {
           "flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white"
         }
         triggerElement={<BiDotsVerticalRounded />}
+        dropBoxClassName={"right-0"}
       />
     </div>
   );
