@@ -10,15 +10,13 @@ import { convertFileToUrl } from "../../Utils/convertFileToUrl";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { init } from "emoji-mart";
+import { ChatMessage } from "../../Types/chats";
 
 init({ data });
 
 interface MessageComposerProps {
   onSend: (textMessage: string, file: string[] | null) => void;
-  replyMessage: {
-    textMessage: string;
-    file: string[] | null;
-  } | null
+  replyMessage: ChatMessage | null
   activeChatId: number | null;
   buttonText?: string;
   buttonIcon?: React.ReactNode;
@@ -115,7 +113,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       {replyMessage && (
         <div className="w-full p-2 mb-2 bg-gray-100 rounded-lg">
           <div className={`text-sm text-blue-500`}>
-            {replyMessage.textMessage}
+            {replyMessage.message}
           </div>
         </div>
       )}

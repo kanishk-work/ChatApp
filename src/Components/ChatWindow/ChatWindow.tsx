@@ -11,15 +11,11 @@ import {
   useSendReplyMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
+import { ChatMessage } from "../../Types/chats";
 // import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
-  const [isReply, setIsReply] = useState(false);
-  const [replyMessage, setReplyMessage] = useState<{
-    messageId: number;
-    textMessage: string;
-    file: string[] | null;
-  } | null>(null);
+  const [replyMessage, setReplyMessage] = useState<ChatMessage | null>(null);
 
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,7 +64,6 @@ const ChatWindow: React.FC = () => {
 
   const handleSend = async (textMessage: string, file: string[] | null) => {
     setReplyMessage(null); // Reset reply message after sending
-    setIsReply(false); // Reset isReply state after sending
     if (activeChatId !== null) {
       let newMessage;
       let messageReply;
@@ -77,11 +72,11 @@ const ChatWindow: React.FC = () => {
       // sending reply
       if (replyMessage) {
         console.log(
-          `this is a reply: ${textMessage} to-messageid: ${replyMessage?.messageId}`
+          `this is a reply: ${textMessage} to-messageid: ${replyMessage?.id}`
         );
         messageReply = {
           message: textMessage,
-          chat_id: replyMessage?.messageId,
+          chat_id: replyMessage?.id,
           files_list: file || [],
         };
 
@@ -135,6 +130,10 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    setReplyMessage(null);
+  }, [activeChatId]);
+
   return (
     <div className="flex flex-col h-full">
       <StatusBar
@@ -154,15 +153,11 @@ const ChatWindow: React.FC = () => {
             return (
               <div key={index}>
                 <MessageBubble
-                  message={{
-                    messageId: message.id,
-                    textMessage: message.message,
-                    file: message.chatFiles,
-                  }}
-                  parentMessage={parentMessage} // Pass parent message to MessageBubble
+                  message={message}
+                  parentMessage={parentMessage} 
                   sender={message.sender_id === activeUserId ? "user" : "other"}
-                  setIsReply={setIsReply}
-                  setReplyMessage={setReplyMessage} // Pass it here
+                  senderName={activeChat?.chatUsers.find((user) => user.user.id === message.sender_id)?.user.full_name}
+                  setReplyMessage={setReplyMessage} 
                 />
                 <div className="text-center text-xs text-gray-500 my-2">
                   {formatTime(message.createdAt)}
