@@ -134,7 +134,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         }`}
         style={bubbleStyle}
       >
-        <div className="flex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className={`flex text-xs justify-end absolute top-0 ${sender === "user" ? "left-0" : "right-0"} p-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
           <DropDown
             optionsList={messageOptions}
             triggerElement={<FaChevronDown size={15} />}

@@ -15,12 +15,11 @@ init({ data });
 
 interface MessageComposerProps {
   onSend: (textMessage: string, file: string[] | null) => void;
-  onReply: (textMessage: string, file: string[] | null) => void;
-  isReply: boolean;
   replyMessage: {
     textMessage: string;
     file: string[] | null;
   } | null
+  activeChatId: number | null;
   buttonText?: string;
   buttonIcon?: React.ReactNode;
   sendButtonStyle?: React.CSSProperties;
@@ -29,13 +28,12 @@ interface MessageComposerProps {
 
 const MessageComposer: React.FC<MessageComposerProps> = ({
   onSend,
-  isReply,
-  onReply,
   replyMessage, 
   buttonText = "Send",
   buttonIcon = <FaArrowRight />,
   sendButtonStyle,
   messageComposerStyle,
+  activeChatId
 }) => {
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -101,6 +99,12 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    setMessage("");
+    setFiles([]);
+    setShowEmojiPicker(false);
+  }, [activeChatId]);
 
   return (
     <div

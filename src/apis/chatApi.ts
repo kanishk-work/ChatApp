@@ -42,9 +42,9 @@ export const chatApi = createApi({
         };
       },
     }),
-    getChats: builder.query<ChatResponse, void>({
-      query: () => ({
-        url: `chat`,
+    getChats: builder.query<ChatResponse, string | void>({
+      query: (searchTerm) => ({
+        url: searchTerm ? `chat?search=${encodeURIComponent(searchTerm)}` : `chat`,
         method: "GET",
       }),
     }),

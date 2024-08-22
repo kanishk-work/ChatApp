@@ -135,40 +135,6 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  const handleReply = async (textMessage: string, file: string[] | null) => {
-    console.log(
-      `this is a reply: ${textMessage} to-messageid: ${replyMessage?.messageId}`
-    );
-    if (activeChatId !== null) {
-      const messageReply = {
-        message: textMessage,
-        chat_id: replyMessage?.messageId,
-        files_list: file || [],
-      };
-      try {
-        await sendReplyApi(messageReply).unwrap();
-        const socketPayload = {
-          chat: {
-            fromId: activeUserId,
-            toId: activeChat?.chatUsers.find(
-              (user) => user.user.id !== activeUserId
-            )?.user_id,
-            msg: textMessage,
-            roomId: activeChatId,
-            filesList: file,
-            frq: activeChat?.chatSocket[0]?.socket_room,
-          },
-        };
-        sendMessage(socketPayload);
-        await getConversations(activeChatId);
-      } catch (error) {
-        console.error("Failed to send message:", error);
-      }
-      setReplyMessage(null); // Reset reply message after sending
-      setIsReply(false); // Reset isReply state after sending
-    }
-  };
-
   return (
     <div className="flex flex-col h-full">
       <StatusBar
@@ -209,9 +175,8 @@ const ChatWindow: React.FC = () => {
       <div className="p-4">
         <MessageComposer
           onSend={handleSend}
-          isReply={isReply}
-          onReply={handleReply}
-          replyMessage={replyMessage} // Pass the reply message to the composer
+          replyMessage={replyMessage}
+          activeChatId={activeChatId}
           messageComposerStyle={{ backgroundColor: "#CED9E4" }}
         />
       </div>

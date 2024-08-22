@@ -9,11 +9,18 @@ import {
 import DropDown from "../Shared/DropDown";
 import profilePlaceHolder from "./../../assets/profilePlaceHolder.jpg";
 import SearchBar from "../SearchBar/SearchBar";
-import { useState } from "react";
-import { useSearchUsersQuery } from "../../apis/authApi";
+import { FC, useEffect, useState } from "react";
 import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
+import { useGetChatsQuery } from "../../apis/chatApi";
+import { Styles } from "../../Utils/styleUtils";
 
-const ProfileAndSearch = () => {
+interface ProfileAndSearchProps {
+  searchTerm: string
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  listStyle?: Styles;
+}
+
+const ProfileAndSearch:FC<ProfileAndSearchProps> = ({searchTerm, setSearchTerm}) => {
   const menu_items = [
     {
       name: "new chat",
@@ -38,17 +45,26 @@ const ProfileAndSearch = () => {
   ];
   const activeUser = useAppSelector((state) => state.activeUser);
   const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const debounceSearch = useDebounce(searchTerm, 500);
-  const {
-    data: users,
-    error,
-    isLoading,
-  } = useSearchUsersQuery(debounceSearch, {
-    skip: debounceSearch.length < 2 || !debounceSearch,
-  });
+  // const [searchTerm, setSearchTerm] = useState<string>("");
+  // const debounceSearch = useDebounce(searchTerm, 500);
+  
+  // const { data, error, isLoading, refetch: refetchChats } = useGetChatsQuery(debounceSearch.length > 2 ? debounceSearch : undefined);
 
-  console.log("searchResult", users?.list);
+  // useEffect(() => {
+  //   if (debounceSearch.length <= 2) {
+  //     refetchChats();
+  //   }
+  // }, [debounceSearch, refetchChats]);
+
+  // const {
+  //   data: users,
+  //   error,
+  //   isLoading,
+  // } = useGetChatsQuery(debounceSearch, {
+  //   skip: debounceSearch.length < 2 || !debounceSearch,
+  // });
+
+  // console.log(debounceSearch, data);
 
   return (
     <div className="w-full flex items-center gap-3 mb-3">

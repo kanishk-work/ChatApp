@@ -13,12 +13,14 @@ import {
   useGetChatsQuery,
   useGetConversationsMutation,
 } from "../../apis/chatApi";
+import { Chat } from "../../Types/chats";
 
 interface ChatListProps {
+  chats: Chat[]
   listStyle?: Styles;
 }
 
-const Chats: FC<ChatListProps> = ({ listStyle }) => {
+const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
   const { joinRoom,joinChatRoom } = useSocket();
   const { refetch: refetchChats } = useGetChatsQuery();
   const dispatch = useAppDispatch();
@@ -27,7 +29,7 @@ const Chats: FC<ChatListProps> = ({ listStyle }) => {
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
-  const chats = useAppSelector((state: RootState) => state.chats.chats);
+  // const chats = useAppSelector((state: RootState) => state.chats.chats);
   const conversations = useAppSelector(
     (state: RootState) => state.chats.conversations
   );
