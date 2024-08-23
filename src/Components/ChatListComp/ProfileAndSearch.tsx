@@ -9,9 +9,7 @@ import {
 import DropDown from "../Shared/DropDown";
 import profilePlaceHolder from "./../../assets/profilePlaceHolder.jpg";
 import SearchBar from "../SearchBar/SearchBar";
-import { FC, useEffect, useState } from "react";
-import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
-import { useGetChatsQuery } from "../../apis/chatApi";
+import { FC } from "react";
 import { Styles } from "../../Utils/styleUtils";
 
 interface ProfileAndSearchProps {
@@ -45,26 +43,6 @@ const ProfileAndSearch:FC<ProfileAndSearchProps> = ({searchTerm, setSearchTerm})
   ];
   const activeUser = useAppSelector((state) => state.activeUser);
   const dispatch = useAppDispatch();
-  // const [searchTerm, setSearchTerm] = useState<string>("");
-  // const debounceSearch = useDebounce(searchTerm, 500);
-  
-  // const { data, error, isLoading, refetch: refetchChats } = useGetChatsQuery(debounceSearch.length > 2 ? debounceSearch : undefined);
-
-  // useEffect(() => {
-  //   if (debounceSearch.length <= 2) {
-  //     refetchChats();
-  //   }
-  // }, [debounceSearch, refetchChats]);
-
-  // const {
-  //   data: users,
-  //   error,
-  //   isLoading,
-  // } = useGetChatsQuery(debounceSearch, {
-  //   skip: debounceSearch.length < 2 || !debounceSearch,
-  // });
-
-  // console.log(debounceSearch, data);
 
   return (
     <div className="w-full flex items-center gap-3 mb-3">

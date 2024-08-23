@@ -42,25 +42,21 @@ const ChatWindow: React.FC = () => {
     }
   }, [chatMessages]);
 
-  useEffect(() => {
-    const fetchConversations = async () => {
-      if (activeChatId !== null) {
-        try {
-          await getConversations(activeChatId).unwrap();
-        } catch (error) {
-          console.error("Failed to fetch conversations:", error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchConversations = async () => {
+  //     if (activeChatId !== null) {
+  //       try {
+  //         await getConversations(activeChatId).unwrap();
+  //       } catch (error) {
+  //         console.error("Failed to fetch conversations:", error);
+  //       }
+  //     }
+  //   };
 
-    fetchConversations();
-  }, [activeChatId, getConversations]);
+  //   fetchConversations();
+  // }, [activeChatId, getConversations]);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on("resp", (data) => console.log({ data }));
-    }
-  }, [socket]);
+  
 
   const handleSend = async (textMessage: string, file: string[] | null) => {
     setReplyMessage(null); // Reset reply message after sending
@@ -89,7 +85,8 @@ const ChatWindow: React.FC = () => {
             msg: textMessage,
             roomId: activeChatId,
             filesList: file,
-            frq: activeChat?.chatSocket[0]?.socket_room,
+            // frq: activeChat?.chatSocket[0]?.socket_room,console.log(`joined room: ${roomId}`)
+            frq:`${activeChatId}`
           },
         };
         //sending normal message
@@ -111,7 +108,8 @@ const ChatWindow: React.FC = () => {
             msg: textMessage,
             roomId: activeChatId,
             filesList: file,
-            frq: activeChat?.chatSocket[0]?.socket_room,
+            // frq: activeChat?.chatSocket[0]?.socket_room,
+            frq:`${activeChatId}`
           },
         };
       }

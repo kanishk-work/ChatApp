@@ -113,16 +113,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       {sender === "other" && <span className="dynamic-text-color-secondary">{senderName}</span> }
       
       <div
-        className={`[clip-path:polygon(100%_1%,100%_100%,6%_99%,6%_27%,0_0,33%_0,76%_0)] max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
+        className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-200 text-black"
           }`}
         style={bubbleStyle}
       >
-        <div className={`flex text-xs justify-end absolute top-0 ${sender === "user" ? "-left-8" : "-right-8"} p-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
+        <div className={`flex text-xs justify-end absolute top-0 ${sender === "user" ? "left-0" : "right-0"} cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
           <DropDown
             optionsList={messageOptions}
             triggerElement={<FaChevronDown />}
+            btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"}`}
             dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
           />
         </div>

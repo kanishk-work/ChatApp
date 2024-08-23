@@ -38,28 +38,28 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
     (state: RootState) => state.activeUser.id
   );
   const [getConversations] = useGetConversationsMutation();
-  useEffect(() => {
-    const fetchConversations = async () => {
-      if (activeChatId !== null) {
-        try {
-          const res = await getConversations().unwrap();
-          console.log("Conversations fetched:", res);
-        } catch (error) {
-          console.error("Failed to fetch conversations:", error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchConversations = async () => {
+  //     if (activeChatId !== null) {
+  //       try {
+  //         const res = await getConversations().unwrap();
+  //         console.log("Conversations fetched:", res);
+  //       } catch (error) {
+  //         console.error("Failed to fetch conversations:", error);
+  //       }
+  //     }
+  //   };
 
-    fetchConversations();
-  }, [activeChatId, getConversations]);
+  //   fetchConversations();
+  // }, [activeChatId, getConversations]);
   const handleChatClick = async (chatId: number) => {
     if (activeChatId !== chatId) {
       dispatch(setActiveChatId(chatId));
       dispatch(setChatWindow(true));
-      // joinRoom(chatId);
       try {
         const response = await getConversations(chatId).unwrap();
         console.log("API response:", response);
+        // joinRoom(`${chatId}`);
       } catch (err) {
         console.error("API error:", err);
       }
@@ -68,6 +68,12 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
   console.log(chats)
   
   const roomJoin = () => joinChatRoom('1');
+  // const { getNewMessage, socket, sendMessage } = useSocket();
+  // useEffect(() => {
+  //   socket?.on("resp", (data) => {
+  //     console.log(data)
+  //   })
+  // })
 
   return (
     <div className="overflow-auto scrollbar-custom">
@@ -81,7 +87,7 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
           ? chat.profile_pic || placeholderImage
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
               ?.user.profile_pic || placeholderImage;
-        // joinRoom(chat.chatSocket[0].socket_room)
+        joinChatRoom(`${chat.id}`);
         return (
           <div
             key={chat.id}
