@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { MessagePayload, ReplyPayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
 import { ChatResponse, ConversationsType } from "../Types/chats";
+import { storeChatData, storeChatMessagesData } from "../DB/database";
 
 export interface JoinGroup {
   toUsersList: number[];
@@ -47,13 +48,36 @@ export const chatApi = createApi({
         url: searchTerm ? `chat?search=${encodeURIComponent(searchTerm)}` : `chat`,
         method: "GET",
       }),
+      async onQueryStarted(searchTerm, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data && data.list) {
+            // Store chats in IndexedDB
+            await storeChatData(data.list);
+            console.log(data.list)
+          }
+        } catch (error) {
+          console.error('Failed to store chats in IndexedDB:', error);
+        }
+      },
     }),
+    
     getConversations: builder.mutation<ConversationsType, number>({
       query: (chatRoomId) => ({
         url: `chat/messages`,
         method: "POST",
         body: { chatRoomId },
       }),
+      onQueryStarted: async (chatRoomId, { queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+
+          // Store messages in IndexedDB
+          await storeChatMessagesData(data.list);
+        } catch (err) {
+          console.error('Failed to store messages in IndexedDB:', err);
+        }
+      },
     }),
     sendReply: builder.mutation<any, ReplyPayload>({
       query: (body) => ({

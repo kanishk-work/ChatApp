@@ -6,6 +6,8 @@ import { injectStyles } from "./Utils/injectStyles";
 import { authenticateUser } from "./Utils/logInUser";
 import { useLogInMutation } from "./apis/authApi";
 import useSocket from "./apis/websocket";
+import { createTestData } from "./DB/testScript";
+import { verifyData } from "./DB/verifyScript";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -121,6 +123,10 @@ const App: React.FC = () => {
       document.body.classList.remove("dark");
     }
   }, [isDarkMode]);
+
+  //indexedDB test
+  // createTestData();
+  // verifyData();
 
   return <HomeLayout />;
 };

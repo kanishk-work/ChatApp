@@ -56,8 +56,6 @@ const ChatWindow: React.FC = () => {
   //   fetchConversations();
   // }, [activeChatId, getConversations]);
 
-  
-
   const handleSend = async (textMessage: string, file: string[] | null) => {
     setReplyMessage(null); // Reset reply message after sending
     if (activeChatId !== null) {
@@ -86,7 +84,7 @@ const ChatWindow: React.FC = () => {
             roomId: activeChatId,
             filesList: file,
             // frq: activeChat?.chatSocket[0]?.socket_room,console.log(`joined room: ${roomId}`)
-            frq:`${activeChatId}`
+            frq: `${activeChatId}`,
           },
         };
         //sending normal message
@@ -109,7 +107,7 @@ const ChatWindow: React.FC = () => {
             roomId: activeChatId,
             filesList: file,
             // frq: activeChat?.chatSocket[0]?.socket_room,
-            frq:`${activeChatId}`
+            frq: `${activeChatId}`,
           },
         };
       }
@@ -152,10 +150,16 @@ const ChatWindow: React.FC = () => {
               <div key={index}>
                 <MessageBubble
                   message={message}
-                  parentMessage={parentMessage} 
+                  parentMessage={parentMessage}
                   sender={message.sender_id === activeUserId ? "user" : "other"}
-                  senderName={activeChat?.chatUsers.find((user) => user.user.id === message.sender_id)?.user.full_name}
-                  setReplyMessage={setReplyMessage} 
+                  senderName={
+                    activeChat?.is_group
+                      ? activeChat?.chatUsers.find(
+                          (user) => user.user.id === message.sender_id
+                        )?.user.full_name
+                      : undefined
+                  }
+                  setReplyMessage={setReplyMessage}
                 />
                 <div className="text-center text-xs text-gray-500 my-2">
                   {formatTime(message.createdAt)}
