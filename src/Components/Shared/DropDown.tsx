@@ -17,6 +17,7 @@ const DropDown = ({
   optionsList,
   btnClassName,
   itemClassName,
+  dropBoxClassName,
   triggerElement,
 }: props) => {
   return (
@@ -27,7 +28,7 @@ const DropDown = ({
 
       <MenuItems
         transition
-        className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+        className={`${dropBoxClassName} absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in`}
       >
         <div className="py-1">
           {optionsList.map((option: any, index: number) => (

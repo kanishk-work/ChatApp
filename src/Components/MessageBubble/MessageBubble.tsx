@@ -1,34 +1,39 @@
 import React, { useState } from "react";
 import { FaChevronDown, FaDownload, FaFile } from "react-icons/fa";
 import DropDown from "../Shared/DropDown";
+import { ChatMessage } from "../../Types/chats";
 
 interface MessageBubbleProps {
-  message: {
-    textMessage: string;
-    file: string[] | null; // Change from string to string[]
-  };
+  message: ChatMessage;
+  parentMessage: ChatMessage | undefined;
   sender: "user" | "other";
+  senderName: string | undefined;
+  setReplyMessage: React.Dispatch<React.SetStateAction<ChatMessage | null>>
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
 }
 
-const messageOptions = [
-  {
-    name: "Reply",
-    action: () => console.log("Reply option selected"),
-  },
-  {
-    name: "Download",
-    action: () => console.log("Download option selected"),
-  },
-];
-
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
+  parentMessage,
   sender,
+  senderName,
+  setReplyMessage, // Pass down the setReplyMessage from ChatWindow
   bubbleStyle,
   textStyle,
 }) => {
+  const messageOptions = [
+    {
+      name: "Reply",
+      action: () => {
+        setReplyMessage(message); // Set the reply message
+      },
+    },
+    {
+      name: "Download",
+      action: () => console.log("Download option selected"),
+    },
+  ];
   const [showOptions, setShowOptions] = useState(false);
 
   const toggleOptions = () => {
@@ -85,36 +90,41 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const renderMessageContent = () => {
     return (
-      <div>
-        {message.file &&
-          message.file.map((fileUrl, index) => (
+      <div className="flex flex-col gap-3 items-center">
+        {message.chatFiles &&
+          message.chatFiles.map((fileUrl, index) => (
             <div key={index} className="mb-2">
               {getFilePreview(fileUrl)}
             </div>
           ))}
-        <span style={textStyle}>{message.textMessage}</span>
+        {parentMessage && (
+          <span className="w-full text-center dynamic-accent-color py-2 px-4 rounded-lg" style={textStyle}>{parentMessage.message}</span>
+        )}
+        <span style={textStyle}>{message.message}</span>
       </div>
     );
   };
 
   return (
     <div
-      className={`flex ${
-        sender === "user" ? "justify-end" : "justify-start"
-      } mb-2`}
+      className={`flex flex-col ${sender === "user" ? "items-end" : "items-start"
+        } mb-2`}
     >
+      {sender === "other" && <span className="dynamic-text-color-secondary">{senderName}</span> }
+      
       <div
-        className={`max-w-[70%] rounded-lg pr-4 pl-4 pb-4 pt-6 relative group ${
-          sender === "user"
+        className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-200 text-black"
-        }`}
+          }`}
         style={bubbleStyle}
       >
-        <div className="flex text-xs justify-end absolute top-0 right-0 mr-2 mt-2 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className={`flex text-xs justify-end absolute top-0 ${sender === "user" ? "left-0" : "right-0"} cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
           <DropDown
             optionsList={messageOptions}
-            triggerElement={<FaChevronDown size={15} />}
+            triggerElement={<FaChevronDown />}
+            btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"}`}
+            dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
           />
         </div>
         {renderMessageContent()}

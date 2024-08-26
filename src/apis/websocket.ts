@@ -4,7 +4,18 @@ import { setNotifications } from "../Redux/slices/chatsSlice";
 
 const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
-let url=import.meta.env.VITE_SOCKET_URL
+  let url = import.meta.env.VITE_SOCKET_URL;
+  useEffect(() => {
+    if (socket) {
+      socket.on("resp", (data) =>
+        console.log(`RESPONSE ${JSON.stringify(data)}`)
+      );
+      socket.on("newInviteNotification", (data) => {
+        setNotifications(data);
+        console.log(data);
+      });
+    }
+  }, [socket]);
   useEffect(() => {
     const socketInstance = io(url, {
       // withCredentials: true,
@@ -22,15 +33,21 @@ let url=import.meta.env.VITE_SOCKET_URL
     }
   };
 
-  const getNewMessage = (callback: (data: any) => void) => {
+  const joinRoom = (roomId: string) => {
     if (socket) {
-      socket.on("resp", callback);
+      socket.emit("join", { frq: roomId });
+      console.log(`joined room: ${roomId}`);
     }
   };
 
-  const joinRoom = (roomId: number | string) => {
+  const joinChatRoom = (roomId: string) => {
     if (socket) {
       socket.emit("join", { frq: roomId });
+      console.log(`joined room: ${roomId}`);
+
+      // socket.on("resp", (data) => {
+      //   console.log(`Chat Resp data ${JSON.stringify(data)}`);
+      // });
     }
   };
 
@@ -48,7 +65,13 @@ let url=import.meta.env.VITE_SOCKET_URL
   };
 
   // listeing
-
+  const getNewMessage = () => {
+    if (socket) {
+      socket.on("resp", (data) => {
+        console.log(`Chat Resp data ${JSON.stringify(data)}`);
+      });
+    }
+  };
   const listenNewInvite = () => {
     if (socket) {
       socket.on("newInviteNotification", (data) => {
@@ -64,6 +87,7 @@ let url=import.meta.env.VITE_SOCKET_URL
     listenNewInvite,
     socket,
     getNewMessage,
+    joinChatRoom,
   };
 };
 

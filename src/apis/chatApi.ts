@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import { MessagePayload } from "../Types/message";
+import { MessagePayload, ReplyPayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
 import { ChatResponse, ConversationsType } from "../Types/chats";
 
@@ -42,9 +42,9 @@ export const chatApi = createApi({
         };
       },
     }),
-    getChats: builder.query<ChatResponse, void>({
-      query: () => ({
-        url: `chat`,
+    getChats: builder.query<ChatResponse, string | void>({
+      query: (searchTerm) => ({
+        url: searchTerm ? `chat?search=${encodeURIComponent(searchTerm)}` : `chat`,
         method: "GET",
       }),
     }),
@@ -53,6 +53,13 @@ export const chatApi = createApi({
         url: `chat/messages`,
         method: "POST",
         body: { chatRoomId },
+      }),
+    }),
+    sendReply: builder.mutation<any, ReplyPayload>({
+      query: (body) => ({
+        url: `chat/reply`,
+        method: "POST",
+        body: body ,
       }),
     }),
   }),
@@ -64,4 +71,5 @@ export const {
   useSendMessageMutation,
   useGetChatsQuery,
   useGetConversationsMutation,
+  useSendReplyMutation
 } = chatApi as any;

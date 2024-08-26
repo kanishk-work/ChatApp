@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RootState } from "../../Redux/store";
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
@@ -8,11 +8,15 @@ import { formatTime } from "../../Utils/formatTimeStamp";
 import {
   useGetConversationsMutation,
   useSendMessageMutation,
+  useSendReplyMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
+import { ChatMessage } from "../../Types/chats";
 // import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
+  const [replyMessage, setReplyMessage] = useState<ChatMessage | null>(null);
+
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeChatId = useAppSelector(
@@ -28,8 +32,9 @@ const ChatWindow: React.FC = () => {
   );
   const [getConversations] = useGetConversationsMutation();
   const [sendMessageApi] = useSendMessageMutation();
-  const { getNewMessage, socket, sendMessage } = useSocket(
-  );
+  const [sendReplyApi] = useSendReplyMutation();
+
+  const { getNewMessage, socket, sendMessage } = useSocket();
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -37,55 +42,95 @@ const ChatWindow: React.FC = () => {
     }
   }, [chatMessages]);
 
-  useEffect(() => {
-    const fetchConversations = async () => {
-      if (activeChatId !== null) {
-        try {
-          await getConversations(activeChatId).unwrap();
-        } catch (error) {
-          console.error("Failed to fetch conversations:", error);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchConversations = async () => {
+  //     if (activeChatId !== null) {
+  //       try {
+  //         await getConversations(activeChatId).unwrap();
+  //       } catch (error) {
+  //         console.error("Failed to fetch conversations:", error);
+  //       }
+  //     }
+  //   };
 
-    fetchConversations();
-  }, [activeChatId, getConversations]);
+  //   fetchConversations();
+  // }, [activeChatId, getConversations]);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on("resp", (data) => console.log({ data }));
-    }
-  }, [socket]);
+  
 
   const handleSend = async (textMessage: string, file: string[] | null) => {
+    setReplyMessage(null); // Reset reply message after sending
     if (activeChatId !== null) {
-      const newMessage = {
-        receiver_id: activeChat?.chatUsers.find(
-          (user) => user.user.id !== activeUserId
-        )?.user_id,
-        message: textMessage,
-        chat_room_id: activeChatId,
-        files_list: file || [],
-      };
-      try {
-        await sendMessageApi(newMessage).unwrap();
-        const socketPayload = {
+      let newMessage;
+      let messageReply;
+      let socketPayload;
+
+      // sending reply
+      if (replyMessage) {
+        console.log(
+          `this is a reply: ${textMessage} to-messageid: ${replyMessage?.id}`
+        );
+        messageReply = {
+          message: textMessage,
+          chat_id: replyMessage?.id,
+          files_list: file || [],
+        };
+
+        socketPayload = {
           chat: {
             fromId: activeUserId,
-            toId: newMessage.receiver_id,
+            toId: activeChat?.chatUsers.find(
+              (user) => user.user.id !== activeUserId
+            )?.user_id,
             msg: textMessage,
             roomId: activeChatId,
             filesList: file,
-            frq: activeChat?.chatSocket[0]?.socket_room,
+            // frq: activeChat?.chatSocket[0]?.socket_room,console.log(`joined room: ${roomId}`)
+            frq:`${activeChatId}`
           },
         };
-        sendMessage(socketPayload);
-        await getConversations(activeChatId);
+        //sending normal message
+      } else {
+        console.log(`this is a normal message: ${textMessage}`);
+        newMessage = {
+          receiver_id: activeChat?.chatUsers.find(
+            (user) => user.user.id !== activeUserId
+          )?.user_id,
+          message: textMessage,
+          chat_room_id: activeChatId,
+          files_list: file || [],
+        };
+
+        socketPayload = {
+          chat: {
+            fromId: activeUserId,
+            toId: newMessage?.receiver_id,
+            msg: textMessage,
+            roomId: activeChatId,
+            filesList: file,
+            // frq: activeChat?.chatSocket[0]?.socket_room,
+            frq:`${activeChatId}`
+          },
+        };
+      }
+
+      try {
+        {
+          replyMessage
+            ? await sendReplyApi(messageReply).unwrap()
+            : await sendMessageApi(newMessage).unwrap();
+          sendMessage(socketPayload);
+          await getConversations(activeChatId);
+        }
       } catch (error) {
         console.error("Failed to send message:", error);
       }
     }
   };
+
+  useEffect(() => {
+    setReplyMessage(null);
+  }, [activeChatId]);
 
   return (
     <div className="flex flex-col h-full">
@@ -98,25 +143,33 @@ const ChatWindow: React.FC = () => {
       <div className="flex-1 overflow-auto p-4 scrollbar-custom">
         {chatMessages
           .filter((message) => message.chat_room_id === activeChatId)
-          .map((message, index) => (
-            <div key={index}>
-              <MessageBubble
-                message={{
-                  textMessage: message.message,
-                  file: message.chatFiles,
-                }}
-                sender={message.sender_id === activeUserId ? "user" : "other"}
-              />
-              <div className="text-center text-xs text-gray-500 my-2">
-                {formatTime(message.createdAt)}
+          .map((message, index) => {
+            // Find parent message if it exists
+            const parentMessage = chatMessages.find(
+              (m) => m.id === message.parent_chat_id
+            );
+            return (
+              <div key={index}>
+                <MessageBubble
+                  message={message}
+                  parentMessage={parentMessage} 
+                  sender={message.sender_id === activeUserId ? "user" : "other"}
+                  senderName={activeChat?.chatUsers.find((user) => user.user.id === message.sender_id)?.user.full_name}
+                  setReplyMessage={setReplyMessage} 
+                />
+                <div className="text-center text-xs text-gray-500 my-2">
+                  {formatTime(message.createdAt)}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         <div ref={messagesEndRef} />
       </div>
       <div className="p-4">
         <MessageComposer
           onSend={handleSend}
+          replyMessage={replyMessage}
+          activeChatId={activeChatId}
           messageComposerStyle={{ backgroundColor: "#CED9E4" }}
         />
       </div>

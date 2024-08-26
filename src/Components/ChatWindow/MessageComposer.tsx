@@ -10,11 +10,14 @@ import { convertFileToUrl } from "../../Utils/convertFileToUrl";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { init } from "emoji-mart";
+import { ChatMessage } from "../../Types/chats";
 
 init({ data });
 
 interface MessageComposerProps {
   onSend: (textMessage: string, file: string[] | null) => void;
+  replyMessage: ChatMessage | null
+  activeChatId: number | null;
   buttonText?: string;
   buttonIcon?: React.ReactNode;
   sendButtonStyle?: React.CSSProperties;
@@ -23,10 +26,12 @@ interface MessageComposerProps {
 
 const MessageComposer: React.FC<MessageComposerProps> = ({
   onSend,
+  replyMessage, 
   buttonText = "Send",
   buttonIcon = <FaArrowRight />,
   sendButtonStyle,
   messageComposerStyle,
+  activeChatId
 }) => {
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -46,8 +51,12 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         );
         setFiles([]);
       }
-
       onSend(message, fileUrls.length > 0 ? fileUrls : null);
+      // {
+      //   replyMessage
+      //     ? onReply(message, fileUrls.length > 0 ? fileUrls : null)
+      //     : onSend(message, fileUrls.length > 0 ? fileUrls : null);
+      // }
       setMessage("");
     }
   };
@@ -89,12 +98,25 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    setMessage("");
+    setFiles([]);
+    setShowEmojiPicker(false);
+  }, [activeChatId]);
+
   return (
     <div
       ref={messageComposerRef}
       className="flex flex-col sm:flex-row items-center p-4 border-t border-gray-200 relative"
       style={messageComposerStyle}
     >
+      {replyMessage && (
+        <div className="w-full p-2 mb-2 bg-gray-100 rounded-lg">
+          <div className={`text-sm text-blue-500`}>
+            {replyMessage.message}
+          </div>
+        </div>
+      )}
       <div className="flex items-center w-full sm:w-auto mb-2 sm:mb-0">
         <button
           className="mr-4 text-gray-500 hover:text-gray-700 relative"

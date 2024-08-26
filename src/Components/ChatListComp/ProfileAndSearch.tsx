@@ -9,11 +9,16 @@ import {
 import DropDown from "../Shared/DropDown";
 import profilePlaceHolder from "./../../assets/profilePlaceHolder.jpg";
 import SearchBar from "../SearchBar/SearchBar";
-import { useState } from "react";
-import { useSearchUsersQuery } from "../../apis/authApi";
-import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
+import { FC } from "react";
+import { Styles } from "../../Utils/styleUtils";
 
-const ProfileAndSearch = () => {
+interface ProfileAndSearchProps {
+  searchTerm: string
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  listStyle?: Styles;
+}
+
+const ProfileAndSearch:FC<ProfileAndSearchProps> = ({searchTerm, setSearchTerm}) => {
   const menu_items = [
     {
       name: "new chat",
@@ -38,17 +43,6 @@ const ProfileAndSearch = () => {
   ];
   const activeUser = useAppSelector((state) => state.activeUser);
   const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const debounceSearch = useDebounce(searchTerm, 500);
-  const {
-    data: users,
-    error,
-    isLoading,
-  } = useSearchUsersQuery(debounceSearch, {
-    skip: debounceSearch.length < 2 || !debounceSearch,
-  });
-
-  console.log("searchResult", users?.list);
 
   return (
     <div className="w-full flex items-center gap-3 mb-3">
@@ -75,6 +69,7 @@ const ProfileAndSearch = () => {
           "flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white"
         }
         triggerElement={<BiDotsVerticalRounded />}
+        dropBoxClassName={"right-0"}
       />
     </div>
   );
