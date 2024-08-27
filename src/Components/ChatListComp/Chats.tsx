@@ -55,7 +55,7 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
       dispatch(setActiveChatId(chatId));
       dispatch(setChatWindow(true));
       try {
-        const response = await getConversations(chatId).unwrap();
+        const response = await getConversations(0).unwrap();
         console.log("API response:", response);
         // joinRoom(`${chatId}`);
       } catch (err) {
@@ -85,7 +85,7 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
           ? chat.profile_pic || placeholderImage
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
               ?.user.profile_pic || placeholderImage;
-        joinChatRoom(`${chat.id}`);
+        joinChatRoom(`${chat.chatSocket[0].socket_room}`);
         return (
           <div
             key={chat.id}

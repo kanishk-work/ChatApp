@@ -126,7 +126,7 @@ const App: React.FC = () => {
 
   //indexedDB test
   // createTestData();
-  // verifyData();
+  verifyData();
 
   return <HomeLayout />;
 };

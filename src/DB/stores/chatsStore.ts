@@ -39,8 +39,8 @@ class ChatDatabase extends Dexie {
         await this.chats.put(chatForStorage);
     }
 
-    async getChat(id: number): Promise<Chat | undefined> {
-        const chatForStorage = await this.chats.get(id);
+    async getChat(id: number | null): Promise<Chat | undefined> {
+        const chatForStorage = id&& await this.chats.get(id);
         if (chatForStorage) {
             return {
                 ...chatForStorage,
@@ -71,7 +71,7 @@ export async function storeChats(chats: Chat[]): Promise<void> {
     await Promise.all(chats.map(chat => db.addChat(chat)));
 }
 
-export async function getChat(id: number): Promise<Chat | undefined> {
+export async function getChat(id: number | null): Promise<Chat | undefined> {
     return await db.getChat(id);
 }
 

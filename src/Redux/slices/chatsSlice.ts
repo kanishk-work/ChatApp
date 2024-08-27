@@ -38,18 +38,18 @@ const chatsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(
-      chatApi.endpoints.getChats.matchFulfilled,
-      (state, action: PayloadAction<{ list: Chat[] }>) => {
-        state.chats = action.payload.list;
-      }
-    );
-    builder.addMatcher(
-      chatApi.endpoints.getConversations.matchFulfilled,
-      (state, action: PayloadAction<ConversationsType>) => {
-        state.conversations = action.payload.list;
-      }
-    );
+    // builder.addMatcher(
+    //   chatApi.endpoints.getChats.matchFulfilled,
+    //   (state, action: PayloadAction<{ list: Chat[] }>) => {
+    //     state.chats = action.payload.list;
+    //   }
+    // );
+    // builder.addMatcher(
+    //   chatApi.endpoints.getConversations.matchFulfilled,
+    //   (state, action: PayloadAction<ConversationsType>) => {
+    //     state.conversations = action.payload.list;
+    //   }
+    // );
   },
 });
 

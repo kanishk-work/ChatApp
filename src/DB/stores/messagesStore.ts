@@ -1,68 +1,66 @@
 import Dexie from 'dexie';
-import { ChatMessage } from '../../Types/chats';
+import { ConversationsType } from '../../Types/conversationsType';
 
-// Use a different interface for the database storage
-interface ChatMessageForStorage {
+// Define a storage-specific interface for Conversations
+interface ConversationsTypeForStorage {
     id: number;
     updatedAt: string;
     createdAt: string;
     deletedAt: string | null;
-    chatFiles: string; // JSON string
-    chatReactions: string; // JSON string
-    chatStatus: string; // JSON string
-    sender_id: number;
-    receiver_id: number;
-    message: string;
-    chat_room_id: number;
-    is_reply: boolean;
-    parent_chat_id: number | null;
+    name: string;
+    client_id: number;
+    is_group: boolean;
+    profile_pic: string | null;
     is_deleted: boolean;
+    messages: string; // Store messages as a JSON string
 }
 
 class MessageDatabase extends Dexie {
-    chatMessages: Dexie.Table<ChatMessageForStorage, number>; // Primary key is number (id)
+    chatMessages: Dexie.Table<ConversationsTypeForStorage, number>; // Primary key is number (id)
 
     constructor() {
         super('ChatAppDB');
         this.version(1).stores({
-            chatMessages: '++id, updatedAt, createdAt, deletedAt, sender_id, receiver_id, chat_room_id, is_reply, parent_chat_id, is_deleted'
+            chatMessages: '++id, updatedAt, createdAt, deletedAt, client_id, is_group, is_deleted'
             // Define indexes as needed
         });
 
         this.chatMessages = this.table('chatMessages');
     }
 
-    async addChatMessage(message: ChatMessage): Promise<void> {
+    async addChatMessage(chat: ConversationsType): Promise<void> {
         // Serialize nested fields for storage
-        const messageForStorage: ChatMessageForStorage = {
-            ...message,
-            chatFiles: JSON.stringify(message.chatFiles),
-            chatReactions: JSON.stringify(message.chatReactions),
-            chatStatus: JSON.stringify(message.chatStatus)
+        const chatForStorage: ConversationsTypeForStorage = {
+            ...chat,
+            messages: JSON.stringify(chat.messages),
         };
-        await this.chatMessages.put(messageForStorage);
+        await this.chatMessages.put(chatForStorage);
     }
 
-    async getChatMessage(id: number): Promise<ChatMessage | undefined> {
-        const messageForStorage = await this.chatMessages.get(id);
-        if (messageForStorage) {
+    async getChatMessage(id: number): Promise<ConversationsType | undefined> {
+        const chatForStorage = await this.chatMessages.get(id);
+        if (chatForStorage) {
             return {
-                ...messageForStorage,
-                chatFiles: JSON.parse(messageForStorage.chatFiles),
-                chatReactions: JSON.parse(messageForStorage.chatReactions),
-                chatStatus: JSON.parse(messageForStorage.chatStatus)
+                ...chatForStorage,
+                messages: JSON.parse(chatForStorage.messages),
             };
         }
         return undefined;
     }
 
-    async getAllChatMessages(): Promise<ChatMessage[]> {
-        const messagesForStorage = await this.chatMessages.toArray();
-        return messagesForStorage.map(messageForStorage => ({
-            ...messageForStorage,
-            chatFiles: JSON.parse(messageForStorage.chatFiles),
-            chatReactions: JSON.parse(messageForStorage.chatReactions),
-            chatStatus: JSON.parse(messageForStorage.chatStatus)
+    async getMessagesByChatId(chatId: number): Promise<ConversationsType[] | undefined> {
+        const chatsForStorage = await this.chatMessages.where('id').equals(chatId).toArray();
+        return chatsForStorage.map(chatForStorage => ({
+            ...chatForStorage,
+            messages: JSON.parse(chatForStorage.messages),
+        }));
+    }
+
+    async getAllChatMessages(): Promise<ConversationsType[]> {
+        const chatsForStorage = await this.chatMessages.toArray();
+        return chatsForStorage.map(chatForStorage => ({
+            ...chatForStorage,
+            messages: JSON.parse(chatForStorage.messages),
         }));
     }
 
@@ -73,15 +71,19 @@ class MessageDatabase extends Dexie {
 
 const db = new MessageDatabase();
 
-export async function storeChatMessages(messages: ChatMessage[]): Promise<void> {
-    await Promise.all(messages.map(message => db.addChatMessage(message)));
+export async function storeChatMessages(chats: ConversationsType[]): Promise<void> {
+    await Promise.all(chats.map(chat => db.addChatMessage(chat)));
 }
 
-export async function getChatMessage(id: number): Promise<ChatMessage | undefined> {
+export async function getChatMessage(id: number): Promise<ConversationsType | undefined> {
     return await db.getChatMessage(id);
 }
 
-export async function getAllChatMessages(): Promise<ChatMessage[]> {
+export async function getMessagesByChatId(id: number): Promise<ConversationsType[] | undefined> {
+    return await db.getMessagesByChatId(id);
+}
+
+export async function getAllChatMessages(): Promise<ConversationsType[]> {
     return await db.getAllChatMessages();
 }
 

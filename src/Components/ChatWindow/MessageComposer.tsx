@@ -10,7 +10,7 @@ import { convertFileToUrl } from "../../Utils/convertFileToUrl";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { init } from "emoji-mart";
-import { ChatMessage } from "../../Types/chats";
+import { ChatMessage } from "../../Types/conversationsType";
 
 init({ data });
 

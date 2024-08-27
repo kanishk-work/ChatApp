@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaChevronDown, FaDownload, FaFile } from "react-icons/fa";
 import DropDown from "../Shared/DropDown";
-import { ChatMessage } from "../../Types/chats";
+import { ChatMessage } from "../../Types/conversationsType";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -91,12 +91,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const renderMessageContent = () => {
     return (
       <div className="flex flex-col gap-3 items-center">
-        {message.chatFiles &&
+        {/* {message.chatFiles &&
           message.chatFiles.map((fileUrl, index) => (
             <div key={index} className="mb-2">
               {getFilePreview(fileUrl)}
             </div>
-          ))}
+          ))} */}
         {parentMessage && (
           <span className="w-full text-center dynamic-accent-color py-2 px-4 rounded-lg" style={textStyle}>{parentMessage.message}</span>
         )}

@@ -2,8 +2,9 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { MessagePayload, ReplyPayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
-import { ChatResponse, ConversationsType } from "../Types/chats";
+import { ChatResponse } from "../Types/chats";
 import { storeChatData, storeChatMessagesData } from "../DB/database";
+import { ConversationsTypeResponse } from "../Types/conversationsType";
 
 export interface JoinGroup {
   toUsersList: number[];
@@ -62,7 +63,7 @@ export const chatApi = createApi({
       },
     }),
     
-    getConversations: builder.mutation<ConversationsType, number>({
+    getConversations: builder.mutation<ConversationsTypeResponse, number>({
       query: (chatRoomId) => ({
         url: `chat/messages`,
         method: "POST",

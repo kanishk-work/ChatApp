@@ -11,10 +11,15 @@ import {
   useSendReplyMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
-import { ChatMessage } from "../../Types/chats";
+import { getChatData, getMessagesByChatIdData } from "../../DB/database";
+import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
+import { Chat } from "../../Types/chats";
 // import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
+  const [messages, setMessages] = useState<ConversationsType[]>([])
+  const [activeChat, setActiveChat] = useState<Chat>()
+
   const [replyMessage, setReplyMessage] = useState<ChatMessage | null>(null);
 
   const dispatch = useAppDispatch();
@@ -22,14 +27,15 @@ const ChatWindow: React.FC = () => {
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
-  const chats = useAppSelector((state: RootState) => state.chats.chats);
-  const activeChat = chats.find((chat) => chat.id === activeChatId);
+  // const chats = useAppSelector((state: RootState) => state.chats.chats);
+  // const activeChat = chats.find((chat) => chat.id === activeChatId);
+
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
-  const chatMessages = useAppSelector(
-    (state: RootState) => state.chats.conversations
-  );
+  // const chatMessages = useAppSelector(
+  //   (state: RootState) => state.chats.conversations
+  // );
   const [getConversations] = useGetConversationsMutation();
   const [sendMessageApi] = useSendMessageMutation();
   const [sendReplyApi] = useSendReplyMutation();
@@ -40,21 +46,7 @@ const ChatWindow: React.FC = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [chatMessages]);
-
-  // useEffect(() => {
-  //   const fetchConversations = async () => {
-  //     if (activeChatId !== null) {
-  //       try {
-  //         await getConversations(activeChatId).unwrap();
-  //       } catch (error) {
-  //         console.error("Failed to fetch conversations:", error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchConversations();
-  // }, [activeChatId, getConversations]);
+  }, [messages]);
 
   const handleSend = async (textMessage: string, file: string[] | null) => {
     setReplyMessage(null); // Reset reply message after sending
@@ -83,8 +75,8 @@ const ChatWindow: React.FC = () => {
             msg: textMessage,
             roomId: activeChatId,
             filesList: file,
-            // frq: activeChat?.chatSocket[0]?.socket_room,console.log(`joined room: ${roomId}`)
-            frq: `${activeChatId}`,
+            frq: activeChat?.chatSocket[0]?.socket_room,
+            // frq: `${activeChatId}`,
           },
         };
         //sending normal message
@@ -106,8 +98,8 @@ const ChatWindow: React.FC = () => {
             msg: textMessage,
             roomId: activeChatId,
             filesList: file,
-            // frq: activeChat?.chatSocket[0]?.socket_room,
-            frq: `${activeChatId}`,
+            frq: activeChat?.chatSocket[0]?.socket_room,
+            // frq: `${activeChatId}`,
           },
         };
       }
@@ -117,6 +109,7 @@ const ChatWindow: React.FC = () => {
           replyMessage
             ? await sendReplyApi(messageReply).unwrap()
             : await sendMessageApi(newMessage).unwrap();
+          console.log(socketPayload);
           sendMessage(socketPayload);
           await getConversations(activeChatId);
         }
@@ -130,6 +123,34 @@ const ChatWindow: React.FC = () => {
     setReplyMessage(null);
   }, [activeChatId]);
 
+  //To get activeChat and its messages from indexedDB
+  useEffect(() => {
+    const getActiveChatAndMessages = async () => {
+      if (activeChatId !== null) {
+
+        const activeChat = await getChatData(activeChatId);
+        if (activeChat) {
+          setActiveChat(activeChat);
+          console.log('active chat from indexedDB: ', activeChat)
+        } else {
+          console.log("No chats found for this id.");
+        }
+
+        const messages = await getMessagesByChatIdData(activeChatId);
+        console.log(`Messages for Chat Room ID: ${activeChatId}`);
+
+        if (messages && messages.length > 0) {
+          setMessages(messages);
+          console.log('Messages indexedDB:', messages[0].messages)
+        } else {
+          console.log("No messages found for this chat.");
+        }
+      }
+    };
+
+    getActiveChatAndMessages();
+  }, [activeChatId]);
+
   return (
     <div className="flex flex-col h-full">
       <StatusBar
@@ -139,11 +160,10 @@ const ChatWindow: React.FC = () => {
         }}
       />
       <div className="flex-1 overflow-auto p-4 scrollbar-custom">
-        {chatMessages
-          .filter((message) => message.chat_room_id === activeChatId)
+        {messages[0]?.messages?.chatsList
           .map((message, index) => {
             // Find parent message if it exists
-            const parentMessage = chatMessages.find(
+            const parentMessage = messages[0]?.messages?.chatsList.find(
               (m) => m.id === message.parent_chat_id
             );
             return (
@@ -155,8 +175,8 @@ const ChatWindow: React.FC = () => {
                   senderName={
                     activeChat?.is_group
                       ? activeChat?.chatUsers.find(
-                          (user) => user.user.id === message.sender_id
-                        )?.user.full_name
+                        (user) => user.user.id === message.sender_id
+                      )?.user.full_name
                       : undefined
                   }
                   setReplyMessage={setReplyMessage}
