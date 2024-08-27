@@ -154,6 +154,7 @@ const ChatWindow: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       <StatusBar
+      activeChat={activeChat}
         statusBarStyles={{
           container: { backgroundColor: "", borderRadius: "1rem" },
           activityStatus: { color: "#27AE60" },

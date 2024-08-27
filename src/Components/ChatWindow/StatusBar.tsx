@@ -8,6 +8,7 @@ import { RootState } from "../../Redux/store";
 import { useWindowSize } from "../../Utils/windowSizeUtil";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
+import { Chat } from "../../Types/chats";
 
 interface StatusBarStyles {
   container?: Styles;
@@ -17,25 +18,21 @@ interface StatusBarStyles {
 }
 
 interface StatusBarProps {
+  activeChat: Chat | undefined,
   statusBarStyles?: StatusBarStyles;
 }
 
-const StatusBar: FC<StatusBarProps> = ({ statusBarStyles }) => {
+const StatusBar: FC<StatusBarProps> = ({ activeChat, statusBarStyles }) => {
   const containerStyles = applyStyles(statusBarStyles?.container);
   const userNameStyles = applyStyles(statusBarStyles?.userName);
   const activityStyles = applyStyles(statusBarStyles?.activityStatus);
   const backBtnStyles = applyStyles(statusBarStyles?.backBtn);
 
   const dispatch = useAppDispatch();
-  const activeChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChatId
-  );
 
-  const chats = useAppSelector((state: RootState) => state.chats.chats);
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
-  const activeChat = chats.find((chat) => chat.id === activeChatId);
 
   // Set the default (group) chat name, status, and profile picture
   let chatName = activeChat?.name || "";
