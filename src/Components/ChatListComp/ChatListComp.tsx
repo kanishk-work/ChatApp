@@ -1,16 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector } from "../../Redux/hooks";
 import { RootState } from "../../Redux/store";
 import Chats from "./Chats";
 import ProfileAndSearch from "./ProfileAndSearch";
+import { getAllChatsData } from "../../DB/database";
+import { Chat } from "../../Types/chats";
+import { useGetChatsQuery } from "../../apis/chatApi";
 
 const ChatListComp = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const { refetch: refetchChats } = useGetChatsQuery();
+  
+  // const chats = useAppSelector((state: RootState) => state.chats.chats);
 
-  const chats = useAppSelector((state: RootState) => state.chats.chats);
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
+  useEffect(() => {
+      const loadChats = async () => {
+          try {
+              const chatsFromDB = await getAllChatsData();
+              setChats(chatsFromDB);
+          } catch (err) {
+              setError('Failed to fetch chats from IndexedDB');
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      loadChats();
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  console.log(chats)
+
 
   const filteredChats = searchTerm
     ? chats.filter((chat) => {
@@ -22,6 +49,8 @@ const ChatListComp = () => {
         return chatName.toLowerCase().includes(searchTerm.toLowerCase());
       })
     : chats;
+
+    console.log(filteredChats)
 
   return (
     <div className="w-full h-full flex flex-col">

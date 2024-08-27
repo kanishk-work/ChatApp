@@ -1,16 +1,14 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import { Styles, applyStyles } from "../../Utils/styleUtils";
 import { RootState } from "../../Redux/store";
 import { setActiveChatId } from "../../Redux/slices/chatsSlice";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
-import { formatTime } from "../../Utils/formatTimeStamp";
 import useSocket from "../../apis/websocket";
 
 
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import {
-  useGetChatsQuery,
   useGetConversationsMutation,
 } from "../../apis/chatApi";
 import { Chat } from "../../Types/chats";
@@ -22,7 +20,7 @@ interface ChatListProps {
 
 const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
   const { joinRoom,joinChatRoom } = useSocket();
-  const { refetch: refetchChats } = useGetChatsQuery();
+  
   const dispatch = useAppDispatch();
   // const [conversations, setConversations] = useState([]);
   const { className, style } = applyStyles(listStyle);
@@ -57,7 +55,7 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
       dispatch(setActiveChatId(chatId));
       dispatch(setChatWindow(true));
       try {
-        const response = await getConversations(chatId).unwrap();
+        const response = await getConversations(0).unwrap();
         console.log("API response:", response);
         // joinRoom(`${chatId}`);
       } catch (err) {
@@ -87,7 +85,7 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
           ? chat.profile_pic || placeholderImage
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
               ?.user.profile_pic || placeholderImage;
-        joinChatRoom(`${chat.id}`);
+        joinChatRoom(`${chat.chatSocket[0].socket_room}`);
         return (
           <div
             key={chat.id}
