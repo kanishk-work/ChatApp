@@ -2,22 +2,22 @@ import Dexie from 'dexie';
 import { Chat } from '../../Types/chats';
 
 // Use a different interface for the database storage
-interface ChatForStorage {
-    id: number;
-    updatedAt: string;
-    createdAt: string;
-    deletedAt: string | null;
-    name: string;
-    client_id: number;
-    is_group: boolean;
-    is_deleted: boolean;
-    profile_pic: string | null;
-    chatUsers: string; // JSON string
-    chatSocket: string; // JSON string
-}
+// interface ChatForStorage {
+//     id: number;
+//     updatedAt: string;
+//     createdAt: string;
+//     deletedAt: string | null;
+//     name: string;
+//     client_id: number;
+//     is_group: boolean;
+//     is_deleted: boolean;
+//     profile_pic: string | null;
+//     chatUsers: ChatUser[]; // JSON string
+//     chatSocket: ChatSocket[]; // JSON string
+// }
 
 class ChatDatabase extends Dexie {
-    chats: Dexie.Table<ChatForStorage, number>; // Primary key is number (id)
+    chats: Dexie.Table<Chat, number>; // Primary key is number (id)
 
     constructor() {
         super('ChatAppDB');
@@ -31,10 +31,10 @@ class ChatDatabase extends Dexie {
 
     async addChat(chat: Chat): Promise<void> {
         // Serialize nested fields for storage
-        const chatForStorage: ChatForStorage = {
+        const chatForStorage: Chat = {
             ...chat,
-            chatUsers: JSON.stringify(chat.chatUsers),
-            chatSocket: JSON.stringify(chat.chatSocket)
+            chatUsers: chat.chatUsers,
+            chatSocket: chat.chatSocket
         };
         await this.chats.put(chatForStorage);
     }
@@ -44,9 +44,9 @@ class ChatDatabase extends Dexie {
         if (chatForStorage) {
             return {
                 ...chatForStorage,
-                chatUsers: JSON.parse(chatForStorage.chatUsers),
-                chatSocket: JSON.parse(chatForStorage.chatSocket)
-            };
+                chatUsers:chatForStorage.chatUsers,
+                chatSocket: chatForStorage.chatSocket
+            }
         }
         return undefined;
     }
@@ -55,8 +55,8 @@ class ChatDatabase extends Dexie {
         const chatsForStorage = await this.chats.toArray();
         return chatsForStorage.map(chatForStorage => ({
             ...chatForStorage,
-            chatUsers: JSON.parse(chatForStorage.chatUsers),
-            chatSocket: JSON.parse(chatForStorage.chatSocket)
+            chatUsers: chatForStorage.chatUsers,
+            chatSocket: chatForStorage.chatSocket
         }));
     }
 

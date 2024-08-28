@@ -2,21 +2,21 @@ import Dexie from 'dexie';
 import { ConversationsType } from '../../Types/conversationsType';
 
 // Define a storage-specific interface for Conversations
-interface ConversationsTypeForStorage {
-    id: number;
-    updatedAt: string;
-    createdAt: string;
-    deletedAt: string | null;
-    name: string;
-    client_id: number;
-    is_group: boolean;
-    profile_pic: string | null;
-    is_deleted: boolean;
-    messages: string; // Store messages as a JSON string
-}
+// interface ConversationsTypeForStorage {
+//     id: number;
+//     updatedAt: string;
+//     createdAt: string;
+//     deletedAt: string | null;
+//     name: string;
+//     client_id: number;
+//     is_group: boolean;
+//     profile_pic: string | null;
+//     is_deleted: boolean;
+//     messages: string; // Store messages as a JSON string
+// }
 
 class MessageDatabase extends Dexie {
-    chatMessages: Dexie.Table<ConversationsTypeForStorage, number>; // Primary key is number (id)
+    chatMessages: Dexie.Table<ConversationsType, number>; // Primary key is number (id)
 
     constructor() {
         super('ChatAppDB');
@@ -30,9 +30,9 @@ class MessageDatabase extends Dexie {
 
     async addChatMessage(chat: ConversationsType): Promise<void> {
         // Serialize nested fields for storage
-        const chatForStorage: ConversationsTypeForStorage = {
+        const chatForStorage: ConversationsType = {
             ...chat,
-            messages: JSON.stringify(chat.messages),
+            messages: chat.messages,
         };
         await this.chatMessages.put(chatForStorage);
     }
@@ -42,7 +42,7 @@ class MessageDatabase extends Dexie {
         if (chatForStorage) {
             return {
                 ...chatForStorage,
-                messages: JSON.parse(chatForStorage.messages),
+                messages: chatForStorage.messages,
             };
         }
         return undefined;
@@ -52,7 +52,7 @@ class MessageDatabase extends Dexie {
         const chatsForStorage = await this.chatMessages.where('id').equals(chatId).toArray();
         return chatsForStorage.map(chatForStorage => ({
             ...chatForStorage,
-            messages: JSON.parse(chatForStorage.messages),
+            messages: chatForStorage.messages,
         }));
     }
 
@@ -60,7 +60,7 @@ class MessageDatabase extends Dexie {
         const chatsForStorage = await this.chatMessages.toArray();
         return chatsForStorage.map(chatForStorage => ({
             ...chatForStorage,
-            messages: JSON.parse(chatForStorage.messages),
+            messages: chatForStorage.messages,
         }));
     }
 
