@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaStar, FaImage, FaInfoCircle, FaBan } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
 import { RxCross2 } from "react-icons/rx";
 import { RootState } from "../../Redux/store";
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
+import { Chat } from "../../Types/chats";
+import { getChatData } from "../../DB/database";
 
 interface UserProfileProps {
   userProfileImage?: string;
@@ -33,16 +35,15 @@ const UserProfile: React.FC<UserProfileProps> = ({
     { name: "User Details", icon: <FaInfoCircle /> },
   ],
 }) => {
+  const [activeChat, setActiveChat] = useState<Chat>()
   const dispatch = useAppDispatch();
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
 
-  const chats = useAppSelector((state: RootState) => state.chats.chats);
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
-  const activeChat = chats.find((chat) => chat.id === activeChatId);
 
   // Set the chat name, status, and profile picture
   let chatName = activeChat?.name || "";
@@ -72,6 +73,25 @@ const UserProfile: React.FC<UserProfileProps> = ({
       }
     }
   }
+
+  useEffect(() => {
+    const getActiveChat = async () => {
+      if (activeChatId !== null) {
+
+        const activeChatFetched = await getChatData(activeChatId);
+        if (activeChatFetched) {
+          setActiveChat(activeChatFetched);
+          console.log('active chat from indexedDB: ', activeChatFetched)
+        } else {
+          console.log("No chats found for this id.");
+        }
+      }
+    };
+
+    getActiveChat();
+  }, [activeChatId]);
+
+
   return (
     <div className="p-4 w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full relative">
       <div className="flex items-center">
