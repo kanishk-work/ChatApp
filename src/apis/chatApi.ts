@@ -5,6 +5,8 @@ import { ChatRoom } from "../Types/chatRoom";
 import { ChatResponse } from "../Types/chats";
 import { storeChatData, storeChatMessagesData } from "../DB/database";
 import { ConversationsTypeResponse } from "../Types/conversationsType";
+import { setChatsLoading, setConversationsLoading } from "../Redux/slices/loadingSlice";
+import { useAppDispatch } from "../Redux/hooks";
 
 export interface JoinGroup {
   toUsersList: number[];
@@ -49,42 +51,56 @@ export const chatApi = createApi({
         url: searchTerm ? `chat?search=${encodeURIComponent(searchTerm)}` : `chat`,
         method: "GET",
       }),
-      async onQueryStarted(searchTerm, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          if (data && data.list) {
-            // Store chats in IndexedDB
-            await storeChatData(data.list);
-            console.log(data.list)
+      async onQueryStarted(searchTerm, { dispatch = useAppDispatch(), queryFulfilled }) {
+
+        if (navigator.onLine) {
+          dispatch(setChatsLoading(true));
+          try {
+            const { data } = await queryFulfilled;
+            if (data && data.list) {
+              // Store chats in IndexedDB
+              await storeChatData(data.list);
+              console.log(data.list)
+            }
+          } catch (error) {
+            console.error('Failed to store chats in IndexedDB:', error);
+          } finally {
+            dispatch(setChatsLoading(false));
           }
-        } catch (error) {
-          console.error('Failed to store chats in IndexedDB:', error);
-        }
+        } else return;
       },
     }),
-    
+
     getConversations: builder.mutation<ConversationsTypeResponse, number>({
       query: (chatRoomId) => ({
         url: `chat/messages`,
         method: "POST",
         body: { chatRoomId },
       }),
-      onQueryStarted: async (chatRoomId, { queryFulfilled }) => {
-        try {
-          const { data } = await queryFulfilled;
+      onQueryStarted: async (chatRoomId, { dispatch = useAppDispatch(), queryFulfilled }) => {
 
-          // Store messages in IndexedDB
-          await storeChatMessagesData(data.list);
-        } catch (err) {
-          console.error('Failed to store messages in IndexedDB:', err);
-        }
+        if (navigator.onLine) {
+          dispatch(setConversationsLoading(true));
+
+          try {
+            const { data } = await queryFulfilled;
+
+            // Store messages in IndexedDB
+            await storeChatMessagesData(data.list);
+          } catch (err) {
+            console.error('Failed to store messages in IndexedDB:', err);
+          } finally {
+            dispatch(setConversationsLoading(false));
+          }
+        } else return;
       },
     }),
+
     sendReply: builder.mutation<any, ReplyPayload>({
       query: (body) => ({
         url: `chat/reply`,
         method: "POST",
-        body: body ,
+        body: body,
       }),
     }),
   }),

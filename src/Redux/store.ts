@@ -20,6 +20,7 @@ import {
 } from "./persistConfig";
 import { authApi } from "../apis/authApi"; // Adjust the path as needed
 import { chatApi } from "../apis/chatApi";
+import loadingSliceReducer from "./slices/loadingSlice";
 
 const store = configureStore({
   reducer: {
@@ -33,6 +34,7 @@ const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
     chatInfo: persistedChatInfoReducer,
+    loading: loadingSliceReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

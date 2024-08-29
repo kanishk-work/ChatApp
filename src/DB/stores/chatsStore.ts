@@ -1,84 +1,18 @@
-import Dexie from 'dexie';
+import { db } from '../database'; 
 import { Chat } from '../../Types/chats';
 
-// Use a different interface for the database storage
-// interface ChatForStorage {
-//     id: number;
-//     updatedAt: string;
-//     createdAt: string;
-//     deletedAt: string | null;
-//     name: string;
-//     client_id: number;
-//     is_group: boolean;
-//     is_deleted: boolean;
-//     profile_pic: string | null;
-//     chatUsers: ChatUser[]; // JSON string
-//     chatSocket: ChatSocket[]; // JSON string
-// }
-
-class ChatDatabase extends Dexie {
-    chats: Dexie.Table<Chat, number>; // Primary key is number (id)
-
-    constructor() {
-        super('ChatAppDB');
-        this.version(1).stores({
-            chats: '++id, updatedAt, createdAt, deletedAt, name, client_id, is_group, is_deleted, profile_pic'
-            // Define indexes as needed
-        });
-
-        this.chats = this.table('chats');
-    }
-
-    async addChat(chat: Chat): Promise<void> {
-        // Serialize nested fields for storage
-        const chatForStorage: Chat = {
-            ...chat,
-            chatUsers: chat.chatUsers,
-            chatSocket: chat.chatSocket
-        };
-        await this.chats.put(chatForStorage);
-    }
-
-    async getChat(id: number | null): Promise<Chat | undefined> {
-        const chatForStorage = id&& await this.chats.get(id);
-        if (chatForStorage) {
-            return {
-                ...chatForStorage,
-                chatUsers:chatForStorage.chatUsers,
-                chatSocket: chatForStorage.chatSocket
-            }
-        }
-        return undefined;
-    }
-
-    async getAllChats(): Promise<Chat[]> {
-        const chatsForStorage = await this.chats.toArray();
-        return chatsForStorage.map(chatForStorage => ({
-            ...chatForStorage,
-            chatUsers: chatForStorage.chatUsers,
-            chatSocket: chatForStorage.chatSocket
-        }));
-    }
-
-    async deleteChat(id: number): Promise<void> {
-        await this.chats.delete(id);
-    }
-}
-
-const db = new ChatDatabase();
-
 export async function storeChats(chats: Chat[]): Promise<void> {
-    await Promise.all(chats.map(chat => db.addChat(chat)));
+    await Promise.all(chats.map(chat => db.chats.put(chat)));
 }
 
 export async function getChat(id: number | null): Promise<Chat | undefined> {
-    return await db.getChat(id);
+    return id? await db.chats.get(id) : undefined
 }
 
 export async function getAllChats(): Promise<Chat[]> {
-    return await db.getAllChats();
+    return await db.chats.toArray();
 }
 
 export async function deleteChat(id: number): Promise<void> {
-    await db.deleteChat(id);
+    await db.chats.delete(id);
 }
