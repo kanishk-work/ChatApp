@@ -83,10 +83,9 @@ const useSocket = () => {
     }
   };
 
-  const emitTyping = (roomId: string, userName: string) => {
+  const emitTyping = (frq: string, userName: string) => {
     if (socket) {
-      console.log(`${userName} is typing...`);
-      socket.emit("isTyping", { roomId, userName });
+      socket.emit("isTyping", { frq, userName });
     }
   };
 
