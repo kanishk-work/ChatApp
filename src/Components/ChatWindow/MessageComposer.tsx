@@ -19,7 +19,7 @@ init({ data });
 interface MessageComposerProps {
   onSend: (textMessage: string, file: string[] | null) => void;
   replyMessage: ChatMessage | null;
-  activeChatId: number | null;
+  activeChatId: string | undefined;
   buttonText?: string;
   buttonIcon?: React.ReactNode;
   sendButtonStyle?: React.CSSProperties;
@@ -41,7 +41,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const messageComposerRef = useRef<HTMLDivElement>(null);
-  const { emitTyping } = useSocket(); // Get emitTyping function from useSocket hook
+  const { emitTyping } = useSocket();
   const activeUser = useAppSelector((state) => state.activeUser.full_name);
   const handleSend = async () => {
     setShowEmojiPicker(false);
@@ -68,7 +68,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
     if (activeChatId) {
-      emitTyping(activeChatId.toString(), activeUser);
+      emitTyping(activeChatId, activeUser);
     }
   };
 
