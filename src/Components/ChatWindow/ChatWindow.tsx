@@ -106,12 +106,12 @@ const ChatWindow: React.FC = () => {
 
       try {
         {
-          replyMessage
+          const resp = replyMessage
             ? await sendReplyApi(messageReply).unwrap()
             : await sendMessageApi(newMessage).unwrap();
           console.log(socketPayload);
-          sendMessage(socketPayload);
-          await getConversations(activeChatId);
+          sendMessage({...socketPayload, resp: resp.data});
+          // await getConversations(activeChatId);
         }
       } catch (error) {
         console.error("Failed to send message:", error);
