@@ -194,7 +194,7 @@ const ChatWindow: React.FC = () => {
         <MessageComposer
           onSend={handleSend}
           replyMessage={replyMessage}
-          activeChatId={activeChatId}
+          activeChatId={activeChat?.chatSocket[0]?.socket_room}
           messageComposerStyle={{ backgroundColor: "#CED9E4" }}
         />
       </div>
