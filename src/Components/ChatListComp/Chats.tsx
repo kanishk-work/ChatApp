@@ -8,9 +8,6 @@ import useSocket from "../../apis/websocket";
 
 
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
-import {
-  useGetConversationsMutation,
-} from "../../apis/chatApi";
 import { Chat } from "../../Types/chats";
 
 interface ChatListProps {
@@ -19,59 +16,26 @@ interface ChatListProps {
 }
 
 const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
-  const { joinRoom,joinChatRoom } = useSocket();
+  const { joinRoom } = useSocket();
   
   const dispatch = useAppDispatch();
-  // const [conversations, setConversations] = useState([]);
   const { className, style } = applyStyles(listStyle);
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
-  // const chats = useAppSelector((state: RootState) => state.chats.chats);
-  const conversations = useAppSelector(
-    (state: RootState) => state.chats.conversations
-  );
-  // const { sendMessage, joinRoom } = useSocket(import.meta.env.VITE_HOST_URL);
+
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
-  const [getConversations] = useGetConversationsMutation();
-  // useEffect(() => {
-  //   const fetchConversations = async () => {
-  //     if (activeChatId !== null) {
-  //       try {
-  //         const res = await getConversations().unwrap();
-  //         console.log("Conversations fetched:", res);
-  //       } catch (error) {
-  //         console.error("Failed to fetch conversations:", error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchConversations();
-  // }, [activeChatId, getConversations]);
   const handleChatClick = async (chatId: number) => {
     if (activeChatId !== chatId) {
       dispatch(setActiveChatId(chatId));
       dispatch(setChatWindow(true));
-      try {
-        const response = await getConversations(0).unwrap();
-        console.log("API response:", response);
-        // joinRoom(`${chatId}`);
-      } catch (err) {
-        console.error("API error:", err);
-      }
     }
   };
   console.log(chats)
   
-  const roomJoin = () => joinChatRoom('1');
-  // const { getNewMessage, socket, sendMessage } = useSocket();
-  // useEffect(() => {
-  //   socket?.on("resp", (data) => {
-  //     console.log(data)
-  //   })
-  // })
+  const roomJoin = () => joinRoom('1');
 
   return (
     <div className="overflow-auto scrollbar-custom">
@@ -85,7 +49,7 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
           ? chat.profile_pic || placeholderImage
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
               ?.user.profile_pic || placeholderImage;
-        joinChatRoom(`${chat.chatSocket[0].socket_room}`);
+        joinRoom(`${chat.chatSocket[0].socket_room}`);
         return (
           <div
             key={chat.id}

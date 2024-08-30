@@ -45,6 +45,7 @@ export interface Chat {
   is_group: boolean;
   is_deleted: boolean;
   profile_pic: string | null;
+  lastMessage: ChatMessage[];
 }
 
 export interface ChatResponse {
