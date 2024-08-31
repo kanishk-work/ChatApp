@@ -17,7 +17,7 @@ import { useAppSelector } from "../../Redux/hooks";
 init({ data });
 
 interface MessageComposerProps {
-  onSend: (textMessage: string, file: string[] | null) => void;
+  onSend: (textMessage: string, file: File[]) => void;
   replyMessage: ChatMessage | null;
   activeChatId: string | undefined;
   buttonText?: string;
@@ -46,15 +46,8 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const handleSend = async () => {
     setShowEmojiPicker(false);
     if (message.trim() || files.length > 0) {
-      let fileUrls: string[] = [];
-
-      if (files.length > 0) {
-        fileUrls = await Promise.all(
-          files.map((file) => convertFileToUrl(file))
-        );
-        setFiles([]);
-      }
-      onSend(message, fileUrls.length > 0 ? fileUrls : null);
+      onSend(message, files);
+      setFiles([]);
       setMessage("");
     }
   };
