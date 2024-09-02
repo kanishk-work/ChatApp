@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaChevronDown, FaDownload, FaFilePdf, FaFileWord, FaFileExcel, FaFilePowerpoint } from 'react-icons/fa';
 import DropDown from "../Shared/DropDown";
 import { ChatMessage } from "../../Types/conversationsType";
+import { formatTime } from "../../Utils/formatTimeStamp";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -60,7 +61,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)$/i) !== null;
     const isAudio = (url: string) => url.match(/\.(mp3|wav|ogg)$/i) !== null;
     const isDocument = (url: string) => url.match(/\.(pdf|doc|docx|ppt|pptx|xls|xlsx|csv)$/i) !== null;
-  
+
     return (
       <div className="flex items-center space-x-2">
         <div>
@@ -108,11 +109,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       </div>
     );
   };
-  
+
 
   const renderMessageContent = () => {
     return (
-      <div className="flex flex-col gap-3 items-center">
+      <div className="flex flex-col gap-3">
         {message.chatFiles &&
           message.chatFiles.map((chatFile, index) => (
             <div key={index} className="">
@@ -128,39 +129,36 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </span>
         )}
         <span style={textStyle}>{message.message}</span>
+        <span className="text-sm">{formatTime(message.createdAt)}</span>
       </div>
     );
   };
 
   return (
     <div
-      className={`flex flex-col ${
-        sender === "user" ? "items-end" : "items-start"
-      } mb-2`}
+      className={`flex flex-col ${sender === "user" ? "items-end" : "items-start"
+        } mb-2`}
     >
       {sender === "other" && (
         <span className="dynamic-text-color-secondary">{senderName}</span>
       )}
 
       <div
-        className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${
-          sender === "user"
+        className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-200 text-black"
-        }`}
+          }`}
         style={bubbleStyle}
       >
         <div
-          className={`flex text-xs justify-end absolute top-0 ${
-            sender === "user" ? "left-0" : "right-0"
-          } cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
+          className={`flex text-xs justify-end absolute top-0 ${sender === "user" ? "left-0" : "right-0"
+            } cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
         >
           <DropDown
             optionsList={messageOptions}
             triggerElement={<FaChevronDown />}
-            btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${
-              sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"
-            }`}
+            btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"
+              }`}
             dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
           />
         </div>
