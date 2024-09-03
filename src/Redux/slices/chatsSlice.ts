@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { chatApi } from "../../apis/chatApi";
-import { Chat, ConversationsType, ChatMessage } from "../../Types/chats";
+import { Chat } from "../../Types/chats";
+import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
 
 // Update the ChatMessage interface to align with API response
 export interface ChatMessagePayload {
@@ -12,7 +13,7 @@ export interface ChatMessagePayload {
 
 export interface ChatsState {
   chats: Chat[];
-  conversations: ChatMessage[];
+  conversations: ConversationsType[];
   activeChatId: number | null;
   notifications: string[];
   currentUserId: number;
@@ -36,22 +37,17 @@ const chatsSlice = createSlice({
     setNotifications: (state, action: PayloadAction<string[]>) => {
       state.notifications = action.payload;
     },
-  },
-  extraReducers: (builder) => {
-    // builder.addMatcher(
-    //   chatApi.endpoints.getChats.matchFulfilled,
-    //   (state, action: PayloadAction<{ list: Chat[] }>) => {
-    //     state.chats = action.payload.list;
-    //   }
-    // );
-    // builder.addMatcher(
-    //   chatApi.endpoints.getConversations.matchFulfilled,
-    //   (state, action: PayloadAction<ConversationsType>) => {
-    //     state.conversations = action.payload.list;
-    //   }
-    // );
+    setConversations: (state, action: PayloadAction<ConversationsType[]>) => {
+      state.conversations = action.payload;
+    },
+    setNewMessage: (state, action: PayloadAction<ChatMessage>) => {
+      const newMessage = action.payload;
+      console.log("new message in redux: ", newMessage)
+
+      state.conversations[0].messages.chatsList.push(newMessage) 
+    },
   },
 });
 
-export const { setActiveChatId, setNotifications } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage } = chatsSlice.actions;
 export default chatsSlice.reducer;
