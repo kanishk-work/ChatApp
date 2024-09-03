@@ -9,6 +9,7 @@ import {
   useGetConversationsMutation,
   useSendMessageMutation,
   useSendReplyMutation,
+  useUploadFileMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
 import { getChatData, getMessagesByChatIdData } from "../../DB/database";
@@ -39,6 +40,7 @@ const ChatWindow: React.FC = () => {
   const [getConversations] = useGetConversationsMutation();
   const [sendMessageApi] = useSendMessageMutation();
   const [sendReplyApi] = useSendReplyMutation();
+  const [uploadFile] = useUploadFileMutation();
 
   const { getNewMessage, socket, sendMessage } = useSocket();
 
@@ -48,14 +50,31 @@ const ChatWindow: React.FC = () => {
     }
   }, [messages]);
 
-  const handleSend = async (textMessage: string, file: string[] | null) => {
+  const handleSend = async (textMessage: string, files: File[]) => {
     setReplyMessage(null); // Reset reply message after sending
     if (activeChatId !== null) {
       let newMessage;
       let messageReply;
       let socketPayload;
-
-      // sending reply
+      let fileUrls = [];
+  
+      if (files && files.length > 0) {
+        const formData = new FormData();
+        console.log('files being uploaded:', files)
+        files.forEach((file) => {
+          formData.append('files', file);
+        });
+  
+        try {
+          const uploadResponse = await uploadFile(formData).unwrap(); 
+          fileUrls = uploadResponse?.list || []; 
+          console.log('file URLs: ', fileUrls);
+        } catch (error) {
+          console.error("Failed to upload files:", error);
+          return;
+        }
+      }
+  
       if (replyMessage) {
         console.log(
           `this is a reply: ${textMessage} to-messageid: ${replyMessage?.id}`
@@ -63,9 +82,9 @@ const ChatWindow: React.FC = () => {
         messageReply = {
           message: textMessage,
           chat_id: replyMessage?.id,
-          files_list: file || [],
+          files_list: fileUrls,
         };
-
+  
         socketPayload = {
           chat: {
             fromId: activeUserId,
@@ -74,12 +93,10 @@ const ChatWindow: React.FC = () => {
             )?.user_id,
             msg: textMessage,
             roomId: activeChatId,
-            filesList: file,
+            filesList: fileUrls,
             frq: activeChat?.chatSocket[0]?.socket_room,
-            // frq: `${activeChatId}`,
           },
         };
-        //sending normal message
       } else {
         console.log(`this is a normal message: ${textMessage}`);
         newMessage = {
@@ -88,31 +105,28 @@ const ChatWindow: React.FC = () => {
           )?.user_id,
           message: textMessage,
           chat_room_id: activeChatId,
-          files_list: file || [],
+          files_list: fileUrls,
         };
-
+  
         socketPayload = {
           chat: {
             fromId: activeUserId,
             toId: newMessage?.receiver_id,
             msg: textMessage,
             roomId: activeChatId,
-            filesList: file,
+            filesList: fileUrls,
             frq: activeChat?.chatSocket[0]?.socket_room,
-            // frq: `${activeChatId}`,
           },
         };
       }
-
+  
       try {
-        {
-          replyMessage
-            ? await sendReplyApi(messageReply).unwrap()
-            : await sendMessageApi(newMessage).unwrap();
-          console.log(socketPayload);
-          sendMessage(socketPayload);
-          await getConversations(activeChatId);
-        }
+        const resp = replyMessage
+          ? await sendReplyApi(messageReply).unwrap()
+          : await sendMessageApi(newMessage).unwrap();
+        // console.log(socketPayload);
+        sendMessage({ ...socketPayload, resp: resp.data });
+        // console.log(resp.data)
       } catch (error) {
         console.error("Failed to send message:", error);
       }
@@ -133,7 +147,7 @@ const ChatWindow: React.FC = () => {
           setActiveChat(activeChat);
           console.log('active chat from indexedDB: ', activeChat)
         } else {
-          console.log("No chats found for this id.");
+          console.log("No chat data found for this id.");
         }
 
         const messages = await getMessagesByChatIdData(activeChatId);

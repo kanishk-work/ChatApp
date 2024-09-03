@@ -5,6 +5,11 @@ import {
   FaSmile,
   FaTimes,
   FaPlus,
+  FaMicrophone,
+  FaTrash,
+  FaStop,
+  FaPause,
+  FaPlay,
 } from "react-icons/fa";
 import { convertFileToUrl } from "../../Utils/convertFileToUrl";
 import Picker from "@emoji-mart/react";
@@ -13,11 +18,12 @@ import { init } from "emoji-mart";
 import { ChatMessage } from "../../Types/conversationsType";
 import useSocket from "../../apis/websocket";
 import { useAppSelector } from "../../Redux/hooks";
+import { useAudioRecorder } from "../../Utils/CustomHooks/useAudioRecorder";
 
 init({ data });
 
 interface MessageComposerProps {
-  onSend: (textMessage: string, file: string[] | null) => void;
+  onSend: (textMessage: string, file: File[]) => void;
   replyMessage: ChatMessage | null;
   activeChatId: string | undefined;
   buttonText?: string;
@@ -43,19 +49,40 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const messageComposerRef = useRef<HTMLDivElement>(null);
   const { emitTyping } = useSocket();
   const activeUser = useAppSelector((state) => state.activeUser.full_name);
+
+  const {
+    isRecording,
+    isPaused,
+    audioURL,
+    requestMicAccess,
+    startRecording,
+    pauseRecording,
+    resumeRecording,
+    stopRecording,
+    deleteRecording,
+    getAudioFile,
+    clearAudioFile,
+    elapsedTime,
+    formatTime,
+  } = useAudioRecorder();
+
+  useEffect(() => {
+    requestMicAccess();
+  }, []);
   const handleSend = async () => {
     setShowEmojiPicker(false);
-    if (message.trim() || files.length > 0) {
-      let fileUrls: string[] = [];
+    const audioFile = getAudioFile();
+    let filesToSend = [...files];
 
-      if (files.length > 0) {
-        fileUrls = await Promise.all(
-          files.map((file) => convertFileToUrl(file))
-        );
-        setFiles([]);
-      }
-      onSend(message, fileUrls.length > 0 ? fileUrls : null);
+    if (audioFile) {
+      filesToSend.push(audioFile);
+      clearAudioFile();
+    }
+    if (message.trim() || filesToSend.length > 0) {
+      onSend(message, filesToSend);
+      setFiles([]);
       setMessage("");
+      deleteRecording();
     }
   };
 
@@ -163,7 +190,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         )}
       </div>
       <div className="flex flex-grow items-center relative w-full sm:w-auto">
-        <div className="flex items-center w-full relative">
+        <div className="flex items-center gap-2 justify-center w-full relative">
           <input
             type="text"
             value={message}
@@ -188,6 +215,63 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
               </button>
             </div>
           ))}
+          <button
+            onClick={
+              !isRecording
+                ? startRecording
+                : !isPaused
+                  ? pauseRecording
+                  : resumeRecording
+            }
+            className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+            aria-label="Record"
+          >
+            {!isRecording ? (
+              <FaMicrophone size={20} />
+            ) : !isPaused ? (
+              <FaPause />
+            ) : (
+              <FaPlay />
+            )}
+          </button>
+
+          {isRecording && (
+            <>
+              <button
+                onClick={stopRecording}
+                className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                aria-label="Record"
+              >
+                <FaStop size={20} />
+              </button>
+              <span>{formatTime(elapsedTime)}</span>
+            </>
+          )}
+
+          {/* {!isRecording ? (
+            <button onClick={startRecording}>Start Recording</button>
+          ) : (
+            <>
+              {!isPaused ? (
+                <button onClick={pauseRecording}>Pause Recording</button>
+              ) : (
+                <button onClick={resumeRecording}>Resume Recording</button>
+              )}
+              <button onClick={stopRecording}>Stop Recording</button>
+            </>
+          )} */}
+          {audioURL && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={deleteRecording}
+                className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                aria-label="Delete Recording"
+              >
+                <FaTrash />
+              </button>
+              <audio controls src={audioURL} />
+            </div>
+          )}
         </div>
       </div>
       <button

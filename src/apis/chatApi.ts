@@ -103,6 +103,14 @@ export const chatApi = createApi({
         body: body,
       }),
     }),
+
+    uploadFile: builder.mutation<any, FormData>({
+      query: (body) => ({
+        url: `image/upload`,
+        method: "POST",
+        body: body,
+      }),
+    }),
   }),
 });
 
@@ -112,5 +120,6 @@ export const {
   useSendMessageMutation,
   useGetChatsQuery,
   useGetConversationsMutation,
-  useSendReplyMutation
+  useSendReplyMutation,
+  useUploadFileMutation,
 } = chatApi as any;
