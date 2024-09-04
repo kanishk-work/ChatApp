@@ -61,6 +61,9 @@ const useSocket = () => {
         setNotifications(data);
         console.log(data);
       });
+      socket.on("isTyping", (data) => {
+        console.log(`${data.userName} is typing...`);
+      });
     }
   }, [socket]);
   useEffect(() => {
@@ -127,6 +130,12 @@ const useSocket = () => {
     }
   };
 
+  const emitTyping = (frq: string, userName: string) => {
+    if (socket) {
+      socket.emit("isTyping", { frq, userName });
+    }
+  };
+
   return {
     sendMessage,
     joinRoom,
@@ -136,6 +145,7 @@ const useSocket = () => {
     getNewMessage,
     joinChatRoom,
     eventEmitter,
+    emitTyping,
   };
 };
 

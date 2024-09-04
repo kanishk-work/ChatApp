@@ -10,12 +10,24 @@ interface ChatStatus {
     read: boolean;
 }
 
+interface ChatFiles {
+    id: number;
+    chat_id: number;
+    chat_reply_id: number | null;
+    user_id: number;
+    file_url: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    is_deleted: boolean;
+}
+
 export interface ChatMessage {
     id: number;
     updatedAt: string;
     createdAt: string;
     deletedAt: string | null;
-    chatFiles: any[]; // Replace 'any' with a specific type if you have one for chat files
+    chatFiles: ChatFiles[]; // Replace 'any' with a specific type if you have one for chat files
     chatReactions: any[]; // Replace 'any' with a specific type if you have one for chat reactions
     chatStatus: ChatStatus[];
     sender_id: number;
