@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { chatApi } from "../../apis/chatApi";
-import { Chat } from "../../Types/chats";
+import { Chat, LatestMessage } from "../../Types/chats";
 import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
 
 // Update the ChatMessage interface to align with API response
@@ -46,8 +46,21 @@ const chatsSlice = createSlice({
 
       state.conversations[0].messages.chatsList.push(newMessage) 
     },
+    setChats: (state, action: PayloadAction<Chat[]>) => {
+      state.chats = action.payload;
+    },
+    setLatestMessageChat: (state, action: PayloadAction<LatestMessage>) => {
+      const newMessage = action.payload;
+      console.log("latest message in redux: ", newMessage)
+      
+      const messageToUpdate = state.chats.find((chat)=>chat.id === newMessage.chat_room_id);
+      
+      if(messageToUpdate){
+        messageToUpdate.lastMessage = newMessage;
+      }
+    },
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat } = chatsSlice.actions;
 export default chatsSlice.reducer;

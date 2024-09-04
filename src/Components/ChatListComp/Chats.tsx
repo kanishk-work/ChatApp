@@ -9,6 +9,7 @@ import useSocket from "../../apis/websocket";
 
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import { Chat } from "../../Types/chats";
+import { formatTime } from "../../Utils/formatTimeStamp";
 
 interface ChatListProps {
   chats: Chat[]
@@ -64,11 +65,11 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
             <div className="w-full">
               <div className="w-full flex justify-between">
                 <span className="font-semibold text-sm">{chatName}</span>
-                {/* <span className="text-xs">
-                  {lastMessage ? formatTime(conversations.created) : ""}
-                </span> */}
+                <span className="text-xs">
+                  {chat.lastMessage ? formatTime(chat.lastMessage.createdAt) : ""}
+                </span>
               </div>
-              {/* <span className="text-xs">{lastMessage}</span> */}
+              <span className="text-xs">{chat.lastMessage.message}</span>
             </div>
           </div>
         );

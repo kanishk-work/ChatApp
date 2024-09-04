@@ -3,6 +3,7 @@ import {
   getChat,
   getAllChats,
   deleteChat,
+  updateLatestMessage,
 } from "./stores/chatsStore";
 
 import {
@@ -14,7 +15,7 @@ import {
   updateMessages,
 } from "./stores/messagesStore";
 
-import { Chat } from "../Types/chats";
+import { Chat, LatestMessage } from "../Types/chats";
 import { ChatMessage, ConversationsType } from "../Types/conversationsType";
 import Dexie from "dexie";
 
@@ -86,6 +87,10 @@ export async function storeChatMessagesData(
 
 export async function updateMessagesData(chatRoomId: number, newMessage: ChatMessage){
   return await updateMessages(chatRoomId, newMessage)
+}
+
+export async function updateLatestMessageData(chatRoomId: number, newMessage: LatestMessage){
+  return await updateLatestMessage(chatRoomId, newMessage)
 }
 
 export async function getChatMessageData(

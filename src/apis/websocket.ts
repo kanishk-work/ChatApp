@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { setNewMessage, setNotifications } from "../Redux/slices/chatsSlice";
-import { updateMessagesData } from "../DB/database";
+import { setLatestMessageChat, setNewMessage, setNotifications } from "../Redux/slices/chatsSlice";
+import { updateLatestMessageData, updateMessagesData } from "../DB/database";
 import { useAppDispatch, useAppSelector } from "../Redux/hooks";
 import { RootState } from "../Redux/store";
 
@@ -14,6 +14,12 @@ const useSocket = () => {
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
+  const activeChatIdRef = useRef<number | null>(activeChatId);
+
+  // Update the ref whenever activeChatId changes
+  useEffect(() => {
+    activeChatIdRef.current = activeChatId;
+  }, [activeChatId]);
   const messages = useAppSelector(
     (state: RootState) => state.chats.conversations
   );
@@ -21,12 +27,20 @@ const useSocket = () => {
     if (socket) {
       socket.on("resp", (data) => {
         console.log({data})
+        const currentActiveChatId = activeChatIdRef.current;
+
         if (data && data.resp && data.resp.chat_room_id) {
           updateMessagesData(data.resp.chat_room_id, data.resp);
-          if (data.resp.chat_room_id === activeChatId) {
+          updateLatestMessageData(data.resp.chat_room_id, data.resp);
+          console.log({currentActiveChatId})
+          
+          if (data.resp.chat_room_id === currentActiveChatId) {
             console.log('current chat message update')
             dispatch(setNewMessage(data.resp));
+            dispatch(setLatestMessageChat(data.resp))
             console.log("updated messages: ", messages)
+          } else {
+            console.log({currentActiveChatId})
           }
           console.log("RESPONSE", data.resp);
 
