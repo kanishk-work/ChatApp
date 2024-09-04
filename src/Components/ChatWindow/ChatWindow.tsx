@@ -15,10 +15,11 @@ import useSocket from "../../apis/websocket";
 import { getChatData, getMessagesByChatIdData } from "../../DB/database";
 import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
 import { Chat } from "../../Types/chats";
+import { setConversations } from "../../Redux/slices/chatsSlice";
 // import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
-  const [messages, setMessages] = useState<ConversationsType[]>([])
+  const [messagesOld, setMessages] = useState<ConversationsType[]>([])
   const [activeChat, setActiveChat] = useState<Chat>()
 
   const [replyMessage, setReplyMessage] = useState<ChatMessage | null>(null);
@@ -34,15 +35,15 @@ const ChatWindow: React.FC = () => {
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
-  // const chatMessages = useAppSelector(
-  //   (state: RootState) => state.chats.conversations
-  // );
+  const messages = useAppSelector(
+    (state: RootState) => state.chats.conversations
+  );
   const [getConversations] = useGetConversationsMutation();
   const [sendMessageApi] = useSendMessageMutation();
   const [sendReplyApi] = useSendReplyMutation();
   const [uploadFile] = useUploadFileMutation();
 
-  const { getNewMessage, socket, sendMessage } = useSocket();
+  const { getNewMessage, socket, sendMessage, eventEmitter } = useSocket();
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -126,7 +127,6 @@ const ChatWindow: React.FC = () => {
           : await sendMessageApi(newMessage).unwrap();
         // console.log(socketPayload);
         sendMessage({ ...socketPayload, resp: resp.data });
-        // console.log(resp.data)
       } catch (error) {
         console.error("Failed to send message:", error);
       }
@@ -139,9 +139,8 @@ const ChatWindow: React.FC = () => {
 
   //To get activeChat and its messages from indexedDB
   useEffect(() => {
-    const getActiveChatAndMessages = async () => {
+    const getActiveChat = async () => {
       if (activeChatId !== null) {
-
         const activeChat = await getChatData(activeChatId);
         if (activeChat) {
           setActiveChat(activeChat);
@@ -149,26 +148,64 @@ const ChatWindow: React.FC = () => {
         } else {
           console.log("No chat data found for this id.");
         }
-
+      }
+    }
+    const getMessages = async () => {
+      if (activeChatId !== null) {
         const messages = await getMessagesByChatIdData(activeChatId);
         console.log(`Messages for Chat Room ID: ${activeChatId}`);
 
         if (messages && messages.length > 0) {
           setMessages(messages);
+          dispatch(setConversations(messages));
+          console.log(messages)
           console.log('Messages indexedDB:', messages[0].messages)
         } else {
           console.log("No messages found for this chat.");
         }
       }
     };
+    getActiveChat();
+    getMessages();
 
-    getActiveChatAndMessages();
   }, [activeChatId]);
+
+  // useEffect(() => {
+  //   const handleMessagesUpdated = (event: any) => {
+  //     const { chat_room_id, message } = event.detail;
+
+  //     // if (chat_room_id === activeChatId) {
+  //     //   setMessages((prevMessages) => {
+  //     //     console.log('prevMessages: ',{prevMessages})
+  //     //     // Create a new array with the updated messages
+  //     //     const updatedMessages = [...prevMessages];
+  //     //     updatedMessages[0].messages.chatsList.push(message);
+  //     //     return updatedMessages;
+  //     //   });
+  //     // }
+  //     if (chat_room_id === activeChatId) {
+  //       setMessages((prevMessages) => {
+  //         console.log('prevMessages: ', {prevMessages})
+  //         // Create a new array with the updated messages
+  //         const updatedMessages = [...prevMessages];
+  //         updatedMessages[0].messages.chatsList.push(message);
+  //         return updatedMessages;
+  //       });
+  //     }
+  //   };
+    
+  //   eventEmitter.addEventListener("messagesUpdated", handleMessagesUpdated);
+    
+  //   return () => {
+  //     eventEmitter.removeEventListener("messagesUpdated", handleMessagesUpdated);
+  //   };
+  // }, [eventEmitter, activeChatId])
+  // console.log({messages})
 
   return (
     <div className="flex flex-col h-full">
       <StatusBar
-      activeChat={activeChat}
+        activeChat={activeChat}
         statusBarStyles={{
           container: { backgroundColor: "", borderRadius: "1rem" },
           activityStatus: { color: "#27AE60" },

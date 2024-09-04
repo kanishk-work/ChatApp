@@ -1,29 +1,31 @@
 import { useEffect, useState } from "react";
-import { useAppSelector } from "../../Redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { RootState } from "../../Redux/store";
 import Chats from "./Chats";
 import ProfileAndSearch from "./ProfileAndSearch";
 import { getAllChatsData } from "../../DB/database";
 import { Chat } from "../../Types/chats";
 import { useGetChatsQuery } from "../../apis/chatApi";
+import { setChats } from "../../Redux/slices/chatsSlice";
 
 const ChatListComp = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [chats, setChats] = useState<Chat[]>([]);
+  // const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { refetch: refetchChats } = useGetChatsQuery();
   
-  // const chats = useAppSelector((state: RootState) => state.chats.chats);
+  const chats = useAppSelector((state: RootState) => state.chats.chats);
 
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
+  const dispatch = useAppDispatch()
   useEffect(() => {
       const loadChats = async () => {
           try {
               const chatsFromDB = await getAllChatsData();
-              setChats(chatsFromDB);
+              dispatch(setChats(chatsFromDB));
           } catch (err) {
               setError('Failed to fetch chats from IndexedDB');
           } finally {

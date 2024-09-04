@@ -45,7 +45,7 @@ export interface Chat {
   is_group: boolean;
   is_deleted: boolean;
   profile_pic: string | null;
-  lastMessage: ChatMessage[];
+  lastMessage: LatestMessage;
 }
 
 export interface ChatResponse {
@@ -64,7 +64,7 @@ export interface ChatStatus {
   read: boolean;
 }
 
-export interface ChatMessage {
+export interface LatestMessage {
   id: number;
   updatedAt: string;
   createdAt: string;
@@ -82,5 +82,5 @@ export interface ChatMessage {
 }
 
 export interface ConversationsType {
-  list: ChatMessage[];
+  list: LatestMessage[];
 }

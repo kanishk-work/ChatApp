@@ -3,6 +3,7 @@ import {
   getChat,
   getAllChats,
   deleteChat,
+  updateLatestMessage,
 } from "./stores/chatsStore";
 
 import {
@@ -11,10 +12,11 @@ import {
   getAllChatMessages,
   getMessagesByChatId,
   deleteChatMessage,
+  updateMessages,
 } from "./stores/messagesStore";
 
-import { Chat } from "../Types/chats";
-import { ConversationsType } from "../Types/conversationsType";
+import { Chat, LatestMessage } from "../Types/chats";
+import { ChatMessage, ConversationsType } from "../Types/conversationsType";
 import Dexie from "dexie";
 
 class ChatAppDatabase extends Dexie {
@@ -81,6 +83,14 @@ export async function storeChatMessagesData(
   messages: ConversationsType[]
 ): Promise<void> {
   await storeChatMessages(messages);
+}
+
+export async function updateMessagesData(chatRoomId: number, newMessage: ChatMessage){
+  return await updateMessages(chatRoomId, newMessage)
+}
+
+export async function updateLatestMessageData(chatRoomId: number, newMessage: LatestMessage){
+  return await updateLatestMessage(chatRoomId, newMessage)
 }
 
 export async function getChatMessageData(

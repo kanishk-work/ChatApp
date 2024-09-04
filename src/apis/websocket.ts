@@ -1,15 +1,62 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { setNotifications } from "../Redux/slices/chatsSlice";
+import { setLatestMessageChat, setNewMessage, setNotifications } from "../Redux/slices/chatsSlice";
+import { updateLatestMessageData, updateMessagesData } from "../DB/database";
+import { useAppDispatch, useAppSelector } from "../Redux/hooks";
+import { RootState } from "../Redux/store";
+
+const eventEmitter = new EventTarget(); // Custom event emitter
 
 const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   let url = import.meta.env.VITE_SOCKET_URL;
+  const dispatch = useAppDispatch();
+  const activeChatId = useAppSelector(
+    (state: RootState) => state.chats.activeChatId
+  );
+  const activeChatIdRef = useRef<number | null>(activeChatId);
+
+  // Update the ref whenever activeChatId changes
+  useEffect(() => {
+    activeChatIdRef.current = activeChatId;
+  }, [activeChatId]);
+  const messages = useAppSelector(
+    (state: RootState) => state.chats.conversations
+  );
   useEffect(() => {
     if (socket) {
-      socket.on("resp", (data) =>
-        console.log(`RESPONSE ${JSON.stringify(data)}`)
-      );
+      socket.on("resp", (data) => {
+        console.log({data})
+        const currentActiveChatId = activeChatIdRef.current;
+
+        if (data && data.resp && data.resp.chat_room_id) {
+          updateMessagesData(data.resp.chat_room_id, data.resp);
+          updateLatestMessageData(data.resp.chat_room_id, data.resp);
+          console.log({currentActiveChatId})
+          
+          if (data.resp.chat_room_id === currentActiveChatId) {
+            console.log('current chat message update')
+            dispatch(setNewMessage(data.resp));
+            dispatch(setLatestMessageChat(data.resp))
+            console.log("updated messages: ", messages)
+          } else {
+            console.log({currentActiveChatId})
+          }
+          console.log("RESPONSE", data.resp);
+
+          // Emit an event after updating messages
+          // eventEmitter.dispatchEvent(
+          //   new CustomEvent("messagesUpdated", {
+          //     detail: {
+          //       chat_room_id: data.resp.chat_room_id,
+          //       message: data.resp,
+          //     },
+          //   })
+          // );
+        } else {
+          console.error("Invalid response data:", data);
+        }
+      });
       socket.on("newInviteNotification", (data) => {
         setNotifications(data);
         console.log(data);
@@ -97,6 +144,7 @@ const useSocket = () => {
     socket,
     getNewMessage,
     joinChatRoom,
+    eventEmitter,
     emitTyping,
   };
 };
