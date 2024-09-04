@@ -20,6 +20,21 @@ import { useEffect } from "react";
 import Loader from "../Components/Shared/Loader";
 
 const HomeLayout = () => {
+  const [getConversations] = useGetConversationsMutation();
+  useGetChatsQuery();  
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        await getConversations(0);
+      } catch (error) {
+        console.error('Failed to fetch conversations:', error);
+      }
+    };
+
+    fetchConversations();
+    
+  }, []);
+
   const { width } = useWindowSize();
   const chatWindow = useAppSelector(
     (state: RootState) => state.chatWindow.chatWindow
@@ -37,22 +52,6 @@ const HomeLayout = () => {
   const showChatInfo = useAppSelector(
     (state: RootState) => state.chatInfo.showChatInfo
   );
-
-  const [getConversations] = useGetConversationsMutation();
-
-  useEffect(() => {
-    const fetchConversationsAndChats = async () => {
-      try {
-        await getConversations(0);
-        useGetChatsQuery();  
-      } catch (error) {
-        console.error('Failed to fetch conversations:', error);
-      }
-    };
-
-    fetchConversationsAndChats();
-    
-  }, []);
 
   const isChatsLoading = useAppSelector((state: RootState) => state.loading.isChatsLoading);
   const isConversationsLoading = useAppSelector((state: RootState) => state.loading.isConversationsLoading);

@@ -4,6 +4,7 @@ import {
   getAllChats,
   deleteChat,
   updateLatestMessage,
+  updateUnreadMessageCount,
 } from "./stores/chatsStore";
 
 import {
@@ -91,6 +92,10 @@ export async function updateMessagesData(chatRoomId: number, newMessage: ChatMes
 
 export async function updateLatestMessageData(chatRoomId: number, newMessage: LatestMessage){
   return await updateLatestMessage(chatRoomId, newMessage)
+}
+
+export async function updateUnreadMessageCountData(chatRoomId: number){
+  return await updateUnreadMessageCount(chatRoomId)
 }
 
 export async function getChatMessageData(

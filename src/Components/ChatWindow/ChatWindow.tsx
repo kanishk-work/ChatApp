@@ -16,6 +16,7 @@ import { getChatData, getMessagesByChatIdData } from "../../DB/database";
 import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
 import { Chat } from "../../Types/chats";
 import { setConversations } from "../../Redux/slices/chatsSlice";
+import { addDateTags } from "../../Utils/formatDatetag";
 // import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
@@ -43,7 +44,7 @@ const ChatWindow: React.FC = () => {
   const [sendReplyApi] = useSendReplyMutation();
   const [uploadFile] = useUploadFileMutation();
 
-  const { getNewMessage, socket, sendMessage, eventEmitter } = useSocket();
+  const { getNewMessage, socket, sendMessage } = useSocket();
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -170,37 +171,8 @@ const ChatWindow: React.FC = () => {
 
   }, [activeChatId]);
 
-  // useEffect(() => {
-  //   const handleMessagesUpdated = (event: any) => {
-  //     const { chat_room_id, message } = event.detail;
-
-  //     // if (chat_room_id === activeChatId) {
-  //     //   setMessages((prevMessages) => {
-  //     //     console.log('prevMessages: ',{prevMessages})
-  //     //     // Create a new array with the updated messages
-  //     //     const updatedMessages = [...prevMessages];
-  //     //     updatedMessages[0].messages.chatsList.push(message);
-  //     //     return updatedMessages;
-  //     //   });
-  //     // }
-  //     if (chat_room_id === activeChatId) {
-  //       setMessages((prevMessages) => {
-  //         console.log('prevMessages: ', {prevMessages})
-  //         // Create a new array with the updated messages
-  //         const updatedMessages = [...prevMessages];
-  //         updatedMessages[0].messages.chatsList.push(message);
-  //         return updatedMessages;
-  //       });
-  //     }
-  //   };
-    
-  //   eventEmitter.addEventListener("messagesUpdated", handleMessagesUpdated);
-    
-  //   return () => {
-  //     eventEmitter.removeEventListener("messagesUpdated", handleMessagesUpdated);
-  //   };
-  // }, [eventEmitter, activeChatId])
-  // console.log({messages})
+  const allMessages = messages[0]?.messages?.chatsList;
+  const taggedMessages = addDateTags(allMessages);
 
   return (
     <div className="flex flex-col h-full">
@@ -212,35 +184,40 @@ const ChatWindow: React.FC = () => {
         }}
       />
       <div className="flex-1 overflow-auto p-4 scrollbar-custom">
-        {messages[0]?.messages?.chatsList
-          .map((message, index) => {
-            // Find parent message if it exists
-            const parentMessage = messages[0]?.messages?.chatsList.find(
-              (m) => m.id === message.parent_chat_id
-            );
-            return (
-              <div key={index}>
-                <MessageBubble
-                  message={message}
-                  parentMessage={parentMessage}
-                  sender={message.sender_id === activeUserId ? "user" : "other"}
-                  senderName={
-                    activeChat?.is_group
-                      ? activeChat?.chatUsers.find(
-                        (user) => user.user.id === message.sender_id
-                      )?.user.full_name
-                      : undefined
-                  }
-                  setReplyMessage={setReplyMessage}
-                />
-                <div className="text-center text-xs text-gray-500 my-2">
-                  {formatTime(message.createdAt)}
-                </div>
-              </div>
-            );
-          })}
-        <div ref={messagesEndRef} />
-      </div>
+      {taggedMessages.map((item, index) => {
+        if (item.type === 'date') {
+          return (
+            <div key={index} className="text-center text-sm dynamic-text-color-secondary my-2">
+              <span>{item.tag}</span>
+            </div>
+          );
+        }
+
+        const message = item.message as ChatMessage;
+        const parentMessage = allMessages.find(
+          (m) => m.id === item.message?.parent_chat_id
+        );
+
+        return (
+          <div key={message.id}>
+            <MessageBubble
+              message={message}
+              parentMessage={parentMessage}
+              sender={message.sender_id === activeUserId ? 'user' : 'other'}
+              senderName={
+                activeChat?.is_group
+                  ? activeChat.chatUsers.find(
+                      (user) => user.user.id === message.sender_id
+                    )?.user.full_name
+                  : undefined
+              }
+              setReplyMessage={setReplyMessage}
+            />
+          </div>
+        );
+      })}
+      <div ref={messagesEndRef} />
+    </div>
       <div className="p-4">
         <MessageComposer
           onSend={handleSend}

@@ -46,6 +46,7 @@ export interface Chat {
   is_deleted: boolean;
   profile_pic: string | null;
   lastMessage: LatestMessage;
+  unreadCount: number;
 }
 
 export interface ChatResponse {

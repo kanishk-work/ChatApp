@@ -1,8 +1,17 @@
 import { db } from '../database'; 
 import { Chat, LatestMessage } from '../../Types/chats';
 
+// export async function storeChats(chats: Chat[]): Promise<void> {
+//     await Promise.all(chats.map(chat => db.chats.put(chat)));
+// }
+
 export async function storeChats(chats: Chat[]): Promise<void> {
-    await Promise.all(chats.map(chat => db.chats.put(chat)));
+    const chatsWithUnreadCount = chats.map(chat => ({
+        ...chat,
+        unreadCount: 1, // Default value, to be set to zero
+    }));
+
+    await Promise.all(chatsWithUnreadCount.map(chat => db.chats.put(chat)));
 }
 
 export async function getChat(id: number | null): Promise<Chat | undefined> {
@@ -34,5 +43,25 @@ export async function updateLatestMessage(chatRoomId: number, newMessage: Latest
         }
     } catch (error) {
         console.error('Failed to update latest message:', error);
+    }
+}
+
+export async function updateUnreadMessageCount(chatRoomId: number) {
+    console.log("update unread message count Working")
+    try {
+        // Retrieve the chat by its ID
+        const chat = await db.chats.get(chatRoomId);
+
+        if (chat) {
+            // Update the message
+            chat.unreadCount += 1;
+
+            // Save the updated conversation back to IndexedDB
+            await db.chats.put(chat);
+        } else {
+            console.error('Chat not found');
+        }
+    } catch (error) {
+        console.error('Failed to update unread message count:', error);
     }
 }

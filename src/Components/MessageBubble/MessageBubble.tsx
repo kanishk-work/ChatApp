@@ -114,20 +114,26 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const renderMessageContent = () => {
     return (
       <div className="flex flex-col gap-3">
+        {parentMessage && (
+          <div
+            className="w-full text-center dynamic-accent-color py-2 px-4 rounded-lg"
+            style={textStyle}
+          >
+            {parentMessage.chatFiles &&
+              parentMessage.chatFiles.map((chatFile, index) => (
+                <div key={index} className="">
+                  {getFilePreview(chatFile.file_url)}
+                </div>
+              ))}
+            <span>{parentMessage.message}</span>
+          </div>
+        )}
         {message.chatFiles &&
           message.chatFiles.map((chatFile, index) => (
             <div key={index} className="">
               {getFilePreview(chatFile.file_url)}
             </div>
           ))}
-        {parentMessage && (
-          <span
-            className="w-full text-center dynamic-accent-color py-2 px-4 rounded-lg"
-            style={textStyle}
-          >
-            {parentMessage.message}
-          </span>
-        )}
         <span style={textStyle}>{message.message}</span>
         <span className="text-sm">{formatTime(message.createdAt)}</span>
       </div>
@@ -145,8 +151,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
       <div
         className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
-            ? "bg-blue-500 text-white"
-            : "bg-gray-200 text-black"
+          ? "bg-blue-500 text-white"
+          : "bg-gray-200 text-black"
           }`}
         style={bubbleStyle}
       >

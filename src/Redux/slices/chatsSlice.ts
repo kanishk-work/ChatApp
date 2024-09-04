@@ -53,14 +53,24 @@ const chatsSlice = createSlice({
       const newMessage = action.payload;
       console.log("latest message in redux: ", newMessage)
       
-      const messageToUpdate = state.chats.find((chat)=>chat.id === newMessage.chat_room_id);
+      const chatToUpdate = state.chats.find((chat)=>chat.id === newMessage.chat_room_id);
       
-      if(messageToUpdate){
-        messageToUpdate.lastMessage = newMessage;
+      if(chatToUpdate){
+        chatToUpdate.lastMessage = newMessage;
+      }
+    },
+    setUnreadCountChat: (state, action: PayloadAction<number>) => {
+      const chatRoomId = action.payload;
+      console.log("unread message update chat ID in redux: ", chatRoomId)
+      
+      const chatToUpdate = state.chats.find((chat)=>chat.id === chatRoomId);
+      
+      if(chatToUpdate){
+        chatToUpdate.unreadCount += 1;
       }
     },
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat, setUnreadCountChat } = chatsSlice.actions;
 export default chatsSlice.reducer;

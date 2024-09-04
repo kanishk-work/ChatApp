@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { setLatestMessageChat, setNewMessage, setNotifications } from "../Redux/slices/chatsSlice";
-import { updateLatestMessageData, updateMessagesData } from "../DB/database";
+import { setLatestMessageChat, setNewMessage, setNotifications, setUnreadCountChat } from "../Redux/slices/chatsSlice";
+import { updateLatestMessageData, updateMessagesData, updateUnreadMessageCountData } from "../DB/database";
 import { useAppDispatch, useAppSelector } from "../Redux/hooks";
 import { RootState } from "../Redux/store";
-
-const eventEmitter = new EventTarget(); // Custom event emitter
 
 const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -39,20 +37,12 @@ const useSocket = () => {
             dispatch(setNewMessage(data.resp));
             dispatch(setLatestMessageChat(data.resp))
             console.log("updated messages: ", messages)
-          } else {
+          } else if (data.resp.chat_room_id){
+            updateUnreadMessageCountData(data.resp.chat_room_id);
+            dispatch(setUnreadCountChat(data.resp.chat_room_id));
             console.log({currentActiveChatId})
           }
           console.log("RESPONSE", data.resp);
-
-          // Emit an event after updating messages
-          // eventEmitter.dispatchEvent(
-          //   new CustomEvent("messagesUpdated", {
-          //     detail: {
-          //       chat_room_id: data.resp.chat_room_id,
-          //       message: data.resp,
-          //     },
-          //   })
-          // );
         } else {
           console.error("Invalid response data:", data);
         }
@@ -144,7 +134,6 @@ const useSocket = () => {
     socket,
     getNewMessage,
     joinChatRoom,
-    eventEmitter,
     emitTyping,
   };
 };

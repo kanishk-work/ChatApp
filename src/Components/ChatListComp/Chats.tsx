@@ -16,9 +16,9 @@ interface ChatListProps {
   listStyle?: Styles;
 }
 
-const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
+const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
   const { joinRoom } = useSocket();
-  
+
   const dispatch = useAppDispatch();
   const { className, style } = applyStyles(listStyle);
   const activeChatId = useAppSelector(
@@ -35,8 +35,6 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
     }
   };
   console.log(chats)
-  
-  const roomJoin = () => joinRoom('1');
 
   return (
     <div className="overflow-auto scrollbar-custom">
@@ -45,11 +43,11 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
         let chatName = chat.is_group
           ? chat.name
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
-              ?.user.full_name || "Unknown";
+            ?.user.full_name || "Unknown";
         let chatProfilePic = chat.is_group
           ? chat.profile_pic || placeholderImage
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
-              ?.user.profile_pic || placeholderImage;
+            ?.user.profile_pic || placeholderImage;
         joinRoom(`${chat.chatSocket[0].socket_room}`);
         return (
           <div
@@ -69,12 +67,17 @@ const Chats: FC<ChatListProps> = ({chats, listStyle }) => {
                   {chat.lastMessage ? formatTime(chat.lastMessage.createdAt) : ""}
                 </span>
               </div>
-              <span className="text-xs">{chat.lastMessage.message}</span>
+              <div className="flex justify-between">
+                <span className="text-xs line-clamp-1 leading-6">{chat.lastMessage.chatFiles[0] ? "shared file" : chat.lastMessage.message}</span>
+                <span className="text-xs">
+                  {chat.unreadCount ? chat.unreadCount : ""}
+                </span>
+              </div>
+
             </div>
           </div>
         );
       })}
-      <button onClick={roomJoin}> joinroom</button>
     </div>
   );
 };
