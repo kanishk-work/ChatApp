@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import Loader from "../Components/Shared/Loader";
 
 const HomeLayout = () => {
+  const [getConversations] = useGetConversationsMutation();
   const { width } = useWindowSize();
   const chatWindow = useAppSelector(
     (state: RootState) => state.chatWindow.chatWindow
@@ -38,24 +39,26 @@ const HomeLayout = () => {
     (state: RootState) => state.chatInfo.showChatInfo
   );
 
-  const [getConversations] = useGetConversationsMutation();
+  useGetChatsQuery();
 
   useEffect(() => {
     const fetchConversationsAndChats = async () => {
       try {
         await getConversations(0);
-        useGetChatsQuery();  
       } catch (error) {
-        console.error('Failed to fetch conversations:', error);
+        console.error("Failed to fetch conversations:", error);
       }
     };
 
     fetchConversationsAndChats();
-    
   }, []);
 
-  const isChatsLoading = useAppSelector((state: RootState) => state.loading.isChatsLoading);
-  const isConversationsLoading = useAppSelector((state: RootState) => state.loading.isConversationsLoading);
+  const isChatsLoading = useAppSelector(
+    (state: RootState) => state.loading.isChatsLoading
+  );
+  const isConversationsLoading = useAppSelector(
+    (state: RootState) => state.loading.isConversationsLoading
+  );
 
   const handleBlockUser = () => {
     console.log("User blocked");
@@ -65,9 +68,8 @@ const HomeLayout = () => {
       {isChatsLoading || isConversationsLoading ? (
         <div className="dynamic-text-color-primary w-full flex items-center justify-center gap-4">
           <h1>Loading Your Chats</h1>
-          <Loader loaderStyles={'text-focus-secondary'}/>
+          <Loader loaderStyles={"text-focus-secondary"} />
         </div>
-        
       ) : (
         <>
           <div
