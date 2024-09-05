@@ -48,7 +48,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
 
   const messageComposerRef = useRef<HTMLDivElement>(null);
   const { emitTyping } = useSocket();
-  const activeUser = useAppSelector((state) => state.activeUser.full_name);
+  const activeUser = useAppSelector((state) => state.activeUser);
 
   const {
     isRecording,
@@ -95,7 +95,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
     if (activeChatId) {
-      emitTyping(activeChatId, activeUser);
+      emitTyping(activeChatId, activeUser.full_name, activeUser.id);
     }
   };
 

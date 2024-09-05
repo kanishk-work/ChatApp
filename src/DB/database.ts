@@ -94,8 +94,8 @@ export async function updateLatestMessageData(chatRoomId: number, newMessage: La
   return await updateLatestMessage(chatRoomId, newMessage)
 }
 
-export async function updateUnreadMessageCountData(chatRoomId: number){
-  return await updateUnreadMessageCount(chatRoomId)
+export async function updateUnreadMessageCountData(chatRoomId: number, actionType: 'increment' | 'reset'){
+  return await updateUnreadMessageCount(chatRoomId, actionType)
 }
 
 export async function getChatMessageData(

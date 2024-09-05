@@ -8,7 +8,7 @@ import { Chat, LatestMessage } from '../../Types/chats';
 export async function storeChats(chats: Chat[]): Promise<void> {
     const chatsWithUnreadCount = chats.map(chat => ({
         ...chat,
-        unreadCount: 1, // Default value, to be set to zero
+        unreadCount: 0, // Default value, to be getting from server
     }));
 
     await Promise.all(chatsWithUnreadCount.map(chat => db.chats.put(chat)));
@@ -46,17 +46,21 @@ export async function updateLatestMessage(chatRoomId: number, newMessage: Latest
     }
 }
 
-export async function updateUnreadMessageCount(chatRoomId: number) {
-    console.log("update unread message count Working")
+export async function updateUnreadMessageCount(chatRoomId: number, actionType: 'increment' | 'reset') {
+    console.log("update unread message count Working");
     try {
         // Retrieve the chat by its ID
         const chat = await db.chats.get(chatRoomId);
 
         if (chat) {
-            // Update the message
-            chat.unreadCount += 1;
+            // Update the unreadCount based on the actionType
+            if (actionType === 'increment') {
+                chat.unreadCount += 1;
+            } else if (actionType === 'reset') {
+                chat.unreadCount = 0;
+            }
 
-            // Save the updated conversation back to IndexedDB
+            // Save the updated chat back to IndexedDB
             await db.chats.put(chat);
         } else {
             console.error('Chat not found');

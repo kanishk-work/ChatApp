@@ -18,6 +18,7 @@ import { useWindowSize } from "../Utils/windowSizeUtil";
 import { useGetChatsQuery, useGetConversationsMutation } from "../apis/chatApi";
 import { useEffect } from "react";
 import Loader from "../Components/Shared/Loader";
+import useSocket from "../apis/websocket";
 
 const HomeLayout = () => {
   const [getConversations] = useGetConversationsMutation();
@@ -34,7 +35,13 @@ const HomeLayout = () => {
     fetchConversations();
     
   }, []);
+  const chats = useAppSelector((state: RootState) => state.chats.chats);
+  const { joinRoom } = useSocket();
 
+  chats?.forEach(chat => {
+    console.log("joining from homelayout")
+    joinRoom(`${chat.chatSocket[0].socket_room}`);
+  });
   const { width } = useWindowSize();
   const chatWindow = useAppSelector(
     (state: RootState) => state.chatWindow.chatWindow

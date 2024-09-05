@@ -11,12 +11,17 @@ export interface ChatMessagePayload {
   files_list: string[] | [];
 }
 
+interface TypingStatus {
+  [frq: string]: string | null; // Maps chat IDs to the user who is typing, or null if no one is typing
+}
+
 export interface ChatsState {
   chats: Chat[];
   conversations: ConversationsType[];
   activeChatId: number | null;
   notifications: string[];
   currentUserId: number;
+  typing: TypingStatus; // Add this line
 }
 
 const initialState: ChatsState = {
@@ -25,7 +30,13 @@ const initialState: ChatsState = {
   activeChatId: null,
   notifications: [],
   currentUserId: 1,
+  typing: {}, // Initialize typing status
 };
+
+interface SetUnreadCountPayload {
+  chatRoomId: number;
+  actionType: 'increment' | 'reset';
+}
 
 const chatsSlice = createSlice({
   name: "chats",
@@ -59,18 +70,26 @@ const chatsSlice = createSlice({
         chatToUpdate.lastMessage = newMessage;
       }
     },
-    setUnreadCountChat: (state, action: PayloadAction<number>) => {
-      const chatRoomId = action.payload;
-      console.log("unread message update chat ID in redux: ", chatRoomId)
-      
-      const chatToUpdate = state.chats.find((chat)=>chat.id === chatRoomId);
-      
-      if(chatToUpdate){
-        chatToUpdate.unreadCount += 1;
+    setUnreadCountChat: (state, action: PayloadAction<SetUnreadCountPayload>) => {
+      const { chatRoomId, actionType } = action.payload;
+      console.log("unread message update chat ID in redux: ", chatRoomId, "Action Type:", actionType);
+    
+      const chatToUpdate = state.chats.find((chat) => chat.id === chatRoomId);
+    
+      if (chatToUpdate) {
+        if (actionType === 'increment') {
+          chatToUpdate.unreadCount += 1;
+        } else if (actionType === 'reset') {
+          chatToUpdate.unreadCount = 0;
+        }
       }
+    },
+    setTypingStatus: (state, action: PayloadAction<{ frq: string; userName: string | null }>) => {
+      const { frq, userName } = action.payload;
+      state.typing[frq] = userName;
     },
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat, setUnreadCountChat } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat, setUnreadCountChat, setTypingStatus } = chatsSlice.actions;
 export default chatsSlice.reducer;

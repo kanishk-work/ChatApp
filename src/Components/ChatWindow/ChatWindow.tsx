@@ -4,9 +4,7 @@ import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
 import { useAppSelector, useAppDispatch } from "../../Redux/hooks";
 import StatusBar from "./StatusBar";
-import { formatTime } from "../../Utils/formatTimeStamp";
 import {
-  useGetConversationsMutation,
   useSendMessageMutation,
   useSendReplyMutation,
   useUploadFileMutation,
@@ -20,35 +18,37 @@ import { addDateTags } from "../../Utils/formatDatetag";
 // import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
-  const [messagesOld, setMessages] = useState<ConversationsType[]>([])
-  const [activeChat, setActiveChat] = useState<Chat>()
-
+  const [messagesOld, setMessages] = useState<ConversationsType[]>([]);
+  const [activeChat, setActiveChat] = useState<Chat>();
   const [replyMessage, setReplyMessage] = useState<ChatMessage | null>(null);
-
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
-  // const chats = useAppSelector((state: RootState) => state.chats.chats);
-  // const activeChat = chats.find((chat) => chat.id === activeChatId);
-
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
   const messages = useAppSelector(
     (state: RootState) => state.chats.conversations
   );
-  const [getConversations] = useGetConversationsMutation();
+  const socket_room: string = activeChat ? activeChat?.chatSocket[0].socket_room : ''
+  console.log({socket_room});
+  const typingUser = 
+   useAppSelector(
+    (state: RootState) =>
+      state.chats.typing[socket_room]
+  )
+
   const [sendMessageApi] = useSendMessageMutation();
   const [sendReplyApi] = useSendReplyMutation();
   const [uploadFile] = useUploadFileMutation();
 
-  const { getNewMessage, socket, sendMessage } = useSocket();
+  const { sendMessage } = useSocket();
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollIntoView({ /* behavior: "smooth" */});
     }
   }, [messages]);
 
@@ -59,24 +59,24 @@ const ChatWindow: React.FC = () => {
       let messageReply;
       let socketPayload;
       let fileUrls = [];
-  
+
       if (files && files.length > 0) {
         const formData = new FormData();
-        console.log('files being uploaded:', files)
+        console.log("files being uploaded:", files);
         files.forEach((file) => {
-          formData.append('files', file);
+          formData.append("files", file);
         });
-  
+
         try {
-          const uploadResponse = await uploadFile(formData).unwrap(); 
-          fileUrls = uploadResponse?.list || []; 
-          console.log('file URLs: ', fileUrls);
+          const uploadResponse = await uploadFile(formData).unwrap();
+          fileUrls = uploadResponse?.list || [];
+          console.log("file URLs: ", fileUrls);
         } catch (error) {
           console.error("Failed to upload files:", error);
           return;
         }
       }
-  
+
       if (replyMessage) {
         console.log(
           `this is a reply: ${textMessage} to-messageid: ${replyMessage?.id}`
@@ -86,7 +86,7 @@ const ChatWindow: React.FC = () => {
           chat_id: replyMessage?.id,
           files_list: fileUrls,
         };
-  
+
         socketPayload = {
           chat: {
             fromId: activeUserId,
@@ -109,7 +109,7 @@ const ChatWindow: React.FC = () => {
           chat_room_id: activeChatId,
           files_list: fileUrls,
         };
-  
+
         socketPayload = {
           chat: {
             fromId: activeUserId,
@@ -121,7 +121,7 @@ const ChatWindow: React.FC = () => {
           },
         };
       }
-  
+
       try {
         const resp = replyMessage
           ? await sendReplyApi(messageReply).unwrap()
@@ -145,12 +145,12 @@ const ChatWindow: React.FC = () => {
         const activeChat = await getChatData(activeChatId);
         if (activeChat) {
           setActiveChat(activeChat);
-          console.log('active chat from indexedDB: ', activeChat)
+          console.log("active chat from indexedDB: ", activeChat);
         } else {
           console.log("No chat data found for this id.");
         }
       }
-    }
+    };
     const getMessages = async () => {
       if (activeChatId !== null) {
         const messages = await getMessagesByChatIdData(activeChatId);
@@ -159,8 +159,8 @@ const ChatWindow: React.FC = () => {
         if (messages && messages.length > 0) {
           setMessages(messages);
           dispatch(setConversations(messages));
-          console.log(messages)
-          console.log('Messages indexedDB:', messages[0].messages)
+          console.log(messages);
+          console.log("Messages indexedDB:", messages[0].messages);
         } else {
           console.log("No messages found for this chat.");
         }
@@ -168,12 +168,10 @@ const ChatWindow: React.FC = () => {
     };
     getActiveChat();
     getMessages();
-
   }, [activeChatId]);
 
-  const allMessages = messages[0]?.messages?.chatsList;
-  const taggedMessages = addDateTags(allMessages);
-
+  const allMessages = messages[0]?.messages?.chatsList || [];
+  const taggedMessages = allMessages && addDateTags(allMessages);
   return (
     <div className="flex flex-col h-full">
       <StatusBar
@@ -184,40 +182,48 @@ const ChatWindow: React.FC = () => {
         }}
       />
       <div className="flex-1 overflow-auto p-4 scrollbar-custom">
-      {taggedMessages.map((item, index) => {
-        if (item.type === 'date') {
-          return (
-            <div key={index} className="text-center text-sm dynamic-text-color-secondary my-2">
-              <span>{item.tag}</span>
-            </div>
+        {taggedMessages?.map((item, index) => {
+          if (item.type === "date") {
+            return (
+              <div
+                key={index}
+                className="text-center text-sm dynamic-text-color-secondary my-2"
+              >
+                <span>{item.tag}</span>
+              </div>
+            );
+          }
+
+          const message = item.message as ChatMessage;
+          const parentMessage = allMessages.find(
+            (m) => m.id === item.message?.parent_chat_id
           );
-        }
 
-        const message = item.message as ChatMessage;
-        const parentMessage = allMessages.find(
-          (m) => m.id === item.message?.parent_chat_id
-        );
-
-        return (
-          <div key={message.id}>
-            <MessageBubble
-              message={message}
-              parentMessage={parentMessage}
-              sender={message.sender_id === activeUserId ? 'user' : 'other'}
-              senderName={
-                activeChat?.is_group
-                  ? activeChat.chatUsers.find(
+          return (
+            <div key={message.id}>
+              <MessageBubble
+                message={message}
+                parentMessage={parentMessage}
+                sender={message.sender_id === activeUserId ? "user" : "other"}
+                senderName={
+                  activeChat?.is_group
+                    ? activeChat.chatUsers.find(
                       (user) => user.user.id === message.sender_id
                     )?.user.full_name
-                  : undefined
-              }
-              setReplyMessage={setReplyMessage}
-            />
-          </div>
-        );
-      })}
-      <div ref={messagesEndRef} />
-    </div>
+                    : undefined
+                }
+                setReplyMessage={setReplyMessage}
+              />
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </div>
+      <span>
+        {typingUser && (
+          <div className="typing-indicator">{typingUser} is typing...</div>
+        )}
+      </span>
       <div className="p-4">
         <MessageComposer
           onSend={handleSend}

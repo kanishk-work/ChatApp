@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { setLatestMessageChat, setNewMessage, setNotifications, setUnreadCountChat } from "../Redux/slices/chatsSlice";
+import { setLatestMessageChat, setNewMessage, setNotifications, setTypingStatus, setUnreadCountChat } from "../Redux/slices/chatsSlice";
 import { updateLatestMessageData, updateMessagesData, updateUnreadMessageCountData } from "../DB/database";
 import { useAppDispatch, useAppSelector } from "../Redux/hooks";
 import { RootState } from "../Redux/store";
@@ -9,38 +9,37 @@ const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   let url = import.meta.env.VITE_SOCKET_URL;
   const dispatch = useAppDispatch();
+  
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
   const activeChatIdRef = useRef<number | null>(activeChatId);
-
-  // Update the ref whenever activeChatId changes
   useEffect(() => {
     activeChatIdRef.current = activeChatId;
   }, [activeChatId]);
-  const messages = useAppSelector(
-    (state: RootState) => state.chats.conversations
-  );
+  
+  let typingTimeouts: { [frq: string]: NodeJS.Timeout } = {};
+  const activeUser = useAppSelector((state) => state.activeUser);
+
   useEffect(() => {
     if (socket) {
       socket.on("resp", (data) => {
-        console.log({data})
+        console.log({ data })
         const currentActiveChatId = activeChatIdRef.current;
 
         if (data && data.resp && data.resp.chat_room_id) {
           updateMessagesData(data.resp.chat_room_id, data.resp);
           updateLatestMessageData(data.resp.chat_room_id, data.resp);
-          console.log({currentActiveChatId})
-          
+          console.log({ currentActiveChatId })
+
           if (data.resp.chat_room_id === currentActiveChatId) {
             console.log('current chat message update')
             dispatch(setNewMessage(data.resp));
             dispatch(setLatestMessageChat(data.resp))
-            console.log("updated messages: ", messages)
-          } else if (data.resp.chat_room_id){
-            updateUnreadMessageCountData(data.resp.chat_room_id);
-            dispatch(setUnreadCountChat(data.resp.chat_room_id));
-            console.log({currentActiveChatId})
+          } else if (data.resp.chat_room_id) {
+            updateUnreadMessageCountData(data.resp.chat_room_id, 'increment');
+            dispatch(setUnreadCountChat({ chatRoomId: data.resp.chat_room_id, actionType: 'increment' }));
+            console.log({ currentActiveChatId })
           }
           console.log("RESPONSE", data.resp);
         } else {
@@ -51,8 +50,19 @@ const useSocket = () => {
         setNotifications(data);
         console.log(data);
       });
-      socket.on("isTyping", (data) => {
-        console.log(`${data.userName} is typing...`);
+      socket.on("isTyping", (data: { frq: string, userName: string | null, userId: number }) => {
+        console.log(`${data.userName} is typing in ${data.frq}`);
+        if (data.userId === activeUser.id) return;
+        dispatch(setTypingStatus(data));
+
+        if (typingTimeouts[data.frq]) {
+          clearTimeout(typingTimeouts[data.frq]);
+        }
+
+        typingTimeouts[data.frq] = setTimeout(() => {
+          dispatch(setTypingStatus({ frq: data.frq, userName: null }));
+          delete typingTimeouts[data.frq];
+        }, 1000);
       });
     }
   }, [socket]);
@@ -120,9 +130,9 @@ const useSocket = () => {
     }
   };
 
-  const emitTyping = (frq: string, userName: string) => {
+  const emitTyping = (frq: string, userName: string, userId: number) => {
     if (socket) {
-      socket.emit("isTyping", { frq, userName });
+      socket.emit("isTyping", { frq, userName, userId });
     }
   };
 

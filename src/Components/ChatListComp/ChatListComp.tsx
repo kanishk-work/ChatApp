@@ -13,7 +13,6 @@ const ChatListComp = () => {
   // const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { refetch: refetchChats } = useGetChatsQuery();
 
   const chats = useAppSelector((state: RootState) => state.chats.chats);
 
