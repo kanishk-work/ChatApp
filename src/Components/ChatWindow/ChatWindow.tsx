@@ -15,7 +15,6 @@ import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
 import { Chat } from "../../Types/chats";
 import { setConversations } from "../../Redux/slices/chatsSlice";
 import { addDateTags } from "../../Utils/formatDatetag";
-// import { setConversations } from "../../Redux/slices/chatsSlice";
 
 const ChatWindow: React.FC = () => {
   const [messagesOld, setMessages] = useState<ConversationsType[]>([]);

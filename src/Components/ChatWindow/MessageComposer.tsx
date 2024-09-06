@@ -11,14 +11,14 @@ import {
   FaPause,
   FaPlay,
 } from "react-icons/fa";
-import { convertFileToUrl } from "../../Utils/convertFileToUrl";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { init } from "emoji-mart";
 import { ChatMessage } from "../../Types/conversationsType";
 import useSocket from "../../apis/websocket";
 import { useAppSelector } from "../../Redux/hooks";
-import { useAudioRecorder } from "../../Utils/CustomHooks/useAudioRecorder";
+import useAudioRecorder from "../../Utils/CustomHooks/useAudioRecorder2";
+// import { useAudioRecorder } from "../../Utils/CustomHooks/useAudioRecorder";
 
 init({ data });
 
@@ -53,30 +53,27 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const {
     isRecording,
     isPaused,
-    audioURL,
-    requestMicAccess,
+    hasPermission,
     startRecording,
     pauseRecording,
     resumeRecording,
     stopRecording,
     deleteRecording,
     getAudioFile,
-    clearAudioFile,
+    audioUrl,
     elapsedTime,
     formatTime,
   } = useAudioRecorder();
 
-  useEffect(() => {
-    requestMicAccess();
-  }, []);
+  // useEffect(() => {
+  //   requestMicAccess();
+  // }, []);
   const handleSend = async () => {
     setShowEmojiPicker(false);
-    const audioFile = getAudioFile();
+    const audioFile = await getAudioFile();
     let filesToSend = [...files];
-
     if (audioFile) {
       filesToSend.push(audioFile);
-      clearAudioFile();
     }
     if (message.trim() || filesToSend.length > 0) {
       onSend(message, filesToSend);
@@ -260,7 +257,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
               <button onClick={stopRecording}>Stop Recording</button>
             </>
           )} */}
-          {audioURL && (
+          {audioUrl && (
             <div className="flex items-center gap-2">
               <button
                 onClick={deleteRecording}
@@ -269,7 +266,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
               >
                 <FaTrash />
               </button>
-              <audio controls src={audioURL} />
+              <audio controls src={audioUrl} />
             </div>
           )}
         </div>
