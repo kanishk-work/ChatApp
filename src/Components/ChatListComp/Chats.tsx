@@ -72,7 +72,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage.chatFiles[0] ? "shared file" : chat.lastMessage.message}</span>
+                <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.chatFiles[0] ? "shared file" : chat.lastMessage?.message}</span>
                 <span className="text-xs">
                   {chat.unreadCount ? chat.unreadCount : ""}
                 </span>

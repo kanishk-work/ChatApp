@@ -220,7 +220,7 @@ const ChatWindow: React.FC = () => {
       </div>
       <span>
         {typingUser && (
-          <div className="typing-indicator">{typingUser} is typing...</div>
+          <div className="dynamic-text-color-secondary">{typingUser} is typing...</div>
         )}
       </span>
       <div className="p-4">

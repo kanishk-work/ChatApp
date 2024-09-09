@@ -3,6 +3,7 @@ import { FaChevronDown, FaDownload, FaFilePdf, FaFileWord, FaFileExcel, FaFilePo
 import DropDown from "../Shared/DropDown";
 import { ChatMessage } from "../../Types/conversationsType";
 import { formatTime } from "../../Utils/formatTimeStamp";
+import { BiCheck, BiCheckDouble, BiTime } from "react-icons/bi";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -136,6 +137,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           ))}
         <span style={textStyle}>{message.message}</span>
         <span className="text-sm">{formatTime(message.createdAt)}</span>
+        <div className="flex justify-between">
+          <span className="text-sm">{message.chatStatus[0].read ? <BiCheckDouble /> : message.chatStatus[0].delivered ? <BiCheck /> : <BiTime />}</span>
+        </div>
       </div>
     );
   };

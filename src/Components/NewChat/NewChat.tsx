@@ -5,11 +5,12 @@ import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
 import SideHeader from "../Shared/SideHeader";
 import { useSearchUsersQuery } from "../../apis/authApi";
 import { useGetChatsQuery, useStartChatMutation } from "../../apis/chatApi";
-import { setActiveChatId } from "../../Redux/slices/chatsSlice";
+import { setActiveChatId, setChats } from "../../Redux/slices/chatsSlice";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import useSocket from "../../apis/websocket";
 import SearchBar from "../SearchBar/SearchBar";
+import { getAllChatsData, storeChatData } from "../../DB/database";
 
 interface usersData {
   id: number;
@@ -27,7 +28,7 @@ const NewChat = () => {
     (state: RootState) => state.chats.activeChatId
   );
   const debounceSearch = useDebounce(searchTerm, 500);
-  const { newInvite } = useSocket();
+  const { newInvite, joinRoom } = useSocket();
 
   const {
     data: users,
@@ -44,7 +45,7 @@ const NewChat = () => {
 
   const handleSelect = async (user: usersData) => {
     setIsNewChatLoading(true);
-    
+
     const body = {
       toUserId: user.id,
     };
@@ -54,17 +55,20 @@ const NewChat = () => {
     if (error) {
       console.log(error);
     } else if (res) {
+      // await storeChatData(res);
+      // const chatsFromDB = await getAllChatsData();
+      // dispatch(setChats(chatsFromDB));
       await refetchChats();
       const newInviteData = {
         roomId: user.notif_room,
         socketRoom: res?.newChatRoom?.chatSocket[0]?.socket_room,
       };
-      
+
       newInvite(newInviteData);
       if (activeChatId !== res?.newChatRoom?.id) {
         dispatch(setActiveChatId(res?.newChatRoom?.id));
         dispatch(setChatWindow(true));
-        // joinRoom(chatId);
+        joinRoom(`${res?.newChatRoom?.chatSocket[0]?.socket_room}`);
       }
       console.log(res?.newChatRoom);
     }

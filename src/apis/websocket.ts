@@ -31,11 +31,11 @@ const useSocket = () => {
           updateMessagesData(data.resp.chat_room_id, data.resp);
           updateLatestMessageData(data.resp.chat_room_id, data.resp);
           console.log({ currentActiveChatId })
+          dispatch(setLatestMessageChat(data.resp))
 
           if (data.resp.chat_room_id === currentActiveChatId) {
             console.log('current chat message update')
             dispatch(setNewMessage(data.resp));
-            dispatch(setLatestMessageChat(data.resp))
           } else if (data.resp.chat_room_id) {
             updateUnreadMessageCountData(data.resp.chat_room_id, 'increment');
             dispatch(setUnreadCountChat({ chatRoomId: data.resp.chat_room_id, actionType: 'increment' }));
@@ -47,7 +47,7 @@ const useSocket = () => {
         }
       });
       socket.on("newInviteNotification", (data) => {
-        setNotifications(data);
+        dispatch(setNotifications(data));
         console.log(data);
       });
       socket.on("isTyping", (data: { frq: string, userName: string | null, userId: number }) => {
