@@ -8,10 +8,12 @@ import { useLogInMutation } from "./apis/authApi";
 import useSocket from "./apis/websocket";
 import { createTestData } from "./DB/testScript";
 import { verifyData } from "./DB/verifyScript";
+import LoginPage from "./Pages/LoginPage";
+import { LoginDetails } from "./Types/login";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { joinRoom, listenNewInvite } = useSocket();
+  // const { joinRoom } = useSocket();
   const activeUser = useAppSelector((state: RootState) => state.activeUser);
   const currentUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
@@ -34,22 +36,37 @@ const App: React.FC = () => {
   //     "https://img.freepik.com/premium-photo/stylish-man-flat-vector-profile-picture-ai-generated_606187-309.jpg",
   // };
 
-  const userCredentials = {
-    user_id: "2",
-    client_email: "hr@wafer.ee",
-    client_name: "Wafer",
-    email: "kanishk@wafer.ee",
-    firstName: "kanishk",
-    lastName: "Wafer",
-    role: "Developer",
-    profile_pic_url:
-      "https://img.freepik.com/premium-photo/stylish-man-flat-vector-profile-picture-ai-generated_606187-309.jpg",
-  };
+  // const userCredentials = {
+  //   user_id: "2",
+  //   client_email: "hr@wafer.ee",
+  //   client_name: "Wafer",
+  //   email: "kanishk@wafer.ee",
+  //   firstName: "kanishk",
+  //   lastName: "Wafer",
+  //   role: "Developer",
+  //   profile_pic_url:
+  //     "https://img.freepik.com/premium-photo/stylish-man-flat-vector-profile-picture-ai-generated_606187-309.jpg",
+  // };
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (!activeUser || !activeUser.id) {
+  //     /* Authenticate the user
+  //      client will have to use authenticateUser function and pass login credentials to login*/
+  //     authenticateUser(userCredentials)
+  //       .then(() => {
+  //         console.log("User authenticated successfully.");
+  //       })
+  //       .catch((error) => {
+  //         console.error("Authentication failed:", error);
+  //       });
+  //   }
+  // }, [activeUser, dispatch, logIn]);
+
+  const loginFn = ( userCredentials: LoginDetails) => {
     if (!activeUser || !activeUser.id) {
       /* Authenticate the user
        client will have to use authenticateUser function and pass login credentials to login*/
+       console.log(userCredentials)
       authenticateUser(userCredentials)
         .then(() => {
           console.log("User authenticated successfully.");
@@ -58,7 +75,7 @@ const App: React.FC = () => {
           console.error("Authentication failed:", error);
         });
     }
-  }, [activeUser, dispatch, logIn]);
+  }
   const {
     bgColorDark,
     accentColorDark,
@@ -106,15 +123,11 @@ const App: React.FC = () => {
 
   const activeUserRoom = `${activeUser?.client?.email.split('@')[0]}_${activeUser?.email.split('@')[0]}`;
   console.log(activeUserRoom);
-  useEffect(() => {
-    if (currentUserId) {
-      joinRoom(activeUserRoom);
-    }
-  }, [currentUserId]);
-
-  useEffect(() => {
-      listenNewInvite();
-  });
+  // useEffect(() => {
+  //   if (currentUserId) {
+  //     joinRoom(activeUserRoom);
+  //   }
+  // }, [currentUserId]);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -126,9 +139,9 @@ const App: React.FC = () => {
 
   //indexedDB test
   // createTestData();
-  verifyData();
+  // verifyData();
 
-  return <HomeLayout />;
+  return activeUser.id ? <HomeLayout /> : <LoginPage loginFn={loginFn}/>;
 };
 
 export default App;
