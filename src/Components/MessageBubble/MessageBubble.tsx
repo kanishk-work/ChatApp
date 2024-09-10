@@ -138,7 +138,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         <span style={textStyle}>{message.message}</span>
         <span className="text-sm">{formatTime(message.createdAt)}</span>
         <div className="flex justify-between">
-          <span className="text-sm">{message.chatStatus[0].read ? <BiCheckDouble /> : message.chatStatus[0].delivered ? <BiCheck /> : <BiTime />}</span>
+          <span className="text-sm">{message.chatStatus[0]?.read ? <BiCheckDouble /> : message.chatStatus[0]?.delivered ? <BiCheck /> : <BiTime />}</span>
         </div>
       </div>
     );

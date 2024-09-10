@@ -8,10 +8,15 @@ import { Chat, LatestMessage } from '../../Types/chats';
 export async function storeChats(chats: Chat[]): Promise<void> {
     const chatsWithUnreadCount = chats.map(chat => ({
         ...chat,
-        unreadCount: 0, // Default value, to be getting from server
+        unreadCount: 0, // Default value, to be updated from server
     }));
 
-    await Promise.all(chatsWithUnreadCount.map(chat => db.chats.put(chat)));
+    await Promise.all(chatsWithUnreadCount.map(async chat => {
+        const existingChat = await db.chats.get(chat.id);
+        if (!existingChat) {
+            await db.chats.put(chat);
+        }
+    }));
 }
 
 export async function getChat(id: number | null): Promise<Chat | undefined> {

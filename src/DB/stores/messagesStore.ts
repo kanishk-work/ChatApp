@@ -27,7 +27,10 @@ export async function updateMessages(chatRoomId: number, newMessage: ChatMessage
 }
 
 export async function getChatMessage(id: number): Promise<ConversationsType | undefined> {
-    return await db.chatMessages.get(id);
+    const chatMessages = await db.chatMessages.get(id);
+    if(chatMessages){
+        return chatMessages
+    }
 }
 
 export async function getMessagesByChatId(id: number): Promise<ConversationsType[] | undefined> {

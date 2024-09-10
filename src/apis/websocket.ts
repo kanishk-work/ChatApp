@@ -64,6 +64,12 @@ const useSocket = () => {
           delete typingTimeouts[data.frq];
         }, 1000);
       });
+
+      socket.on("reactResp", (data) => {
+        console.log({ data })
+        const currentActiveChatId = activeChatIdRef.current;
+        
+      });
     }
   }, [socket]);
   useEffect(() => {
@@ -111,6 +117,12 @@ const useSocket = () => {
     if (socket) {
       console.log("new invite data:", { roomId, socketRoom });
       socket.emit("newInvite", { frq: roomId, chatFrq: socketRoom });
+    }
+  };
+
+  const sendReaction = (reactionData: {frq: string, resp: any}) => {
+    if (socket) {
+      socket.emit("react", reactionData);
     }
   };
 

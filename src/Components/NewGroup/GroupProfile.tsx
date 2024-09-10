@@ -3,10 +3,12 @@ import SideHeader from "../Shared/SideHeader";
 import { useCreateGroupMutation, useGetChatsQuery } from "../../apis/chatApi";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
-import { setActiveChatId } from "../../Redux/slices/chatsSlice";
+import { setActiveChatId, setChats } from "../../Redux/slices/chatsSlice";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import Loader from "../Shared/Loader";
+import { getAllChatsData, storeChatData } from "../../DB/database";
+import useSocket from "../../apis/websocket";
 
 interface usersData {
   id: number;
@@ -14,6 +16,7 @@ interface usersData {
   short_name: string;
   role: string;
   profile_pic: string;
+  notif_room: string;
 }
 
 const GroupProfile = ({
@@ -30,6 +33,8 @@ const GroupProfile = ({
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
   const { refetch: refetchChats } = useGetChatsQuery();
+  const { newInvite, joinRoom } = useSocket();
+
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
@@ -49,15 +54,23 @@ const GroupProfile = ({
     if (error) {
       console.log(error);
     } else {
-      await refetchChats();
+      console.log([res]);
+      await storeChatData([res]);
+
       submitFn();
+      // const newInviteData = {
+      //   roomId: members.notif_room,
+      //   socketRoom: res?.chatSocket[0]?.socket_room,
+      // };
+
+      // newInvite(newInviteData);
       console.log(res);
-      if (activeChatId !== res?.newChatRoom?.id) {
-        dispatch(setActiveChatId(res?.newChatRoom?.id));
+      if (activeChatId !== res?.id) {
+        dispatch(setActiveChatId(res?.id));
         dispatch(setChatWindow(true));
-        // joinRoom(chatId);
+        joinRoom(`${res?.chatSocket[0]?.socket_room}`);
       }
-      console.log(res?.newChatRoom);
+      console.log(res);
     }
 
     setIsLoading(false);

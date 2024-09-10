@@ -55,22 +55,24 @@ const NewChat = () => {
     if (error) {
       console.log(error);
     } else if (res) {
-      // await storeChatData(res);
+      console.log([res]);
+      await storeChatData([res]);
+      
       // const chatsFromDB = await getAllChatsData();
       // dispatch(setChats(chatsFromDB));
-      await refetchChats();
+      // await refetchChats();
       const newInviteData = {
         roomId: user.notif_room,
-        socketRoom: res?.newChatRoom?.chatSocket[0]?.socket_room,
+        socketRoom: res?.chatSocket[0]?.socket_room,
       };
 
       newInvite(newInviteData);
-      if (activeChatId !== res?.newChatRoom?.id) {
-        dispatch(setActiveChatId(res?.newChatRoom?.id));
+      if (activeChatId !== res?.id) {
+        dispatch(setActiveChatId(res?.id));
         dispatch(setChatWindow(true));
-        joinRoom(`${res?.newChatRoom?.chatSocket[0]?.socket_room}`);
+        joinRoom(`${res?.chatSocket[0]?.socket_room}`);
       }
-      console.log(res?.newChatRoom);
+      console.log(res);
     }
 
     setIsNewChatLoading(false);
