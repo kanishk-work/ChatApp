@@ -14,10 +14,11 @@ import {
   getMessagesByChatId,
   deleteChatMessage,
   updateMessages,
+  addReactionToMessage,
 } from "./stores/messagesStore";
 
 import { Chat, LatestMessage } from "../Types/chats";
-import { ChatMessage, ConversationsType } from "../Types/conversationsType";
+import { ChatMessage, ChatReaction, ConversationsType } from "../Types/conversationsType";
 import Dexie from "dexie";
 
 class ChatAppDatabase extends Dexie {
@@ -79,6 +80,14 @@ export async function deleteChatData(id: number): Promise<void> {
   await deleteChat(id);
 }
 
+export async function updateLatestMessageData(chatRoomId: number, newMessage: LatestMessage){
+  return await updateLatestMessage(chatRoomId, newMessage)
+}
+
+export async function updateUnreadMessageCountData(chatRoomId: number, actionType: 'increment' | 'reset'){
+  return await updateUnreadMessageCount(chatRoomId, actionType)
+}
+
 // Chat Messages Store Operations
 export async function storeChatMessagesData(
   messages: ConversationsType[]
@@ -90,14 +99,13 @@ export async function updateMessagesData(chatRoomId: number, newMessage: ChatMes
   return await updateMessages(chatRoomId, newMessage)
 }
 
-export async function updateLatestMessageData(chatRoomId: number, newMessage: LatestMessage){
-  return await updateLatestMessage(chatRoomId, newMessage)
+export async function addReactionToMessageData(
+  chatRoomId: number,
+  messageId: number,
+  updatedReactions: ChatReaction[]
+): Promise<void> {
+  return await addReactionToMessage(chatRoomId, messageId, updatedReactions);
 }
-
-export async function updateUnreadMessageCountData(chatRoomId: number, actionType: 'increment' | 'reset'){
-  return await updateUnreadMessageCount(chatRoomId, actionType)
-}
-
 export async function getChatMessageData(
   id: number
 ): Promise<ConversationsType | undefined> {

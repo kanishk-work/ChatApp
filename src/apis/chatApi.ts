@@ -126,6 +126,13 @@ export const chatApi = createApi({
         body: body,
       }),
     }),
+    messageReact: builder.mutation<any, object>({
+      query: (body) => ({
+        url: `chat/react`,
+        method: "POST",
+        body: body,
+      }),
+    }),
   }),
 });
 
@@ -137,4 +144,5 @@ export const {
   useGetConversationsMutation,
   useSendReplyMutation,
   useUploadFileMutation,
+  useMessageReactMutation
 } = chatApi as any;

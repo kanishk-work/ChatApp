@@ -4,6 +4,17 @@ import DropDown from "../Shared/DropDown";
 import { ChatMessage } from "../../Types/conversationsType";
 import { formatTime } from "../../Utils/formatTimeStamp";
 import { BiCheck, BiCheckDouble, BiTime } from "react-icons/bi";
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
+import { init } from "emoji-mart";
+
+
+init({ data });
+
+interface ReactionData {
+  messageId: number;
+  reactionCode: string;
+}
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -11,6 +22,7 @@ interface MessageBubbleProps {
   sender: "user" | "other";
   senderName: string | undefined;
   setReplyMessage: React.Dispatch<React.SetStateAction<ChatMessage | null>>;
+  onReact: (reaction: { messageId: number, reactionCode: string }) => Promise<void>
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
 }
@@ -20,20 +32,27 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   parentMessage,
   sender,
   senderName,
-  setReplyMessage, // Pass down the setReplyMessage from ChatWindow
+  setReplyMessage,
+  onReact,
   bubbleStyle,
   textStyle,
 }) => {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   const messageOptions = [
     {
       name: "Reply",
       action: () => {
-        setReplyMessage(message); // Set the reply message
+        setReplyMessage(message);
       },
     },
     {
       name: "Download",
       action: () => console.log("Download option selected"),
+    },
+    {
+      name: "React",
+      action: () => setShowEmojiPicker(!showEmojiPicker),
     },
   ];
   const [showOptions, setShowOptions] = useState(false);
@@ -41,6 +60,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const toggleOptions = () => {
     setShowOptions((prev) => !prev);
   };
+  const handleReaction = (emoji: any) => {
+    console.log(emoji.native)
+    onReact({ messageId: message.id, reactionCode: emoji.native });
+  };
+
   const handleDownload = (fileUrl: string) => {
     fetch(fileUrl)
       .then((response) => response.blob())
@@ -171,8 +195,24 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
               }`}
             dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
           />
+          {showEmojiPicker && (
+            <div className="absolute bottom-12 left-0 z-10">
+              <Picker data={data} onEmojiSelect={handleReaction} />
+            </div>
+          )}
         </div>
         {renderMessageContent()}
+        <div className="flex gap-1 flex-wrap">
+        {message.chatReactions.map((reaction, index) => {
+          
+          return (
+            <div>
+              {reaction.reaction_code}
+            </div>
+          )
+        })}
+        </div>
+        
       </div>
     </div>
   );

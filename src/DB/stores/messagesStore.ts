@@ -1,5 +1,5 @@
 import { db } from '../database'; // Adjust the import path as needed
-import { ChatMessage, ConversationsType } from '../../Types/conversationsType';
+import { ChatMessage, ChatReaction, ConversationsType } from '../../Types/conversationsType';
 
 export async function storeChatMessages(messages: ConversationsType[]): Promise<void> {
     await Promise.all(messages.map(message => db.chatMessages.put(message)));
@@ -25,6 +25,34 @@ export async function updateMessages(chatRoomId: number, newMessage: ChatMessage
         console.error('Failed to update messages:', error);
     }
 }
+
+export async function addReactionToMessage(
+    chatRoomId: number,
+    messageId: number,
+    updatedReactions: ChatReaction[]
+  ): Promise<void> {
+    try {
+      const conversation = await db.chatMessages.get(chatRoomId);
+  
+      if (conversation) {
+        const message = conversation.messages.chatsList.find(m => m.id === messageId);
+  
+        if (message) {
+          message.chatReactions = updatedReactions;
+  
+          await db.chatMessages.put(conversation);
+  
+          console.log('Reaction added successfully to the message in the conversation');
+        } else {
+          console.error('Message not found in the conversation');
+        }
+      } else {
+        console.error('Conversation not found');
+      }
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+    }
+  }
 
 export async function getChatMessage(id: number): Promise<ConversationsType | undefined> {
     const chatMessages = await db.chatMessages.get(id);

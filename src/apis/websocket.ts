@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { setLatestMessageChat, setNewMessage, setNotifications, setTypingStatus, setUnreadCountChat } from "../Redux/slices/chatsSlice";
-import { updateLatestMessageData, updateMessagesData, updateUnreadMessageCountData } from "../DB/database";
+import { setLatestMessageChat, setNewMessage, setNotifications, setTypingStatus, setUnreadCountChat, setUpdatedReactions } from "../Redux/slices/chatsSlice";
+import { addReactionToMessageData, updateLatestMessageData, updateMessagesData, updateUnreadMessageCountData } from "../DB/database";
 import { useAppDispatch, useAppSelector } from "../Redux/hooks";
 import { RootState } from "../Redux/store";
 
@@ -66,9 +66,13 @@ const useSocket = () => {
       });
 
       socket.on("reactResp", (data) => {
-        console.log({ data })
-        const currentActiveChatId = activeChatIdRef.current;
-        
+        console.log('reaction socket response: ', data)
+        if (data && data.chat_room_id && data.id && data.chatReactions) {
+          addReactionToMessageData(data.chat_room_id, data.id, data.chatReactions)
+          dispatch(setUpdatedReactions({chatRoomId: data.chat_room_id, messageId: data.id, updatedReactions:data.chatReactions}))
+        } else {
+          console.error("Invalid response data:", data);
+        }
       });
     }
   }, [socket]);
@@ -120,7 +124,7 @@ const useSocket = () => {
     }
   };
 
-  const sendReaction = (reactionData: {frq: string, resp: any}) => {
+  const sendReaction = (reactionData: {frq: string | undefined, resp: any}) => {
     if (socket) {
       socket.emit("react", reactionData);
     }
@@ -157,6 +161,7 @@ const useSocket = () => {
     getNewMessage,
     joinChatRoom,
     emitTyping,
+    sendReaction,
   };
 };
 

@@ -5,6 +5,7 @@ import MessageComposer from "./MessageComposer";
 import { useAppSelector, useAppDispatch } from "../../Redux/hooks";
 import StatusBar from "./StatusBar";
 import {
+  useMessageReactMutation,
   useSendMessageMutation,
   useSendReplyMutation,
   useUploadFileMutation,
@@ -42,8 +43,9 @@ const ChatWindow: React.FC = () => {
   const [sendMessageApi] = useSendMessageMutation();
   const [sendReplyApi] = useSendReplyMutation();
   const [uploadFile] = useUploadFileMutation();
+  const [messageReact] = useMessageReactMutation();
 
-  const { sendMessage } = useSocket();
+  const { sendMessage, sendReaction } = useSocket();
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -133,6 +135,19 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const handleReact = async (reaction: {messageId: number, reactionCode: string}) => {
+    if (reaction) {
+      try {
+        const reactResponse = await messageReact({chat_id: reaction.messageId, reaction_code: reaction.reactionCode});
+        console.log('reaction response: ', reactResponse)
+        sendReaction({frq: activeChat?.chatSocket[0].socket_room, resp: reactResponse.data.data});
+      } catch (error) {
+        console.error("Failed to send reaction:", error);
+        return;
+      }
+    }
+  }
+
   useEffect(() => {
     setReplyMessage(null);
   }, [activeChatId]);
@@ -212,6 +227,7 @@ const ChatWindow: React.FC = () => {
                     : undefined
                 }
                 setReplyMessage={setReplyMessage}
+                onReact={handleReact}
               />
             </div>
           );

@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { chatApi } from "../../apis/chatApi";
 import { Chat, LatestMessage } from "../../Types/chats";
-import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
+import { ChatMessage, ChatReaction, ConversationsType } from "../../Types/conversationsType";
 
 // Update the ChatMessage interface to align with API response
 export interface ChatMessagePayload {
@@ -88,8 +88,28 @@ const chatsSlice = createSlice({
       const { frq, userName } = action.payload;
       state.typing[frq] = userName;
     },
+
+    setUpdatedReactions: (state, action: PayloadAction<{ chatRoomId: number; messageId: number; updatedReactions: ChatReaction[] }>) => {
+      const { chatRoomId, messageId, updatedReactions } = action.payload;
+    
+      const conversation = state.conversations.find(conv => conv.id === chatRoomId);
+    
+      if (conversation) {
+        const message = conversation.messages.chatsList.find(msg => msg.id === messageId);
+        
+        if (message) {
+          message.chatReactions = updatedReactions;
+          
+          console.log('Reaction added to message in Redux state:', updatedReactions);
+        } else {
+          console.error('Message not found in the conversation');
+        }
+      } else {
+        console.error('Conversation not found');
+      }
+    }
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat, setUnreadCountChat, setTypingStatus } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions } = chatsSlice.actions;
 export default chatsSlice.reducer;
