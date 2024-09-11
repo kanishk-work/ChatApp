@@ -226,6 +226,7 @@ const ChatWindow: React.FC = () => {
                     )?.user.full_name
                     : undefined
                 }
+                chatUsers = {activeChat?.chatUsers}
                 setReplyMessage={setReplyMessage}
                 onReact={handleReact}
               />
@@ -245,6 +246,7 @@ const ChatWindow: React.FC = () => {
           replyMessage={replyMessage}
           activeChatId={activeChat?.chatSocket[0]?.socket_room}
           messageComposerStyle={{ backgroundColor: "#CED9E4" }}
+          setReplyMessage={setReplyMessage}
         />
       </div>
     </div>

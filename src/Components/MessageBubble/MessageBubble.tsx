@@ -7,6 +7,7 @@ import { BiCheck, BiCheckDouble, BiTime } from "react-icons/bi";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { init } from "emoji-mart";
+import { ChatUser } from "../../Types/chats";
 
 
 init({ data });
@@ -22,7 +23,8 @@ interface MessageBubbleProps {
   sender: "user" | "other";
   senderName: string | undefined;
   setReplyMessage: React.Dispatch<React.SetStateAction<ChatMessage | null>>;
-  onReact: (reaction: { messageId: number, reactionCode: string }) => Promise<void>
+  onReact: (reaction: { messageId: number, reactionCode: string }) => Promise<void>;
+  chatUsers: ChatUser[] | undefined
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
 }
@@ -34,10 +36,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   senderName,
   setReplyMessage,
   onReact,
+  chatUsers,
   bubbleStyle,
   textStyle,
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [openReaction, setOpenReaction] = useState<string | null>(null);
 
   const messageOptions = [
     {
@@ -55,11 +59,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       action: () => setShowEmojiPicker(!showEmojiPicker),
     },
   ];
-  const [showOptions, setShowOptions] = useState(false);
-
-  const toggleOptions = () => {
-    setShowOptions((prev) => !prev);
-  };
+  
   const handleReaction = (emoji: any) => {
     console.log(emoji.native)
     onReact({ messageId: message.id, reactionCode: emoji.native });
@@ -168,6 +168,26 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     );
   };
 
+  const groupReactions = () => {
+    return message.chatReactions.reduce((acc, reaction) => {
+      const user = chatUsers?.find((user) => user.user.id === reaction.user_id); 
+  
+      if (!acc[reaction.reaction_code]) {
+        acc[reaction.reaction_code] = [];
+      }
+  
+      if (user) {
+        acc[reaction.reaction_code].push(user.user.full_name); 
+      }
+  
+      return acc;
+    }, {} as Record<string, string[]>);
+  };
+  
+  const groupedReactions = groupReactions();
+  const handleToggleReaction = (reactionCode: string) => {
+    setOpenReaction(openReaction === reactionCode ? null : reactionCode);
+  };
   return (
     <div
       className={`flex flex-col ${sender === "user" ? "items-end" : "items-start"
@@ -202,17 +222,28 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           )}
         </div>
         {renderMessageContent()}
-        <div className="flex gap-1 flex-wrap">
-        {message.chatReactions.map((reaction, index) => {
-          
-          return (
-            <div>
-              {reaction.reaction_code}
+        <div className="flex gap-2 flex-wrap mt-2">
+          {Object.entries(groupedReactions).map(([reactionCode, userIds]) => (
+            <div key={reactionCode} className="relative">
+              <button
+                className="flex items-center bg-gray-300 rounded-full px-2 py-1"
+                onClick={() => handleToggleReaction(reactionCode)}
+              >
+                {reactionCode} <span className="ml-1">{userIds.length}</span>
+              </button>
+
+              {openReaction === reactionCode && (
+                <div className="absolute top-10 left-0 bg-white shadow-lg p-2 rounded">
+                  <span className="text-sm">Reacted by:</span>
+                  {userIds.map((userId, idx) => (
+                    <span key={idx} className="block text-xs">{userId}</span>
+                  ))}
+                </div>
+              )}
             </div>
-          )
-        })}
+          ))}
         </div>
-        
+
       </div>
     </div>
   );
