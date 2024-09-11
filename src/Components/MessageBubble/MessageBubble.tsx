@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { FaChevronDown, FaDownload, FaFilePdf, FaFileWord, FaFileExcel, FaFilePowerpoint } from 'react-icons/fa';
+import {
+  FaChevronDown,
+  FaDownload,
+  FaFilePdf,
+  FaFileWord,
+  FaFileExcel,
+  FaFilePowerpoint,
+} from "react-icons/fa";
 import DropDown from "../Shared/DropDown";
 import { ChatMessage } from "../../Types/conversationsType";
 import { formatTime } from "../../Utils/formatTimeStamp";
@@ -8,7 +15,6 @@ import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { init } from "emoji-mart";
 import { ChatUser } from "../../Types/chats";
-
 
 init({ data });
 
@@ -23,8 +29,11 @@ interface MessageBubbleProps {
   sender: "user" | "other";
   senderName: string | undefined;
   setReplyMessage: React.Dispatch<React.SetStateAction<ChatMessage | null>>;
-  onReact: (reaction: { messageId: number, reactionCode: string }) => Promise<void>;
-  chatUsers: ChatUser[] | undefined
+  onReact: (reaction: {
+    messageId: number;
+    reactionCode: string;
+  }) => Promise<void>;
+  chatUsers: ChatUser[] | undefined;
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
 }
@@ -59,9 +68,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       action: () => setShowEmojiPicker(!showEmojiPicker),
     },
   ];
-  
+
   const handleReaction = (emoji: any) => {
-    console.log(emoji.native)
+    console.log(emoji.native);
     onReact({ messageId: message.id, reactionCode: emoji.native });
   };
 
@@ -82,10 +91,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   };
 
   const getFilePreview = (fileUrl: string) => {
-    const isImage = (url: string) => url.match(/\.(jpeg|jpg|gif|png|webp)$/i) !== null;
+    const isImage = (url: string) =>
+      url.match(/\.(jpeg|jpg|gif|png|webp)$/i) !== null;
     const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)$/i) !== null;
     const isAudio = (url: string) => url.match(/\.(mp3|wav|ogg)$/i) !== null;
-    const isDocument = (url: string) => url.match(/\.(pdf|doc|docx|ppt|pptx|xls|xlsx|csv)$/i) !== null;
+    const isDocument = (url: string) =>
+      url.match(/\.(pdf|doc|docx|ppt|pptx|xls|xlsx|csv)$/i) !== null;
 
     return (
       <div className="flex items-center space-x-2">
@@ -109,13 +120,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           ) : isDocument(fileUrl) ? (
             // Render document preview as an icon or thumbnail
             <div className="w-16 h-16 flex items-center justify-center border rounded-lg dynamic-text-color-primary text-2xl">
-              {fileUrl.endsWith('.pdf') ? (
+              {fileUrl.endsWith(".pdf") ? (
                 <FaFilePdf className="text-red-600" />
-              ) : fileUrl.endsWith('.doc') || fileUrl.endsWith('.docx') ? (
+              ) : fileUrl.endsWith(".doc") || fileUrl.endsWith(".docx") ? (
                 <FaFileWord className="text-blue-600" />
-              ) : fileUrl.endsWith('.xls') || fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.csv') ? (
+              ) : fileUrl.endsWith(".xls") ||
+                fileUrl.endsWith(".xlsx") ||
+                fileUrl.endsWith(".csv") ? (
                 <FaFileExcel className="text-green-600" />
-              ) : fileUrl.endsWith('.ppt') || fileUrl.endsWith('.pptx') ? (
+              ) : fileUrl.endsWith(".ppt") || fileUrl.endsWith(".pptx") ? (
                 <FaFilePowerpoint className="text-red-600" />
               ) : (
                 <span>File</span>
@@ -135,8 +148,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     );
   };
 
-
   const renderMessageContent = () => {
+    const allRead = message.chatStatus.every((status) => status.read);
+    const anyDelivered = message.chatStatus.some((status) => status.delivered);
+
     return (
       <div className="flex flex-col gap-3">
         {parentMessage && (
@@ -160,9 +175,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             </div>
           ))}
         <span style={textStyle}>{message.message}</span>
-        <span className="text-sm">{formatTime(message.createdAt)}</span>
         <div className="flex justify-between">
-          <span className="text-sm">{message.chatStatus[0]?.read ? <BiCheckDouble /> : message.chatStatus[0]?.delivered ? <BiCheck /> : <BiTime />}</span>
+          <span className="text-sm">
+            {sender === "user" ? (
+              allRead ? (
+                <BiCheckDouble />
+              ) : anyDelivered ? (
+                <BiCheck />
+              ) : (
+                <BiTime />
+              )
+            ) : null}
+          </span>{" "}
+          <span className="text-sm">{formatTime(message.createdAt)}</span>
         </div>
       </div>
     );
@@ -170,49 +195,53 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const groupReactions = () => {
     return message.chatReactions.reduce((acc, reaction) => {
-      const user = chatUsers?.find((user) => user.user.id === reaction.user_id); 
-  
+      const user = chatUsers?.find((user) => user.user.id === reaction.user_id);
+
       if (!acc[reaction.reaction_code]) {
         acc[reaction.reaction_code] = [];
       }
-  
+
       if (user) {
-        acc[reaction.reaction_code].push(user.user.full_name); 
+        acc[reaction.reaction_code].push(user.user.full_name);
       }
-  
+
       return acc;
     }, {} as Record<string, string[]>);
   };
-  
+
   const groupedReactions = groupReactions();
   const handleToggleReaction = (reactionCode: string) => {
     setOpenReaction(openReaction === reactionCode ? null : reactionCode);
   };
   return (
     <div
-      className={`flex flex-col ${sender === "user" ? "items-end" : "items-start"
-        } mb-2`}
+      className={`flex flex-col ${
+        sender === "user" ? "items-end" : "items-start"
+      } mb-2`}
     >
       {sender === "other" && (
         <span className="dynamic-text-color-secondary">{senderName}</span>
       )}
 
       <div
-        className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
-          ? "bg-blue-500 text-white"
-          : "bg-gray-200 text-black"
-          }`}
+        className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${
+          sender === "user"
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 text-black"
+        }`}
         style={bubbleStyle}
       >
         <div
-          className={`flex text-xs justify-end absolute top-0 ${sender === "user" ? "left-0" : "right-0"
-            } cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
+          className={`flex text-xs justify-end absolute top-0 ${
+            sender === "user" ? "left-0" : "right-0"
+          } cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
         >
           <DropDown
             optionsList={messageOptions}
             triggerElement={<FaChevronDown />}
-            btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"
-              }`}
+            btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${
+              sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"
+            }`}
             dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
           />
           {showEmojiPicker && (
@@ -223,27 +252,28 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         </div>
         {renderMessageContent()}
         <div className="flex gap-2 flex-wrap mt-2">
-          {Object.entries(groupedReactions).map(([reactionCode, userIds]) => (
+          {Object.entries(groupedReactions).map(([reactionCode, userNames]) => (
             <div key={reactionCode} className="relative">
               <button
                 className="flex items-center bg-gray-300 rounded-full px-2 py-1"
                 onClick={() => handleToggleReaction(reactionCode)}
               >
-                {reactionCode} <span className="ml-1">{userIds.length}</span>
+                {reactionCode} <span className="ml-1">{userNames.length}</span>
               </button>
 
               {openReaction === reactionCode && (
-                <div className="absolute top-10 left-0 bg-white shadow-lg p-2 rounded">
+                <div className="absolute top-10 left-0 dynamic-accent-color dynamic-text-color-secondary shadow-lg p-2 rounded">
                   <span className="text-sm">Reacted by:</span>
-                  {userIds.map((userId, idx) => (
-                    <span key={idx} className="block text-xs">{userId}</span>
+                  {userNames.map((userName, idx) => (
+                    <span key={idx} className="block text-xs">
+                      {userName}
+                    </span>
                   ))}
                 </div>
               )}
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
