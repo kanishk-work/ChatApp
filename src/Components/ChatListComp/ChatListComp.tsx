@@ -39,8 +39,8 @@ const ChatListComp = () => {
   if (error) return <div>{error}</div>;
   console.log(chats);
   const sortedChats = [...chats].sort((a: Chat, b: Chat) => {
-    const dateA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
-    const dateB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
+    const dateA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : a.createdAt? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : b.createdAt? new Date(b.createdAt).getTime() : 0;
     return dateB - dateA;
   });
 

@@ -17,7 +17,7 @@ import { init } from "emoji-mart";
 import { ChatMessage } from "../../Types/conversationsType";
 import useSocket from "../../apis/websocket";
 import { useAppSelector } from "../../Redux/hooks";
-import useAudioRecorder from "../../Utils/CustomHooks/useAudioRecorder2";
+import useAudioRecorder from "../../Utils/CustomHooks/useAudioRecorder";
 import { GiCancel } from "react-icons/gi";
 // import { useAudioRecorder } from "../../Utils/CustomHooks/useAudioRecorder";
 

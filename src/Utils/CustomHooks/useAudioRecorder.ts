@@ -1,151 +1,200 @@
-import React, { useRef, useState } from 'react';
+import { useState, useRef } from 'react';
+import { Mp3Encoder } from '@breezystack/lamejs';
 
-export const useAudioRecorder = () => {
-    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-    const [audioURL, setAudioURL] = useState<string>("");
-    const [isRecording, setIsRecording] = useState<boolean>(false);
-    const [isPaused, setIsPaused] = useState<boolean>(false);
-    const [elapsedTime, setElapsedTime] = useState<number>(0); // Elapsed time in milliseconds
+interface UseAudioRecorder {
+  isRecording: boolean;
+  isPaused: boolean;
+  hasPermission: boolean | null;
+  startRecording: () => void;
+  pauseRecording: () => void;
+  resumeRecording: () => void;
+  stopRecording: () => void;
+  deleteRecording: () => void;
+  getAudioFile: () => Promise<File | null>;
+  formatTime: (timeInSeconds: number) => string
+  audioUrl: string | null;
+  elapsedTime: number;
+}
 
-    const startTimeRef = useRef<number>(0);
-    const pauseStartTimeRef = useRef<number>(0); // To track when the recording was paused
-    const pauseDurationRef = useRef<number>(0); // To track the total duration of pauses
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
-    const streamRef = useRef<MediaStream | null>(null); // Ref to keep track of the media stream
+const useAudioRecorder = (): UseAudioRecorder => {
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const audioChunks = useRef<Blob[]>([]);
+  const timerInterval = useRef<NodeJS.Timeout | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null); // Store audio blob
 
-    const requestMicAccess = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const recorder = new MediaRecorder(stream);
-            setMediaRecorder(recorder);
-            streamRef.current = stream; // Store the media stream
+  // useEffect(() => {
+  //   navigator.mediaDevices.getUserMedia({ audio: true })
+  //     .then((stream) => {
+  //       setHasPermission(true);
+  //       stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately after getting permission
+  //     })
+  //     .catch(() => {
+  //       setHasPermission(false);
+  //     });
 
-            recorder.ondataavailable = (event: BlobEvent) => {
-                const blob = event.data;
-                setAudioBlob(blob);
-                const url = URL.createObjectURL(blob);
-                setAudioURL(url);
-            };
+  //   return () => {
+  //     if (timerInterval.current) clearInterval(timerInterval.current);
+  //   };
+  // }, []);
 
-            recorder.onstart = () => {
-                startTimeRef.current = Date.now() - elapsedTime; // Adjust start time to account for any previous elapsed time
-                pauseStartTimeRef.current = 0;
-                pauseDurationRef.current = 0;
-                if (intervalRef.current) {
-                    clearInterval(intervalRef.current);
-                }
-                intervalRef.current = setInterval(() => {
-                    if (!isPaused) {
-                        setElapsedTime(Date.now() - startTimeRef.current - pauseDurationRef.current);
-                    }
-                }, 100);
-            };
+  const startRecording = async () => {
+    
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setHasPermission(true);
+        const recorder = new MediaRecorder(stream);
+        setMediaRecorder(recorder);
+        setAudioStream(stream);
+        audioChunks.current = [];
+        
+        recorder.start();
+        recorder.ondataavailable = (event) => {
+          audioChunks.current.push(event.data);
+        };
+        setIsRecording(true);
+        setIsPaused(false);
+        startTimer();
+      } catch (error) {
+        setHasPermission(false);
+        console.error('Error accessing the microphone:', error);
+      }
+    
+  };
 
-            recorder.onstop = () => {
-                if (intervalRef.current) {
-                    clearInterval(intervalRef.current);
-                }
-                intervalRef.current = null;
-                setIsRecording(false);
-                setIsPaused(false);
+  const pauseRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.pause();
+      setIsPaused(true);
+      stopTimer();
+    }
+  };
 
-                
-            };
-        } catch (error) {
-            console.error("Error accessing microphone:", error);
+  const resumeRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'paused') {
+      mediaRecorder.resume();
+      setIsPaused(false);
+      startTimer();
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunks.current, { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);  // Provide the audio URL for playback or further use
+        setAudioBlob(blob); // Store the blob
+
+        // Stop all tracks to release the microphone
+        if (audioStream) {
+          audioStream.getTracks().forEach((track) => track.stop());
+          setAudioStream(null);
         }
-    };
+        stopTimer();
+      };
+      setIsRecording(false);
+      setIsPaused(false);
+    }
+  };
 
-    const startRecording = () => {
-        if (mediaRecorder) {
-            mediaRecorder.start();
-            setIsRecording(true);
-            setIsPaused(false);
-            startTimeRef.current = Date.now() - elapsedTime - pauseDurationRef.current; // Adjust start time to account for any previous elapsed time
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-            intervalRef.current = setInterval(() => {
-                if (!isPaused) {
-                    setElapsedTime(Date.now() - startTimeRef.current - pauseDurationRef.current);
-                }
-            }, 100);
-        }
-    };
+  const deleteRecording = () => {
+    setAudioUrl(null);
+    setAudioBlob(null); // Reset the blob
+    setElapsedTime(0);
+    audioChunks.current = [];
+  };
 
-    const pauseRecording = () => {
-        if (mediaRecorder && isRecording && !isPaused) {
-            mediaRecorder.pause();
-            setIsPaused(true);
-            pauseStartTimeRef.current = Date.now(); // Record the time when pause occurs
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-        }
-    };
+  const startTimer = () => {
+    timerInterval.current = setInterval(() => {
+      setElapsedTime((prevTime) => prevTime + 1);
+    }, 1000);
+  };
 
-    const resumeRecording = () => {
-        if (mediaRecorder && isRecording && isPaused) {
-            mediaRecorder.resume();
-            setIsPaused(false);
-            const pauseEndTime = Date.now();
-            const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
-            pauseDurationRef.current += pauseDuration;
-            startTimeRef.current += pauseDuration; // Adjust start time to account for pause duration
-            intervalRef.current = setInterval(() => {
-                if (!isPaused) {
-                    setElapsedTime(Date.now() - startTimeRef.current - pauseDurationRef.current);
-                }
-            }, 100);
-        }
-    };
+  const stopTimer = () => {
+    if (timerInterval.current) {
+      clearInterval(timerInterval.current);
+      timerInterval.current = null;
+    }
+  };
 
-    const stopRecording = () => {
-        if (mediaRecorder) {
-            mediaRecorder.stop();
-        }
-    };
+  const getAudioFile = async (): Promise<File | null> => {
+    if (audioBlob) {
+      // Convert to MP3 or return the existing WAV file
+      const mp3Blob = await convertBlobToMp3(audioBlob); // This function converts to MP3
+      return new File([mp3Blob], "recording.mp3", { type: "audio/mp3" });
+    }
+    return null;
+  };
 
-    const deleteRecording = () => {
-        setAudioBlob(null);
-        setAudioURL("");
-        setElapsedTime(0); // Reset elapsed time
-        pauseDurationRef.current = 0; // Reset pause duration
-    };
+  const convertBlobToMp3 = async (blob: Blob): Promise<Blob> => {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioContext = new AudioContext();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-    const clearAudioFile = () => {
-        setAudioBlob(null);
-    };
+    const mp3Data = encodeWavToMp3(audioBuffer);
+    return new Blob([new Uint8Array(mp3Data)], { type: 'audio/mp3' });
+  };
 
-    const getAudioFile = (): File | null => {
-        if (audioBlob) {
-            return new File([audioBlob], "recording.mp3", { type: "audio/mp3" });
-        }
-        return null;
-    };
+  const float32ToInt16 = (samples: Float32Array): Int16Array => {
+    const int16Samples = new Int16Array(samples.length);
+    for (let i = 0; i < samples.length; i++) {
+      int16Samples[i] = Math.max(-1, Math.min(1, samples[i])) * 0x7FFF;
+    }
+    return int16Samples;
+  };
 
-    // Format elapsed time as mm:ss
-    const formatTime = (milliseconds: number): string => {
-        const totalSeconds = Math.floor(milliseconds / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    };
+  const encodeWavToMp3 = (audioBuffer: AudioBuffer): Array<number> => {
+    const samples = float32ToInt16(audioBuffer.getChannelData(0)); // Mono channel
+    const sampleRate = audioBuffer.sampleRate;
+    const bitRate = 128;
 
-    return {
-        isRecording,
-        isPaused,
-        audioURL,
-        elapsedTime,
-        formatTime,
-        requestMicAccess,
-        startRecording,
-        pauseRecording,
-        resumeRecording,
-        stopRecording,
-        deleteRecording,
-        clearAudioFile,
-        getAudioFile,
-    };
+    const mp3Encoder = new Mp3Encoder(1, sampleRate, bitRate);
+    const mp3Data: number[] = [];
+    const blockSize = 1152;
+
+    let sampleIndex = 0;
+    while (sampleIndex < samples.length) {
+      const sampleChunk = samples.slice(sampleIndex, sampleIndex + blockSize);
+      const mp3Buffer = mp3Encoder.encodeBuffer(sampleChunk);
+      if (mp3Buffer.length > 0) {
+        mp3Data.push(...mp3Buffer);
+      }
+      sampleIndex += blockSize;
+    }
+
+    const flushBuffer = mp3Encoder.flush(); // Finish encoding
+    if (flushBuffer.length > 0) {
+      mp3Data.push(...flushBuffer);
+    }
+
+    return mp3Data;
+  };
+  const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
+  return {
+    isRecording,
+    isPaused,
+    hasPermission,
+    startRecording,
+    pauseRecording,
+    resumeRecording,
+    stopRecording,
+    deleteRecording,
+    getAudioFile,
+    audioUrl,
+    elapsedTime,
+    formatTime
+  };
 };
+
+export default useAudioRecorder;

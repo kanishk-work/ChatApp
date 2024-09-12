@@ -67,9 +67,13 @@ const useSocket = () => {
 
       socket.on("reactResp", (data) => {
         console.log('reaction socket response: ', data)
+        const currentActiveChatId = activeChatIdRef.current;
+
         if (data && data.chat_room_id && data.id && data.chatReactions) {
           addReactionToMessageData(data.chat_room_id, data.id, data.chatReactions)
-          dispatch(setUpdatedReactions({chatRoomId: data.chat_room_id, messageId: data.id, updatedReactions:data.chatReactions}))
+          if (data.chat_room_id === currentActiveChatId){
+            dispatch(setUpdatedReactions({ messageId: data.id, updatedReactions:data.chatReactions}))
+          }
         } else {
           console.error("Invalid response data:", data);
         }

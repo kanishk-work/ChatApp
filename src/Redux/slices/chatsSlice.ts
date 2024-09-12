@@ -55,7 +55,7 @@ const chatsSlice = createSlice({
       const newMessage = action.payload;
       console.log("new message in redux: ", newMessage)
 
-      state.conversations[0].messages.chatsList.push(newMessage) 
+      state.conversations[0].messages.chatsList.push(newMessage)
     },
     setChats: (state, action: PayloadAction<Chat[]>) => {
       state.chats = action.payload;
@@ -63,19 +63,19 @@ const chatsSlice = createSlice({
     setLatestMessageChat: (state, action: PayloadAction<LatestMessage>) => {
       const newMessage = action.payload;
       console.log("latest message in redux: ", newMessage)
-      
-      const chatToUpdate = state.chats.find((chat)=>chat.id === newMessage.chat_room_id);
-      
-      if(chatToUpdate){
+
+      const chatToUpdate = state.chats.find((chat) => chat.id === newMessage.chat_room_id);
+
+      if (chatToUpdate) {
         chatToUpdate.lastMessage = newMessage;
       }
     },
     setUnreadCountChat: (state, action: PayloadAction<SetUnreadCountPayload>) => {
       const { chatRoomId, actionType } = action.payload;
       console.log("unread message update chat ID in redux: ", chatRoomId, "Action Type:", actionType);
-    
+
       const chatToUpdate = state.chats.find((chat) => chat.id === chatRoomId);
-    
+
       if (chatToUpdate) {
         if (actionType === 'increment') {
           chatToUpdate.unreadCount += 1;
@@ -89,23 +89,17 @@ const chatsSlice = createSlice({
       state.typing[frq] = userName;
     },
 
-    setUpdatedReactions: (state, action: PayloadAction<{ chatRoomId: number; messageId: number; updatedReactions: ChatReaction[] }>) => {
-      const { chatRoomId, messageId, updatedReactions } = action.payload;
-    
-      const conversation = state.conversations.find(conv => conv.id === chatRoomId);
-    
-      if (conversation) {
-        const message = conversation.messages.chatsList.find(msg => msg.id === messageId);
-        
-        if (message) {
-          message.chatReactions = updatedReactions;
-          
-          console.log('Reaction added to message in Redux state:', updatedReactions);
-        } else {
-          console.error('Message not found in the conversation');
-        }
+    setUpdatedReactions: (state, action: PayloadAction<{ messageId: number; updatedReactions: ChatReaction[] }>) => {
+      const { messageId, updatedReactions } = action.payload;
+
+      const message = state.conversations[0].messages.chatsList.find(msg => msg.id === messageId);
+      
+      if (message) {
+        message.chatReactions = updatedReactions;
+
+        console.log('Reaction added to message in Redux state:', updatedReactions);
       } else {
-        console.error('Conversation not found');
+        console.error('Message not found in the conversation');
       }
     }
   },

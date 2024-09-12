@@ -68,7 +68,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
               <div className="w-full flex justify-between">
                 <span className="font-semibold text-sm">{chatName}</span>
                 <span className="text-xs">
-                  {chat.lastMessage ? formatTime(chat.lastMessage.createdAt) : ""}
+                  {chat.lastMessage ? formatTime(chat.lastMessage.createdAt) : formatTime(chat.createdAt)}
                 </span>
               </div>
               <div className="flex justify-between">

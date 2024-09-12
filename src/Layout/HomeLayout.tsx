@@ -22,7 +22,7 @@ import useSocket from "../apis/websocket";
 
 const HomeLayout = () => {
   const [getConversations] = useGetConversationsMutation();
-  useGetChatsQuery();  
+  useGetChatsQuery();
   useEffect(() => {
     const fetchConversations = async () => {
       try {
@@ -33,10 +33,18 @@ const HomeLayout = () => {
     };
 
     fetchConversations();
-    
+
   }, []);
+  const activeUser = useAppSelector((state: RootState) => state.activeUser);
   const chats = useAppSelector((state: RootState) => state.chats.chats);
   const { joinRoom } = useSocket();
+
+  const activeUserRoom = `${activeUser?.client?.email.split('@')[0]}_${activeUser?.email.split('@')[0]}`;
+  console.log(activeUserRoom);
+
+  if (activeUser.id) {
+    joinRoom(activeUserRoom);
+  }
 
   chats?.forEach(chat => {
     console.log("joining from homelayout")
@@ -71,15 +79,14 @@ const HomeLayout = () => {
       {isChatsLoading || isConversationsLoading ? (
         <div className="dynamic-text-color-primary w-full flex items-center justify-center gap-4">
           <h1>Loading Your Chats</h1>
-          <Loader loaderStyles={'text-focus-secondary'}/>
+          <Loader loaderStyles={'text-focus-secondary'} />
         </div>
-        
+
       ) : (
         <>
           <div
-            className={`${
-              width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
-            } h-full p-2 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col overflow-auto scrollbar-custom`}
+            className={`${width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
+              } h-full p-2 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col overflow-auto scrollbar-custom`}
           >
             {showProfile ? (
               <Profile />
@@ -143,20 +150,19 @@ const HomeLayout = () => {
                   {(chatWindow === true && activeRoomId !== null && (
                     <ChatWindow />
                   )) || (
-                    <div className="flex items-center justify-center h-screen">
-                      <div className="text-white">
-                        Click on chat to start conversation
+                      <div className="flex items-center justify-center h-screen">
+                        <div className="text-white">
+                          Click on chat to start conversation
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               )}
 
               {showChatInfo && (
                 <div
-                  className={`${
-                    width > 1300 ? "w-[25vw] min-w-[320px]" : "w-full"
-                  } h-full`}
+                  className={`${width > 1300 ? "w-[25vw] min-w-[320px]" : "w-full"
+                    } h-full`}
                 >
                   <UserProfile
                     userProfileImage="https://via.placeholder.com/150"
