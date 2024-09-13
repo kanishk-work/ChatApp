@@ -52,7 +52,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
             ?.user.profile_pic || placeholderImage;
 
         const typingUser = typingUsers[chat.chatSocket[0].socket_room];
-        
+
         return (
           <div
             key={chat.id}
@@ -73,9 +73,9 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
               </div>
               <div className="flex justify-between">
                 <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.chatFiles[0] ? "shared file" : chat.lastMessage?.message}</span>
-                <span className="text-xs">
-                  {chat.unreadCount ? chat.unreadCount : ""}
-                </span>
+                {chat.unreadCount ?
+                  <span className="text-sm px-1.5 rounded-full bg-green-500 flex items-center"> {chat.unreadCount} </span> : ""
+                }
               </div>
             </div>
           </div>

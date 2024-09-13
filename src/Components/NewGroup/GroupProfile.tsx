@@ -32,8 +32,10 @@ const GroupProfile = ({
   const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
-  const { refetch: refetchChats } = useGetChatsQuery();
+  const userNotifRooms = members.map((member)=> member.notif_room);
   const { newInvite, joinRoom } = useSocket();
+
+  console.log({userNotifRooms});
 
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
@@ -46,7 +48,7 @@ const GroupProfile = ({
   console.log(body);
   const [createGroup] = useCreateGroupMutation();
 
-  const handleSubmit = async (body: Object) => {
+  const handleSubmit = async (body: { toUsersList: number[], group_name: string }) => {
     setIsLoading(true);
 
     const { data: res, error } = await createGroup(body);
@@ -59,8 +61,9 @@ const GroupProfile = ({
 
       submitFn();
       // const newInviteData = {
-      //   roomId: members.notif_room,
-      //   socketRoom: res?.chatSocket[0]?.socket_room,
+      //   frq: userNotifRooms,
+      //   chatFrq: res?.chatSocket[0]?.socket_room,
+      //   resp: res,
       // };
 
       // newInvite(newInviteData);

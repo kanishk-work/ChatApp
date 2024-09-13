@@ -57,9 +57,18 @@ const chatsSlice = createSlice({
 
       state.conversations[0].messages.chatsList.push(newMessage)
     },
+
+    // Chats list updates
     setChats: (state, action: PayloadAction<Chat[]>) => {
       state.chats = action.payload;
     },
+    setNewChat: (state, action: PayloadAction<Chat>) => {
+      const newChat = action.payload;
+      console.log("new chat in redux: ", newChat)
+
+      state.chats.push(newChat)
+    },
+
     setLatestMessageChat: (state, action: PayloadAction<LatestMessage>) => {
       const newMessage = action.payload;
       console.log("latest message in redux: ", newMessage)
@@ -70,6 +79,7 @@ const chatsSlice = createSlice({
         chatToUpdate.lastMessage = newMessage;
       }
     },
+
     setUnreadCountChat: (state, action: PayloadAction<SetUnreadCountPayload>) => {
       const { chatRoomId, actionType } = action.payload;
       console.log("unread message update chat ID in redux: ", chatRoomId, "Action Type:", actionType);
@@ -84,6 +94,7 @@ const chatsSlice = createSlice({
         }
       }
     },
+
     setTypingStatus: (state, action: PayloadAction<{ frq: string; userName: string | null }>) => {
       const { frq, userName } = action.payload;
       state.typing[frq] = userName;
@@ -105,5 +116,5 @@ const chatsSlice = createSlice({
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setNewChat, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions } = chatsSlice.actions;
 export default chatsSlice.reducer;

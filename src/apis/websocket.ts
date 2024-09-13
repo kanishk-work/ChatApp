@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { setLatestMessageChat, setNewMessage, setNotifications, setTypingStatus, setUnreadCountChat, setUpdatedReactions } from "../Redux/slices/chatsSlice";
-import { addReactionToMessageData, updateLatestMessageData, updateMessagesData, updateUnreadMessageCountData } from "../DB/database";
+import { setLatestMessageChat, setNewChat, setNewMessage, setNotifications, setTypingStatus, setUnreadCountChat, setUpdatedReactions } from "../Redux/slices/chatsSlice";
+import { addReactionToMessageData, storeChatData, updateLatestMessageData, updateMessagesData, updateUnreadMessageCountData } from "../DB/database";
 import { useAppDispatch, useAppSelector } from "../Redux/hooks";
 import { RootState } from "../Redux/store";
 
@@ -23,13 +23,13 @@ const useSocket = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on("resp", (data) => {
+      socket.on("resp", async (data) => {
         console.log({ data })
         const currentActiveChatId = activeChatIdRef.current;
 
         if (data && data.resp && data.resp.chat_room_id) {
-          updateMessagesData(data.resp.chat_room_id, data.resp);
-          updateLatestMessageData(data.resp.chat_room_id, data.resp);
+          await updateMessagesData(data.resp.chat_room_id, data.resp);
+          await updateLatestMessageData(data.resp.chat_room_id, data.resp);
           console.log({ currentActiveChatId })
           dispatch(setLatestMessageChat(data.resp))
 
@@ -37,7 +37,7 @@ const useSocket = () => {
             console.log('current chat message update')
             dispatch(setNewMessage(data.resp));
           } else if (data.resp.chat_room_id) {
-            updateUnreadMessageCountData(data.resp.chat_room_id, 'increment');
+            await updateUnreadMessageCountData(data.resp.chat_room_id, 'increment');
             dispatch(setUnreadCountChat({ chatRoomId: data.resp.chat_room_id, actionType: 'increment' }));
             console.log({ currentActiveChatId })
           }
@@ -46,9 +46,13 @@ const useSocket = () => {
           console.error("Invalid response data:", data);
         }
       });
-      socket.on("newInviteNotification", (data) => {
+      socket.on("newInviteNotification", async (data) => {
         dispatch(setNotifications(data));
         console.log(data);
+        if (data && data.resp){
+          await storeChatData([data.resp]);
+          dispatch(setNewChat(data.resp))
+        }
       });
       socket.on("isTyping", (data: { frq: string, userName: string | null, userId: number }) => {
         console.log(`${data.userName} is typing in ${data.frq}`);
@@ -65,12 +69,12 @@ const useSocket = () => {
         }, 1000);
       });
 
-      socket.on("reactResp", (data) => {
+      socket.on("reactResp", async (data) => {
         console.log('reaction socket response: ', data)
         const currentActiveChatId = activeChatIdRef.current;
 
         if (data && data.chat_room_id && data.id && data.chatReactions) {
-          addReactionToMessageData(data.chat_room_id, data.id, data.chatReactions)
+          await addReactionToMessageData(data.chat_room_id, data.id, data.chatReactions)
           if (data.chat_room_id === currentActiveChatId){
             dispatch(setUpdatedReactions({ messageId: data.id, updatedReactions:data.chatReactions}))
           }
@@ -115,16 +119,10 @@ const useSocket = () => {
     }
   };
 
-  const newInvite = ({
-    roomId,
-    socketRoom,
-  }: {
-    roomId: string;
-    socketRoom: string;
-  }) => {
+  const newInvite = (inviteData: {frq: string, chatFrq: string, resp: any}) => {
     if (socket) {
-      console.log("new invite data:", { roomId, socketRoom });
-      socket.emit("newInvite", { frq: roomId, chatFrq: socketRoom });
+      console.log("new invite data:", inviteData);
+      socket.emit("newInvite", inviteData);
     }
   };
 

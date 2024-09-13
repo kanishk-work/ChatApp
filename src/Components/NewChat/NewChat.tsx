@@ -20,6 +20,7 @@ interface usersData {
   profile_pic: string;
   notif_room: string;
 }
+
 const NewChat = () => {
   const [isNewChatLoading, setIsNewChatLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -41,7 +42,6 @@ const NewChat = () => {
   // console.log(error);
 
   const [startChat] = useStartChatMutation();
-  const { refetch: refetchChats } = useGetChatsQuery();
 
   const handleSelect = async (user: usersData) => {
     setIsNewChatLoading(true);
@@ -62,8 +62,9 @@ const NewChat = () => {
       // dispatch(setChats(chatsFromDB));
       // await refetchChats();
       const newInviteData = {
-        roomId: user.notif_room,
-        socketRoom: res?.chatSocket[0]?.socket_room,
+        frq: user.notif_room,
+        chatFrq: res?.chatSocket[0]?.socket_room,
+        resp: res,
       };
 
       newInvite(newInviteData);

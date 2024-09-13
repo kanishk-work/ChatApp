@@ -245,7 +245,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
           />
           {showEmojiPicker && (
-            <div className="absolute bottom-12 left-0 z-10">
+            <div className={`absolute ${sender === "user" ? "right-0" : "left-0"} bottom-12 z-10`}>
               <Picker data={data} onEmojiSelect={handleReaction} />
             </div>
           )}
