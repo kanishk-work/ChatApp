@@ -70,10 +70,7 @@ const HomeLayout = () => {
 
   const isChatsLoading = useAppSelector((state: RootState) => state.loading.isChatsLoading);
   const isConversationsLoading = useAppSelector((state: RootState) => state.loading.isConversationsLoading);
-
-  const handleBlockUser = () => {
-    console.log("User blocked");
-  };
+  
   return (
     <div className="h-[100svh] flex dynamic-background-color">
       {isChatsLoading || isConversationsLoading ? (
@@ -107,15 +104,11 @@ const HomeLayout = () => {
             ) : width <= 764 ? (
               showChatInfo ? (
                 <UserProfile
-                  userProfileImage="https://via.placeholder.com/150"
-                  userName="John Doe"
-                  userBio="Lorem ipsum dolor sit amet."
                   media={[
                     "https://via.placeholder.com/150",
                     "https://via.placeholder.com/150",
                   ]}
                   starredMessages={["Message 1", "Message 2"]}
-                  onBlockUser={handleBlockUser}
                   profileOptions={[
                     {
                       name: "Starred Messages",
@@ -165,15 +158,11 @@ const HomeLayout = () => {
                     } h-full`}
                 >
                   <UserProfile
-                    userProfileImage="https://via.placeholder.com/150"
-                    userName="John Doe"
-                    userBio="Lorem ipsum dolor sit amet."
                     media={[
                       "https://via.placeholder.com/150",
                       "https://via.placeholder.com/150",
                     ]}
                     starredMessages={["Message 1", "Message 2"]}
-                    onBlockUser={handleBlockUser}
                     profileOptions={[
                       {
                         name: "Starred Messages",

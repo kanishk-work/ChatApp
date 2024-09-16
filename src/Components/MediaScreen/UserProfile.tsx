@@ -7,14 +7,11 @@ import { RootState } from "../../Redux/store";
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import { Chat } from "../../Types/chats";
 import { getChatData } from "../../DB/database";
+import { useToast } from "../Shared/Toast/ToastProvider";
 
 interface UserProfileProps {
-  userProfileImage?: string;
-  userName: string;
-  userBio: string;
   media: string[];
   starredMessages: string[];
-  onBlockUser: () => void;
   profileOptions?: {
     name: string;
     icon?: JSX.Element;
@@ -23,12 +20,8 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({
-  userProfileImage,
-  userName,
-  userBio,
   media,
   starredMessages,
-  onBlockUser,
   profileOptions = [
     { name: "Starred Messages", icon: <FaStar /> },
     { name: "Shared Media", icon: <FaImage /> },
@@ -91,6 +84,11 @@ const UserProfile: React.FC<UserProfileProps> = ({
     getActiveChat();
   }, [activeChatId]);
 
+  const { showToast } = useToast();
+
+  const handleBlockUser = () => {
+    showToast('Block user triggered');
+  };
 
   return (
     <div className="p-4 w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full relative">
@@ -198,7 +196,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       <div className="mt-4">
         <button
           className="flex items-center text-red-600 hover:text-red-800"
-          onClick={onBlockUser}
+          onClick={handleBlockUser}
         >
           <FaBan className="mr-2" />
           Block User
