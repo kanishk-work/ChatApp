@@ -111,6 +111,26 @@ export const chatApi = createApi({
       },
     }),
 
+    getPreviousMessages: builder.mutation<ConversationsTypeResponse, object>({
+      query: (data: {chatRoomId: number, lastMessageId: number}) => ({
+        url: `chat/messages`,
+        method: "POST",
+        body: data
+      }),
+      onQueryStarted: async (
+        chatRoomId,
+        { dispatch, queryFulfilled }
+      ) => {
+        if (navigator.onLine) {
+          try {
+            const { data } = await queryFulfilled;
+          } catch (err) {
+            console.error("Failed to store messages in IndexedDB:", err);
+          }
+        } else return;
+      },
+    }),
+
     sendReply: builder.mutation<any, ReplyPayload>({
       query: (body) => ({
         url: `chat/reply`,
@@ -142,6 +162,7 @@ export const {
   useSendMessageMutation,
   useGetChatsQuery,
   useGetConversationsMutation,
+  useGetPreviousMessagesMutation,
   useSendReplyMutation,
   useUploadFileMutation,
   useMessageReactMutation

@@ -57,6 +57,13 @@ const chatsSlice = createSlice({
 
       state.conversations[0].messages.chatsList.push(newMessage)
     },
+    setOlderMessages: (state, action: PayloadAction<ChatMessage[]>) => {
+      const olderMessages = action.payload;
+      console.log("older messages in redux: ", olderMessages);
+
+      // Prepending older messages to the chatsList array
+      state.conversations[0].messages.chatsList.unshift(...olderMessages);
+    },
 
     // Chats list updates
     setChats: (state, action: PayloadAction<Chat[]>) => {
@@ -116,5 +123,5 @@ const chatsSlice = createSlice({
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setChats, setNewChat, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setOlderMessages, setChats, setNewChat, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions } = chatsSlice.actions;
 export default chatsSlice.reducer;

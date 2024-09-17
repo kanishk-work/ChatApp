@@ -121,14 +121,6 @@ const App: React.FC = () => {
     isDarkMode,
   ]);
 
-  const activeUserRoom = `${activeUser?.client?.email.split('@')[0]}_${activeUser?.email.split('@')[0]}`;
-  console.log(activeUserRoom);
-  // useEffect(() => {
-  //   if (currentUserId) {
-  //     joinRoom(activeUserRoom);
-  //   }
-  // }, [currentUserId]);
-
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add("dark");
@@ -137,9 +129,62 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  //indexedDB test
-  // createTestData();
-  // verifyData();
+  // if ('serviceWorker' in navigator && 'SyncManager' in window) {
+  //   window.addEventListener('load', () => {
+  //     navigator.serviceWorker
+  //       .register('/service-worker.js')
+  //       .then((registration: ServiceWorkerRegistration) => {
+  //         console.log('Service Worker registered with scope:', registration.scope);
+  
+  //         // Check if `periodicSync` is available
+  //         if ('periodicSync' in registration) {
+  //           (registration as any).periodicSync
+  //             .register('clear-local-storage', {
+  //               minInterval: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  //             })
+  //             .catch((err: any) => {
+  //               console.error('Periodic Sync could not be registered:', err);
+  //             });
+  //         } else if ('sync' in registration) {
+  //           // Fallback to SyncManager if Periodic Sync is not supported
+  //           navigator.serviceWorker.ready.then((swRegistration: ServiceWorkerRegistration) => {
+  //             (swRegistration as any).sync.register('clear-local-storage').catch((err: any) => {
+  //               console.error('Background Sync could not be registered:', err);
+  //             });
+  //           });
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error('Service Worker registration failed:', error);
+  //       });
+  //   });
+  // }
+  
+
+  window.addEventListener('beforeunload', () => {
+    // Store the time when the app is being closed
+    localStorage.setItem('lastClose', Date.now().toString());
+  });
+  
+  // When the app is opened again
+  window.addEventListener('load', () => {
+    const lastClose = localStorage.getItem('lastClose');
+    if (lastClose) {
+      const now = Date.now();
+      const elapsed = now - parseInt(lastClose, 10);
+  
+      // If the app has been closed for more than 24 hours (86400000 ms)
+      if (elapsed > 24 * 60 * 60 * 1000) {
+        console.log('App has been closed for more than 24 hours. Clearing local storage.');
+        localStorage.clear();
+        location.reload();
+      } else {
+        console.log('App was closed for less than 24 hours. No need to clear local storage.');
+      }
+    }
+  });
+  
+  
 
   return activeUser.id ? <HomeLayout /> : <LoginPage loginFn={loginFn}/>;
 };
