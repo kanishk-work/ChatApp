@@ -95,8 +95,8 @@ export async function storeChatMessagesData(
   await storeChatMessages(messages);
 }
 
-export async function updateMessagesData(chatRoomId: number, newMessage: ChatMessage){
-  return await updateMessages(chatRoomId, newMessage)
+export async function updateMessagesData(chatRoomId: number, newMessage: ChatMessage, tempMessageId?: number){
+  return await updateMessages(chatRoomId, newMessage, tempMessageId)
 }
 
 export async function addReactionToMessageData(

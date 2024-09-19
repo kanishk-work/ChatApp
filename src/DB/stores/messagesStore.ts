@@ -5,13 +5,18 @@ export async function storeChatMessages(messages: ConversationsType[]): Promise<
     await Promise.all(messages.map(message => db.chatMessages.put(message)));
 }
 
-export async function updateMessages(chatRoomId: number, newMessage: ChatMessage) {
+export async function updateMessages(chatRoomId: number, newMessage: ChatMessage, tempMessageId?: number) {
     console.log("updateMessages Working")
     try {
         // Retrieve the conversation by its ID
         const chatMessages = await db.chatMessages.get(chatRoomId);
 
         if (chatMessages) {
+          // Delete message with tempMessageId if tempMessageId is given
+          if(tempMessageId){
+            chatMessages.messages.chatsList = chatMessages.messages.chatsList.filter(m => m.id!== tempMessageId);
+            chatMessages.messages.length = chatMessages.messages.chatsList.length;
+          }
             // Update the messages
             chatMessages.messages.chatsList.push(newMessage);
             chatMessages.messages.length = chatMessages.messages.chatsList.length;

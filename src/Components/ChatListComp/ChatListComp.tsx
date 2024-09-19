@@ -72,7 +72,7 @@ const ChatListComp = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <ProfileAndSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <div id="chatListSelector" className="flex gap-4 items-center dynamic-text-color-secondary">
+      <div id="chatListSelector" className="flex gap-4 items-center dynamic-text-color-secondary mb-2">
         <button className="px-3 py-1 dynamic-accent-color rounded-3xl" onClick={() => setChatListType('all')}>All</button>
         <button className="px-3 py-1 dynamic-accent-color rounded-3xl" onClick={() => setChatListType('group')}>Groups</button>
         <button className="px-3 py-1 dynamic-accent-color rounded-3xl" onClick={() => setChatListType('single')}>Single</button>

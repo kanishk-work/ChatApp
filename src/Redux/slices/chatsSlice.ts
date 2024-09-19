@@ -51,11 +51,18 @@ const chatsSlice = createSlice({
     setConversations: (state, action: PayloadAction<ConversationsType[]>) => {
       state.conversations = action.payload;
     },
-    setNewMessage: (state, action: PayloadAction<ChatMessage>) => {
-      const newMessage = action.payload;
+    setNewMessage: (state, action: PayloadAction<{newMessage?: ChatMessage, tempMessageId?: Number}>) => {
+      const {newMessage, tempMessageId} = action.payload;
       console.log("new message in redux: ", newMessage)
 
-      state.conversations[0].messages.chatsList.push(newMessage)
+      if(tempMessageId){
+        const messageToDelete = state.conversations[0].messages.chatsList.find((message) => message.id === tempMessageId);
+        if(messageToDelete){
+          state.conversations[0].messages.chatsList = state.conversations[0].messages.chatsList.filter((message) => message.id!== tempMessageId);
+        }
+      }
+
+      newMessage && state.conversations[0].messages.chatsList.push(newMessage)
     },
     setOlderMessages: (state, action: PayloadAction<ChatMessage[]>) => {
       const olderMessages = action.payload;

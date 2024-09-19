@@ -60,7 +60,7 @@ export interface ChatStatus {
   deletedAt: string | null;
   user_id: number;
   chat_id: number;
-  chat_reply_id: number | null;
+  parent_chat_id: number | null;
   delivered: boolean;
   read: boolean;
 }
@@ -74,7 +74,7 @@ export interface LatestMessage {
   chatReactions: any[];
   chatStatus: ChatStatus[];
   sender_id: number;
-  receiver_id: number;
+  receiver_id: number | null;
   message: string;
   chat_room_id: number;
   is_reply: boolean;

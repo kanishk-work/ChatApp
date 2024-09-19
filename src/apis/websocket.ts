@@ -27,7 +27,7 @@ const useSocket = () => {
         console.log({ data })
         const currentActiveChatId = activeChatIdRef.current;
 
-        if (data && data.resp && data.resp.chat_room_id) {
+        if (data && data.resp && data.resp.chat_room_id && data.resp.sender_id !== activeUser.id) {
           await updateMessagesData(data.resp.chat_room_id, data.resp);
           await updateLatestMessageData(data.resp.chat_room_id, data.resp);
           console.log({ currentActiveChatId })
@@ -35,7 +35,8 @@ const useSocket = () => {
 
           if (data.resp.chat_room_id === currentActiveChatId) {
             console.log('current chat message update')
-            dispatch(setNewMessage(data.resp));
+            dispatch(setNewMessage({newMessage: data.resp}));
+            
           } else if (data.resp.chat_room_id) {
             await updateUnreadMessageCountData(data.resp.chat_room_id, 'increment');
             dispatch(setUnreadCountChat({ chatRoomId: data.resp.chat_room_id, actionType: 'increment' }));
@@ -97,6 +98,7 @@ const useSocket = () => {
 
   const sendMessage = (message: any) => {
     if (socket) {
+      console.log('socket payload: ', message)
       socket.emit("send", message);
     }
   };

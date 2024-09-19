@@ -10,6 +10,7 @@ import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import { Chat } from "../../Types/chats";
 import { formatTime } from "../../Utils/formatTimeStamp";
 import { updateUnreadMessageCountData } from "../../DB/database";
+import { BiCheck, BiCheckDouble, BiTime } from "react-icons/bi";
 
 interface ChatListProps {
   chats: Chat[]
@@ -72,7 +73,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.chatFiles[0] ? "shared file" : chat.lastMessage?.message}</span>
+                <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.chatFiles[0] ? "shared file" : `${chat.lastMessage?.chatStatus.some((status) => status.delivered)? <BiCheck /> : chat.lastMessage?.chatStatus.every((status) => status.read)? <BiCheckDouble /> : <BiTime />} ${chat.lastMessage?.message}`}</span>
                 {chat.unreadCount ?
                   <span className="text-sm px-1.5 rounded-full bg-green-500 flex items-center"> {chat.unreadCount} </span> : ""
                 }
