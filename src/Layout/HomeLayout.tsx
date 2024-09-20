@@ -50,6 +50,7 @@ const HomeLayout = () => {
     console.log("joining from homelayout")
     joinRoom(`${chat.chatSocket[0].socket_room}`);
   });
+
   const { width } = useWindowSize();
   const chatWindow = useAppSelector(
     (state: RootState) => state.chatWindow.chatWindow
@@ -78,7 +79,6 @@ const HomeLayout = () => {
           <h1>Loading Your Chats</h1>
           <Loader loaderStyles={'text-focus-secondary'} />
         </div>
-
       ) : (
         <>
           <div
