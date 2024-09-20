@@ -44,7 +44,7 @@ const useSocket = () => {
           }
           console.log("RESPONSE", data.resp);
         } else {
-          console.error("Invalid response data:", data);
+          console.log("Invalid response data:", data);
         }
       });
       socket.on("newInviteNotification", async (data) => {

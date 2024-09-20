@@ -54,6 +54,9 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
 
         const typingUser = typingUsers[chat.chatSocket[0].socket_room];
 
+        const allRead = chat.lastMessage?.chatStatus.every((status) => status.read);
+        const anyDelivered = chat.lastMessage?.chatStatus.some((status) => status.delivered);
+
         return (
           <div
             key={chat.id}
@@ -65,15 +68,28 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
               alt="user profile pic"
               className="object-contain h-9 w-9 rounded-full items-start flex-shrink-0 mr-3"
             />
-            <div className="w-full">
+            <div className="w-full break-all">
               <div className="w-full flex justify-between">
                 <span className="font-semibold text-sm">{chatName}</span>
                 <span className="text-xs">
                   {chat.lastMessage ? formatTime(chat.lastMessage.createdAt) : formatTime(chat.createdAt)}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.chatFiles[0] ? "shared file" : `${chat.lastMessage?.chatStatus.some((status) => status.delivered)? <BiCheck /> : chat.lastMessage?.chatStatus.every((status) => status.read)? <BiCheckDouble /> : <BiTime />} ${chat.lastMessage?.message}`}</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center justify-center">
+                  <span className="text-sm">
+                    {chat.lastMessage?.sender_id === activeUserId ? (
+                      allRead ? (
+                        <BiCheckDouble />
+                      ) : anyDelivered ? (
+                        <BiCheck />
+                      ) : (
+                        <BiTime />
+                      )
+                    ) : null}
+                  </span>
+                  <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.message}</span>
+                </div>
                 {chat.unreadCount ?
                   <span className="text-sm px-1.5 rounded-full bg-green-500 flex items-center"> {chat.unreadCount} </span> : ""
                 }

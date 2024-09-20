@@ -157,7 +157,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     const anyDelivered = message.chatStatus.some((status) => status.delivered);
 
     return (
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 break-words">
         {parentMessage && (
           <div
             className="w-full text-center dynamic-accent-color py-2 px-4 rounded-lg"
