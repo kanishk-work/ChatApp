@@ -11,14 +11,15 @@ import {
   FaPause,
   FaPlay,
 } from "react-icons/fa";
-import { convertFileToUrl } from "../../Utils/convertFileToUrl";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { init } from "emoji-mart";
 import { ChatMessage } from "../../Types/conversationsType";
 import useSocket from "../../apis/websocket";
 import { useAppSelector } from "../../Redux/hooks";
-import { useAudioRecorder } from "../../Utils/CustomHooks/useAudioRecorder";
+import useAudioRecorder from "../../Utils/CustomHooks/useAudioRecorder";
+import { GiCancel } from "react-icons/gi";
+// import { useAudioRecorder } from "../../Utils/CustomHooks/useAudioRecorder";
 
 init({ data });
 
@@ -26,6 +27,7 @@ interface MessageComposerProps {
   onSend: (textMessage: string, file: File[]) => void;
   replyMessage: ChatMessage | null;
   activeChatId: string | undefined;
+  setReplyMessage: React.Dispatch<React.SetStateAction<ChatMessage | null>>;
   buttonText?: string;
   buttonIcon?: React.ReactNode;
   sendButtonStyle?: React.CSSProperties;
@@ -35,7 +37,7 @@ interface MessageComposerProps {
 const MessageComposer: React.FC<MessageComposerProps> = ({
   onSend,
   replyMessage,
-  buttonText = "Send",
+  setReplyMessage,
   buttonIcon = <FaArrowRight />,
   sendButtonStyle,
   messageComposerStyle,
@@ -48,35 +50,32 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
 
   const messageComposerRef = useRef<HTMLDivElement>(null);
   const { emitTyping } = useSocket();
-  const activeUser = useAppSelector((state) => state.activeUser.full_name);
+  const activeUser = useAppSelector((state) => state.activeUser);
 
   const {
     isRecording,
     isPaused,
-    audioURL,
-    requestMicAccess,
+    hasPermission,
     startRecording,
     pauseRecording,
     resumeRecording,
     stopRecording,
     deleteRecording,
     getAudioFile,
-    clearAudioFile,
+    audioUrl,
     elapsedTime,
     formatTime,
   } = useAudioRecorder();
 
-  useEffect(() => {
-    requestMicAccess();
-  }, []);
+  // useEffect(() => {
+  //   requestMicAccess();
+  // }, []);
   const handleSend = async () => {
     setShowEmojiPicker(false);
-    const audioFile = getAudioFile();
+    const audioFile = await getAudioFile();
     let filesToSend = [...files];
-
     if (audioFile) {
       filesToSend.push(audioFile);
-      clearAudioFile();
     }
     if (message.trim() || filesToSend.length > 0) {
       onSend(message, filesToSend);
@@ -95,7 +94,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
     if (activeChatId) {
-      emitTyping(activeChatId, activeUser);
+      emitTyping(activeChatId, activeUser.full_name, activeUser.id);
     }
   };
 
@@ -142,11 +141,6 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       className="flex flex-col sm:flex-row items-center p-4 border-t border-gray-200 relative"
       style={messageComposerStyle}
     >
-      {replyMessage && (
-        <div className="w-full p-2 mb-2 bg-gray-100 rounded-lg">
-          <div className={`text-sm text-blue-500`}>{replyMessage.message}</div>
-        </div>
-      )}
       <div className="flex items-center w-full sm:w-auto mb-2 sm:mb-0">
         <button
           className="mr-4 text-gray-500 hover:text-gray-700 relative"
@@ -191,14 +185,22 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       </div>
       <div className="flex flex-grow items-center relative w-full sm:w-auto">
         <div className="flex items-center gap-2 justify-center w-full relative">
-          <input
-            type="text"
-            value={message}
-            onChange={handleTyping}
-            className="flex-grow p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
-          />
+          <div className="flex-grow flex flex-col gap-2">
+            {replyMessage && (
+              <div className={`w-full p-2 bg-gray-100 rounded-xl text-lg text-blue-500 flex justify-between items-center`}>
+                <span>{replyMessage.message}</span>
+                <button className="p-1"><GiCancel onClick={() => setReplyMessage(null)} /></button>
+              </div>
+            )}
+            <input
+              type="text"
+              value={message}
+              onChange={handleTyping}
+              className="w-full p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyPress={handleKeyPress}
+              placeholder="Type a message..."
+            />
+          </div>
           {files.map((file, index) => (
             <div key={index} className="flex items-center mr-2 relative">
               <img
@@ -248,19 +250,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
             </>
           )}
 
-          {/* {!isRecording ? (
-            <button onClick={startRecording}>Start Recording</button>
-          ) : (
-            <>
-              {!isPaused ? (
-                <button onClick={pauseRecording}>Pause Recording</button>
-              ) : (
-                <button onClick={resumeRecording}>Resume Recording</button>
-              )}
-              <button onClick={stopRecording}>Stop Recording</button>
-            </>
-          )} */}
-          {audioURL && (
+          {audioUrl && (
             <div className="flex items-center gap-2">
               <button
                 onClick={deleteRecording}
@@ -269,7 +259,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
               >
                 <FaTrash />
               </button>
-              <audio controls src={audioURL} />
+              <audio controls src={audioUrl} />
             </div>
           )}
         </div>

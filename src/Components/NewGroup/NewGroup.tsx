@@ -15,6 +15,7 @@ interface usersData {
   short_name: string;
   role: string;
   profile_pic: string;
+  notif_room: string;
 }
 
 const NewGroup = () => {

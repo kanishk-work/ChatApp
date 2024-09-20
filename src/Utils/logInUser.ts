@@ -14,6 +14,8 @@ export const authenticateUser = async (config: LoginDetails) => {
       .dispatch(authApi.endpoints.logIn.initiate(config))
       .unwrap();
     store.dispatch(setActiveUser(response.user));
+    
+    localStorage.setItem('viralEffect', response.accessToken);
 
     console.log("Login successful:", response);
   } catch (error) {

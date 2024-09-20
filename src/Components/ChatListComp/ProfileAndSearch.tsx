@@ -13,12 +13,15 @@ import { FC } from "react";
 import { Styles } from "../../Utils/styleUtils";
 
 interface ProfileAndSearchProps {
-  searchTerm: string
+  searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   listStyle?: Styles;
 }
 
-const ProfileAndSearch:FC<ProfileAndSearchProps> = ({searchTerm, setSearchTerm}) => {
+const ProfileAndSearch: FC<ProfileAndSearchProps> = ({
+  searchTerm,
+  setSearchTerm,
+}) => {
   const menu_items = [
     {
       name: "new chat",
@@ -39,6 +42,13 @@ const ProfileAndSearch:FC<ProfileAndSearchProps> = ({searchTerm, setSearchTerm})
     {
       name: "settings",
       action: () => dispatch(setShowSettings(true)),
+    },
+    {
+      name: "log out",
+      action: () => {
+        localStorage.clear();
+        location.reload();
+      },
     },
   ];
   const activeUser = useAppSelector((state) => state.activeUser);

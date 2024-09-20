@@ -5,7 +5,10 @@ import { ChatRoom } from "../Types/chatRoom";
 import { ChatResponse } from "../Types/chats";
 import { storeChatData, storeChatMessagesData } from "../DB/database";
 import { ConversationsTypeResponse } from "../Types/conversationsType";
-import { setChatsLoading, setConversationsLoading } from "../Redux/slices/loadingSlice";
+import {
+  setChatsLoading,
+  setConversationsLoading,
+} from "../Redux/slices/loadingSlice";
 import { useAppDispatch } from "../Redux/hooks";
 
 export interface JoinGroup {
@@ -20,7 +23,13 @@ export const chatApi = createApi({
   reducerPath: "chatApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_HOST_URL,
-    headers: { Authorization: `Bearer ${import.meta.env.VITE_TOKEN}` },
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("viralEffect");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
     createGroup: builder.mutation<ChatRoom, JoinGroup>({
@@ -48,11 +57,15 @@ export const chatApi = createApi({
     }),
     getChats: builder.query<ChatResponse, string | void>({
       query: (searchTerm) => ({
-        url: searchTerm ? `chat?search=${encodeURIComponent(searchTerm)}` : `chat`,
+        url: searchTerm
+          ? `chat?search=${encodeURIComponent(searchTerm)}`
+          : `chat`,
         method: "GET",
       }),
-      async onQueryStarted(searchTerm, { dispatch = useAppDispatch(), queryFulfilled }) {
-
+      async onQueryStarted(
+        searchTerm,
+        { dispatch = useAppDispatch(), queryFulfilled }
+      ) {
         if (navigator.onLine) {
           dispatch(setChatsLoading(true));
           try {
@@ -60,10 +73,10 @@ export const chatApi = createApi({
             if (data && data.list) {
               // Store chats in IndexedDB
               await storeChatData(data.list);
-              console.log(data.list)
+              console.log(data.list);
             }
           } catch (error) {
-            console.error('Failed to store chats in IndexedDB:', error);
+            console.error("Failed to store chats in IndexedDB:", error);
           } finally {
             dispatch(setChatsLoading(false));
           }
@@ -77,8 +90,10 @@ export const chatApi = createApi({
         method: "POST",
         body: { chatRoomId },
       }),
-      onQueryStarted: async (chatRoomId, { dispatch = useAppDispatch(), queryFulfilled }) => {
-
+      onQueryStarted: async (
+        chatRoomId,
+        { dispatch = useAppDispatch(), queryFulfilled }
+      ) => {
         if (navigator.onLine) {
           dispatch(setConversationsLoading(true));
 
@@ -88,9 +103,29 @@ export const chatApi = createApi({
             // Store messages in IndexedDB
             await storeChatMessagesData(data.list);
           } catch (err) {
-            console.error('Failed to store messages in IndexedDB:', err);
+            console.error("Failed to store messages in IndexedDB:", err);
           } finally {
             dispatch(setConversationsLoading(false));
+          }
+        } else return;
+      },
+    }),
+
+    getPreviousMessages: builder.mutation<ConversationsTypeResponse, object>({
+      query: (data: {chatRoomId: number, lastMessageId: number}) => ({
+        url: `chat/messages`,
+        method: "POST",
+        body: data
+      }),
+      onQueryStarted: async (
+        chatRoomId,
+        { dispatch, queryFulfilled }
+      ) => {
+        if (navigator.onLine) {
+          try {
+            const { data } = await queryFulfilled;
+          } catch (err) {
+            console.error("Failed to store messages in IndexedDB:", err);
           }
         } else return;
       },
@@ -111,6 +146,13 @@ export const chatApi = createApi({
         body: body,
       }),
     }),
+    messageReact: builder.mutation<any, object>({
+      query: (body) => ({
+        url: `chat/react`,
+        method: "POST",
+        body: body,
+      }),
+    }),
   }),
 });
 
@@ -120,6 +162,8 @@ export const {
   useSendMessageMutation,
   useGetChatsQuery,
   useGetConversationsMutation,
+  useGetPreviousMessagesMutation,
   useSendReplyMutation,
   useUploadFileMutation,
+  useMessageReactMutation
 } = chatApi as any;

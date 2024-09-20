@@ -22,13 +22,26 @@ interface ChatFiles {
     is_deleted: boolean;
 }
 
+export interface ChatReaction {
+    id: number;                
+    chat_id: number;           
+    chat_reply_id: number | null; 
+    user_id: number;           
+    reaction_code: string;   
+    is_deleted: boolean;       
+    createdAt: string;        
+    updatedAt: string;        
+    deletedAt: string | null;  
+}
+
+  
 export interface ChatMessage {
     id: number;
     updatedAt: string;
     createdAt: string;
     deletedAt: string | null;
-    chatFiles: ChatFiles[]; // Replace 'any' with a specific type if you have one for chat files
-    chatReactions: any[]; // Replace 'any' with a specific type if you have one for chat reactions
+    chatFiles: ChatFiles[];
+    chatReactions: ChatReaction[];
     chatStatus: ChatStatus[];
     sender_id: number;
     receiver_id: number | null;

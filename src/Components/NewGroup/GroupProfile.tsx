@@ -3,10 +3,12 @@ import SideHeader from "../Shared/SideHeader";
 import { useCreateGroupMutation, useGetChatsQuery } from "../../apis/chatApi";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
-import { setActiveChatId } from "../../Redux/slices/chatsSlice";
+import { setActiveChatId, setChats } from "../../Redux/slices/chatsSlice";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import Loader from "../Shared/Loader";
+import { getAllChatsData, storeChatData } from "../../DB/database";
+import useSocket from "../../apis/websocket";
 
 interface usersData {
   id: number;
@@ -14,6 +16,7 @@ interface usersData {
   short_name: string;
   role: string;
   profile_pic: string;
+  notif_room: string;
 }
 
 const GroupProfile = ({
@@ -29,7 +32,11 @@ const GroupProfile = ({
   const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
-  const { refetch: refetchChats } = useGetChatsQuery();
+  const userNotifRooms = members.map((member)=> member.notif_room);
+  const { newInvite, joinRoom } = useSocket();
+
+  console.log({userNotifRooms});
+
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
   );
@@ -41,7 +48,7 @@ const GroupProfile = ({
   console.log(body);
   const [createGroup] = useCreateGroupMutation();
 
-  const handleSubmit = async (body: Object) => {
+  const handleSubmit = async (body: { toUsersList: number[], group_name: string }) => {
     setIsLoading(true);
 
     const { data: res, error } = await createGroup(body);
@@ -49,15 +56,24 @@ const GroupProfile = ({
     if (error) {
       console.log(error);
     } else {
-      await refetchChats();
+      console.log([res]);
+      await storeChatData([res]);
+
       submitFn();
+      // const newInviteData = {
+      //   frq: userNotifRooms,
+      //   chatFrq: res?.chatSocket[0]?.socket_room,
+      //   resp: res,
+      // };
+
+      // newInvite(newInviteData);
       console.log(res);
-      if (activeChatId !== res?.newChatRoom?.id) {
-        dispatch(setActiveChatId(res?.newChatRoom?.id));
+      if (activeChatId !== res?.id) {
+        dispatch(setActiveChatId(res?.id));
         dispatch(setChatWindow(true));
-        // joinRoom(chatId);
+        joinRoom(`${res?.chatSocket[0]?.socket_room}`);
       }
-      console.log(res?.newChatRoom);
+      console.log(res);
     }
 
     setIsLoading(false);

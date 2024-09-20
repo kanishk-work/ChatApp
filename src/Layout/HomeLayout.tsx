@@ -18,9 +18,39 @@ import { useWindowSize } from "../Utils/windowSizeUtil";
 import { useGetChatsQuery, useGetConversationsMutation } from "../apis/chatApi";
 import { useEffect } from "react";
 import Loader from "../Components/Shared/Loader";
+import useSocket from "../apis/websocket";
 
 const HomeLayout = () => {
   const [getConversations] = useGetConversationsMutation();
+  useGetChatsQuery();
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        await getConversations(0);
+      } catch (error) {
+        console.error('Failed to fetch conversations:', error);
+      }
+    };
+
+    fetchConversations();
+
+  }, []);
+  const activeUser = useAppSelector((state: RootState) => state.activeUser);
+  const chats = useAppSelector((state: RootState) => state.chats.chats);
+  const { joinRoom } = useSocket();
+
+  const activeUserRoom = `${activeUser?.client?.email.split('@')[0]}_${activeUser?.email.split('@')[0]}`;
+  console.log(activeUserRoom);
+
+  if (activeUser.id) {
+    joinRoom(activeUserRoom);
+  }
+
+  chats?.forEach(chat => {
+    console.log("joining from homelayout")
+    joinRoom(`${chat.chatSocket[0].socket_room}`);
+  });
+
   const { width } = useWindowSize();
   const chatWindow = useAppSelector(
     (state: RootState) => state.chatWindow.chatWindow
@@ -39,43 +69,21 @@ const HomeLayout = () => {
     (state: RootState) => state.chatInfo.showChatInfo
   );
 
-  useGetChatsQuery();
-
-  useEffect(() => {
-    const fetchConversationsAndChats = async () => {
-      try {
-        await getConversations(0);
-      } catch (error) {
-        console.error("Failed to fetch conversations:", error);
-      }
-    };
-
-    fetchConversationsAndChats();
-  }, []);
-
-  const isChatsLoading = useAppSelector(
-    (state: RootState) => state.loading.isChatsLoading
-  );
-  const isConversationsLoading = useAppSelector(
-    (state: RootState) => state.loading.isConversationsLoading
-  );
-
-  const handleBlockUser = () => {
-    console.log("User blocked");
-  };
+  const isChatsLoading = useAppSelector((state: RootState) => state.loading.isChatsLoading);
+  const isConversationsLoading = useAppSelector((state: RootState) => state.loading.isConversationsLoading);
+  
   return (
     <div className="h-[100svh] flex dynamic-background-color">
       {isChatsLoading || isConversationsLoading ? (
         <div className="dynamic-text-color-primary w-full flex items-center justify-center gap-4">
           <h1>Loading Your Chats</h1>
-          <Loader loaderStyles={"text-focus-secondary"} />
+          <Loader loaderStyles={'text-focus-secondary'} />
         </div>
       ) : (
         <>
           <div
-            className={`${
-              width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
-            } h-full p-2 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col overflow-auto scrollbar-custom`}
+            className={`${width > 764 ? "w-[25vw] min-w-[320px]" : "w-[100vw]"
+              } h-full p-2 shadow-[inset_-10px_0px_20px_0px_#00000024] flex flex-col overflow-auto scrollbar-custom`}
           >
             {showProfile ? (
               <Profile />
@@ -96,15 +104,11 @@ const HomeLayout = () => {
             ) : width <= 764 ? (
               showChatInfo ? (
                 <UserProfile
-                  userProfileImage="https://via.placeholder.com/150"
-                  userName="John Doe"
-                  userBio="Lorem ipsum dolor sit amet."
                   media={[
                     "https://via.placeholder.com/150",
                     "https://via.placeholder.com/150",
                   ]}
                   starredMessages={["Message 1", "Message 2"]}
-                  onBlockUser={handleBlockUser}
                   profileOptions={[
                     {
                       name: "Starred Messages",
@@ -139,31 +143,26 @@ const HomeLayout = () => {
                   {(chatWindow === true && activeRoomId !== null && (
                     <ChatWindow />
                   )) || (
-                    <div className="flex items-center justify-center h-screen">
-                      <div className="text-white">
-                        Click on chat to start conversation
+                      <div className="flex items-center justify-center h-screen">
+                        <div className="text-white">
+                          Click on chat to start conversation
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               )}
 
               {showChatInfo && (
                 <div
-                  className={`${
-                    width > 1300 ? "w-[25vw] min-w-[320px]" : "w-full"
-                  } h-full`}
+                  className={`${width > 1300 ? "w-[25vw] min-w-[320px]" : "w-full"
+                    } h-full`}
                 >
                   <UserProfile
-                    userProfileImage="https://via.placeholder.com/150"
-                    userName="John Doe"
-                    userBio="Lorem ipsum dolor sit amet."
                     media={[
                       "https://via.placeholder.com/150",
                       "https://via.placeholder.com/150",
                     ]}
                     starredMessages={["Message 1", "Message 2"]}
-                    onBlockUser={handleBlockUser}
                     profileOptions={[
                       {
                         name: "Starred Messages",
