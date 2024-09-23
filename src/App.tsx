@@ -5,24 +5,46 @@ import { RootState } from "./Redux/store";
 import { injectStyles } from "./Utils/injectStyles";
 import { authenticateUser } from "./Utils/logInUser";
 import { useLogInMutation } from "./apis/authApi";
-import useSocket from "./apis/websocket";
-import { createTestData } from "./DB/testScript";
-import { verifyData } from "./DB/verifyScript";
 import LoginPage from "./Pages/LoginPage";
 import { LoginDetails } from "./Types/login";
+import { shallowEqual } from "react-redux";
+import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
   // const { joinRoom } = useSocket();
-  const activeUser = useAppSelector((state: RootState) => state.activeUser);
+  const activeUser = useAppSelector(
+    (state: RootState) => state.activeUser,
+    shallowEqual
+  );
   const currentUserId = useAppSelector(
-    (state: RootState) => state.activeUser.id
+    (state: RootState) => state.activeUser.id,
+    shallowEqual
   );
   const currentUserRoom = useAppSelector(
-    (state: RootState) => state.activeUser.id
+    (state: RootState) => state.activeUser.id,
+    shallowEqual
   );
   const [logIn] = useLogInMutation();
 
+  const chats = useAppSelector(
+    (state: RootState) => state.chats.chats,
+    shallowEqual
+  );
+  const { joinRoom } = useSocket();
+
+  const activeUserRoom = `${activeUser?.client?.email.split("@")[0]}_${
+    activeUser?.email.split("@")[0]
+  }`;
+
+  useEffect(() => {
+    if (activeUser.id) {
+      joinRoom(activeUserRoom);
+    }
+    chats?.forEach((chat: any) => {
+      joinRoom(`${chat.chatSocket[0].socket_room}`);
+    });
+  }, [activeUser, chats, activeUserRoom]);
   // for test purpose
   // const userCredentials = {
   //   user_id: "2",
@@ -62,11 +84,11 @@ const App: React.FC = () => {
   //   }
   // }, [activeUser, dispatch, logIn]);
 
-  const loginFn = ( userCredentials: LoginDetails) => {
+  const loginFn = (userCredentials: LoginDetails) => {
     if (!activeUser || !activeUser.id) {
       /* Authenticate the user
        client will have to use authenticateUser function and pass login credentials to login*/
-       console.log(userCredentials)
+      console.log(userCredentials);
       authenticateUser(userCredentials)
         .then(() => {
           console.log("User authenticated successfully.");
@@ -75,7 +97,7 @@ const App: React.FC = () => {
           console.error("Authentication failed:", error);
         });
     }
-  }
+  };
   const {
     bgColorDark,
     accentColorDark,
@@ -89,7 +111,7 @@ const App: React.FC = () => {
     focusColorSecondary,
     fontSize,
     isDarkMode,
-  } = useAppSelector((state: RootState) => state.theme);
+  } = useAppSelector((state: RootState) => state.theme, shallowEqual);
 
   useEffect(() => {
     injectStyles(
@@ -135,7 +157,7 @@ const App: React.FC = () => {
   //       .register('/service-worker.js')
   //       .then((registration: ServiceWorkerRegistration) => {
   //         console.log('Service Worker registered with scope:', registration.scope);
-  
+
   //         // Check if `periodicSync` is available
   //         if ('periodicSync' in registration) {
   //           (registration as any).periodicSync
@@ -159,34 +181,35 @@ const App: React.FC = () => {
   //       });
   //   });
   // }
-  
 
-  window.addEventListener('beforeunload', () => {
+  window.addEventListener("beforeunload", () => {
     // Store the time when the app is being closed
-    localStorage.setItem('lastClose', Date.now().toString());
+    localStorage.setItem("lastClose", Date.now().toString());
   });
-  
+
   // When the app is opened again
-  window.addEventListener('load', () => {
-    const lastClose = localStorage.getItem('lastClose');
+  window.addEventListener("load", () => {
+    const lastClose = localStorage.getItem("lastClose");
     if (lastClose) {
       const now = Date.now();
       const elapsed = now - parseInt(lastClose, 10);
-  
+
       // If the app has been closed for more than 24 hours (86400000 ms)
       if (elapsed > 24 * 60 * 60 * 1000) {
-        console.log('App has been closed for more than 24 hours. Clearing local storage.');
+        console.log(
+          "App has been closed for more than 24 hours. Clearing local storage."
+        );
         localStorage.clear();
         location.reload();
       } else {
-        console.log('App was closed for less than 24 hours. No need to clear local storage.');
+        console.log(
+          "App was closed for less than 24 hours. No need to clear local storage."
+        );
       }
     }
   });
-  
-  
 
-  return activeUser.id ? <HomeLayout /> : <LoginPage loginFn={loginFn}/>;
+  return activeUser.id ? <HomeLayout /> : <LoginPage loginFn={loginFn} />;
 };
 
 export default App;
