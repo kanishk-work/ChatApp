@@ -22,6 +22,25 @@ export async function deleteChat(id: number): Promise<void> {
     await db.chats.delete(id);
 }
 
+export async function deleteGroupMember(chat_room_id: number | null, user_id: number | null): Promise<void> {
+    // delete member from chat if the chat is group
+    console.log("delete group member Working")
+    try {
+        const chat = chat_room_id ? await db.chats.get(chat_room_id): undefined;
+
+        if (chat) {
+            const updatedChatUsers = chat.chatUsers.filter(user => user.user_id!== user_id);
+            chat.chatUsers = updatedChatUsers;
+
+            await db.chats.put(chat);
+        } else {
+            console.error('Chat not found');
+        }
+    } catch (error) {
+        console.error('Failed to delete group member:', error);
+    }
+}
+
 export async function updateLatestMessage(chatRoomId: number, newMessage: LatestMessage) {
     console.log("update latest chat Working")
     try {

@@ -11,6 +11,8 @@ import { Chat } from "../../Types/chats";
 import { formatTime } from "../../Utils/formatTimeStamp";
 import { updateUnreadMessageCountData } from "../../DB/database";
 import { BiCheck, BiCheckDouble, BiTime } from "react-icons/bi";
+import { useMessageReadUpdateMutation } from "../../apis/chatApi";
+import useSocket from "../../apis/websocket";
 
 interface ChatListProps {
   chats: Chat[]
@@ -28,12 +30,25 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
-  const handleChatClick = async (chatId: number) => {
+  const { messagesRead } = useSocket();
+
+  const [messageReadUpdate] = useMessageReadUpdateMutation();
+
+  const handleChatClick = async (chatId: number, chatSocket: string | undefined, lastMessageId: number) => {
     if (activeChatId !== chatId) {
-      dispatch(setActiveChatId(chatId));
-      dispatch(setChatWindow(true));
-      dispatch(setUnreadCountChat({ chatRoomId: chatId, actionType: 'reset' }));
-      updateUnreadMessageCountData(chatId, 'reset');
+      try {
+        dispatch(setActiveChatId(chatId));
+        dispatch(setChatWindow(true));
+        if(lastMessageId){
+          dispatch(setUnreadCountChat({ chatRoomId: chatId, actionType: 'reset' }));
+          await updateUnreadMessageCountData(chatId, 'reset');
+          await messageReadUpdate({ chat_room_id: chatId });
+          messagesRead({frq: chatSocket, chatRoomId: chatId, lastChatId: lastMessageId})
+        }
+      }
+      catch{
+        console.error("Error updating unread count on server");
+      }
     }
   };
   console.log(chats)
@@ -61,7 +76,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
           <div
             key={chat.id}
             className={`${chat.id === activeChatId && 'dynamic-accent-color'} flex items-center justify-center text-[var(--text-primary-light)] dark:text-[var(--text-primary)] w-full mb-2 p-1.5 hover:shadow-[0px_0px_20px_14px_#00000024] rounded-lg cursor-pointer ${className}`}
-            onClick={() => handleChatClick(chat.id)}
+            onClick={() => handleChatClick(chat.id, chat.chatSocket[0].socket_room, chat.lastMessage?.id)}
           >
             <img
               src={chatProfilePic}
@@ -88,7 +103,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
                       )
                     ) : null}
                   </span>
-                  <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.message}</span>
+                  <span className="text-xs line-clamp-1 leading-6">{typingUser ? `${typingUser} typing....` : chat.lastMessage?.chatFiles.length ? "Shared file" : chat.lastMessage?.message}</span>
                 </div>
                 {chat.unreadCount ?
                   <span className="text-sm px-1.5 rounded-full bg-green-500 flex items-center"> {chat.unreadCount} </span> : ""

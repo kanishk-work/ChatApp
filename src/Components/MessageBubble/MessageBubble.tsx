@@ -33,6 +33,7 @@ interface MessageBubbleProps {
     messageId: number;
     reactionCode: string;
   }) => Promise<void>;
+  onPin: (pinMessageData: { chat_room_id: number, chat_id: number }) => void;
   chatUsers: ChatUser[] | undefined;
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
@@ -45,6 +46,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   senderName,
   setReplyMessage,
   onReact,
+  onPin,
   chatUsers,
   bubbleStyle,
   textStyle,
@@ -70,6 +72,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     {
       name: "React",
       action: () => setShowEmojiPicker(!showEmojiPicker),
+    },
+    {
+      name: "Pin",
+      action: () => onPin({chat_room_id: message.chat_room_id, chat_id: message.id}),
     },
   ];
 
@@ -213,14 +219,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }, {} as Record<string, string[]>);
   };
 
-   useEffect(() => {
+  useEffect(() => {
     if (showEmojiPicker && containerRef.current && pickerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
       const pickerHeight = pickerRef.current.offsetHeight;
 
       const spaceAbove = containerRect.top;
       const spaceBelow = window.innerHeight - containerRect.bottom;
-      
+
       console.log('spaceAbove:', spaceAbove);
       console.log('spaceBelow:', spaceBelow);
       console.log('pickerheight:', pickerHeight);
@@ -235,7 +241,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       }
     }
   }, [showEmojiPicker]);
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
@@ -269,8 +275,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
       <div
         className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
-            ? "bg-blue-500 text-white"
-            : "bg-gray-200 text-black"
+          ? "bg-blue-500 text-white"
+          : "bg-gray-200 text-black"
           }`}
         style={bubbleStyle}
       >

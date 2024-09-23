@@ -5,6 +5,7 @@ import {
   deleteChat,
   updateLatestMessage,
   updateUnreadMessageCount,
+  deleteGroupMember,
 } from "./stores/chatsStore";
 
 import {
@@ -86,6 +87,10 @@ export async function updateLatestMessageData(chatRoomId: number, newMessage: La
 
 export async function updateUnreadMessageCountData(chatRoomId: number, actionType: 'increment' | 'reset'){
   return await updateUnreadMessageCount(chatRoomId, actionType)
+}
+
+export async function deleteGroupMemberData(chat_room_id: number | null, user_id: number | null){
+  return await deleteGroupMember(chat_room_id, user_id)
 }
 
 // Chat Messages Store Operations

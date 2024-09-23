@@ -57,6 +57,34 @@ export interface Messages {
     chatsList: ChatMessage[];
 }
 
+interface ChatData {
+    id: number;
+    updatedAt: string;
+    createdAt: string;
+    deletedAt: string | null;
+    chatFiles: ChatFiles[];
+    sender_id: number;
+    receiver_id: number;
+    message: string | null;
+    chat_room_id: number;
+    is_reply: boolean;
+    parent_chat_id: number | null;
+    is_deleted: boolean;
+}
+
+interface PinnedChat {
+    id: number;
+    updatedAt: string;
+    createdAt: string;
+    deletedAt: string | null;
+    client_id: number;
+    chat_room_id: number;
+    chat_id: number;
+    chat_data: ChatData;
+    user_id: number;
+    is_deleted: boolean;
+}
+
 export interface ConversationsType {
     id: number;
     updatedAt: string;
@@ -68,6 +96,7 @@ export interface ConversationsType {
     profile_pic: string | null;
     is_deleted: boolean;
     messages: Messages;
+    pinnedChat: PinnedChat[];
 }
 
 export interface ConversationsTypeResponse{

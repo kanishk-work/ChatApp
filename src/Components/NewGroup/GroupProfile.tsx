@@ -7,8 +7,13 @@ import { setActiveChatId, setChats } from "../../Redux/slices/chatsSlice";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import Loader from "../Shared/Loader";
-import { getAllChatsData, storeChatData } from "../../DB/database";
+import {
+  getAllChatsData,
+  storeChatData,
+  storeChatMessagesData,
+} from "../../DB/database";
 import useSocket from "../../apis/websocket";
+import { ConversationsType } from "../../Types/conversationsType";
 
 interface usersData {
   id: number;
@@ -32,10 +37,10 @@ const GroupProfile = ({
   const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
-  const userNotifRooms = members.map((member)=> member.notif_room);
+  const userNotifRooms = members.map((member) => member.notif_room);
   const { newInvite, joinRoom } = useSocket();
 
-  console.log({userNotifRooms});
+  console.log({ userNotifRooms });
 
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId
@@ -48,7 +53,10 @@ const GroupProfile = ({
   console.log(body);
   const [createGroup] = useCreateGroupMutation();
 
-  const handleSubmit = async (body: { toUsersList: number[], group_name: string }) => {
+  const handleSubmit = async (body: {
+    toUsersList: number[];
+    group_name: string;
+  }) => {
     setIsLoading(true);
 
     const { data: res, error } = await createGroup(body);
@@ -57,7 +65,21 @@ const GroupProfile = ({
       console.log(error);
     } else {
       console.log([res]);
+      const chatMessageEntry: ConversationsType = {
+        id: res?.id,
+        client_id: res?.client_id,
+        createdAt: res?.createdAt,
+        deletedAt: res?.deletedAt,
+        updatedAt: res?.updatedAt,
+        is_deleted: res?.is_deleted,
+        is_group: res?.is_group,
+        name: res?.name,
+        profile_pic: res?.profile_pic,
+        messages: {chatsList:[], length:0},
+        pinnedChat: [],
+      };
       await storeChatData([res]);
+      await storeChatMessagesData([chatMessageEntry]);
 
       submitFn();
       // const newInviteData = {
@@ -131,7 +153,7 @@ const GroupProfile = ({
       </div>
       <div className="flex items-center justify-center">
         {isLoading ? (
-          <Loader loaderStyles={'text-focus-secondary'}/>
+          <Loader loaderStyles={"text-focus-secondary"} />
         ) : (
           <button
             onClick={() => handleSubmit(body)}

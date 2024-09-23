@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { FaStar, FaImage, FaInfoCircle, FaBan } from "react-icons/fa";
+import { FaStar, FaImage, FaInfoCircle, FaBan, FaTrash } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
 import { RxCross2 } from "react-icons/rx";
 import { RootState } from "../../Redux/store";
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import { Chat } from "../../Types/chats";
-import { getChatData } from "../../DB/database";
+import { deleteGroupMemberData, getChatData } from "../../DB/database";
 import { useToast } from "../Shared/Toast/ToastProvider";
+import { useDeleteGroupMemberMutation } from "../../apis/chatApi";
 
 interface UserProfileProps {
   media: string[];
@@ -42,6 +43,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   let chatName = activeChat?.name || "";
   let userStatus = "status unavailable";
   let userProfilePic = activeChat?.profile_pic || placeholderImage;
+  const [deleteMember] = useDeleteGroupMemberMutation();
 
   if (activeChat) {
     if (activeChat.is_group) {
@@ -88,6 +90,30 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
   const handleBlockUser = () => {
     showToast('Block user triggered');
+  };
+
+  const handleDeleteUser = async (deleteData: {chat_room_id: number | null, user_id: number | null}) => {
+    showToast('Delete user triggered');
+    try {
+      const res = await deleteMember(deleteData);
+      console.log('delete member response: ', res)
+      if (res) {
+        showToast("User deleted successfully");
+        //remove member from list using setActiveChat state
+        if(activeChat){
+          const updatedChatUsers = activeChat?.chatUsers.filter(
+            (chatUser) => chatUser.user.id!== deleteData.user_id
+          );
+          setActiveChat({...activeChat, chatUsers: updatedChatUsers });
+          await deleteGroupMemberData(deleteData.chat_room_id, deleteData.user_id)
+          // update the chat in indexedDB
+          // await updateChatData(activeChat);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting user: ', error);
+      showToast('Error deleting user. Please try again later.');
+    }
   };
 
   return (
@@ -151,32 +177,41 @@ const UserProfile: React.FC<UserProfileProps> = ({
           <h3 className="text-lg font-semibold dynamic-text-color-secondary">
             {userStatus}
           </h3>
-            {activeChat?.chatUsers?.map((chatUser, index) => (
-              <div
-                key={index}
-                className="mt-2 flex items-center gap-3 dynamic-text-color-primary"
-                onClick={() => dispatch(setShowChatInfo(true))}
-              >
-                <img
-                  src={chatUser.user.profile_pic || placeholderImage}
-                  alt="User profile"
-                  className="w-8 h-8 rounded-full cursor-pointer"
-                />
-                <div className="cursor-pointer w-full">
-                  <div className={`flex items-center justify-between`}>
-                    <span>{chatUser.user.full_name}</span>
-                    {chatUser.is_group_admin && (
-                      <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
-                        Group Admin
-                      </span>
-                    )}
-                  </div>
-                  <div className={`text-sm`}>
-                    <span>{chatUser.user.status}</span>
-                  </div>
+          {activeChat?.chatUsers?.map((chatUser, index) => (
+            <div
+              key={index}
+              className="mt-2 flex items-center gap-3 dynamic-text-color-primary"
+              onClick={() => dispatch(setShowChatInfo(true))}
+            >
+              <img
+                src={chatUser.user.profile_pic || placeholderImage}
+                alt="User profile"
+                className="w-8 h-8 rounded-full cursor-pointer"
+              />
+              <div className="cursor-pointer w-full">
+                <div className={`flex items-center justify-between`}>
+                  <span>{chatUser.user.full_name}</span>
+                  {chatUser.is_group_admin ? (
+                    <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
+                      Group Admin
+                    </span>
+                  )
+                    :
+                    <button
+                      className="flex items-center text-red-600 hover:text-red-800"
+                      onClick={()=> handleDeleteUser({chat_room_id: activeChatId, user_id: chatUser.user_id}) }
+                    >
+                      <FaTrash className="mr-2" />
+                      Delete User
+                    </button>
+                  }
+                </div>
+                <div className={`text-sm`}>
+                  <span>{chatUser.user.status}</span>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       )}
 

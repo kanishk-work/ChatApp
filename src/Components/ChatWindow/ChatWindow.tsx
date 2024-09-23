@@ -8,13 +8,14 @@ import StatusBar from "./StatusBar";
 import {
   useGetPreviousMessagesMutation,
   useMessageReactMutation,
+  usePinMessageMutation,
   useSendMessageMutation,
   useSendReplyMutation,
   useUploadFileMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
 import { getChatData, getMessagesByChatIdData, updateLatestMessageData, updateMessagesData, } from "../../DB/database";
-import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
+import { ChatMessage } from "../../Types/conversationsType";
 import { Chat } from "../../Types/chats";
 import {
   setConversations,
@@ -27,7 +28,6 @@ import { useToast } from "../Shared/Toast/ToastProvider";
 import Loader from "../Shared/Loader";
 
 const ChatWindow: React.FC = () => {
-  const [messagesOld, setMessages] = useState<ConversationsType[]>([]);
   const [activeChat, setActiveChat] = useState<Chat>();
   const [replyMessage, setReplyMessage] = useState<ChatMessage | null>(null);
   const [oldMessagesLoading, setOldMessagesLoading] = useState(false);
@@ -56,6 +56,7 @@ const ChatWindow: React.FC = () => {
   const [uploadFile] = useUploadFileMutation();
   const [messageReact] = useMessageReactMutation();
   const [getPreviousMessages] = useGetPreviousMessagesMutation();
+  const [pinMessage] = usePinMessageMutation();
 
   const { sendMessage, sendReaction } = useSocket();
 
@@ -77,7 +78,6 @@ const ChatWindow: React.FC = () => {
       let fileUrls = [];
       const tempMessageId = Number('0x' + uuidv4().replace(/-/g, ''));
       const tempStatusId = Number('0x' + uuidv4().replace(/-/g, ''));
-      const tempFileId = Number('0x' + uuidv4().replace(/-/g, ''));
 
       if (files && files.length > 0) {
         const formData = new FormData();
@@ -241,8 +241,10 @@ const ChatWindow: React.FC = () => {
       if (activeChatId !== null) {
         const messages = await getMessagesByChatIdData(activeChatId);
         if (messages && messages.length > 0) {
-          setMessages(messages);
           dispatch(setConversations(messages));
+        }
+        else {
+          dispatch(setConversations([]));
         }
       }
     };
@@ -277,10 +279,29 @@ const ChatWindow: React.FC = () => {
   const handleScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
     const element = e.currentTarget;
     if (element.scrollTop === 0 && !oldMessagesLoading) {
-      fetchOlderMessages(activeChatId, messages[0]?.messages?.chatsList[0].id);
+      fetchOlderMessages(activeChatId, messages[0]?.messages?.chatsList[0]?.id);
     }
   };
 
+  const handlePinMessage = async (pinMessageData: {chat_room_id: number, chat_id: number}) => {
+    // showToast("Pinned message");
+    try {
+      const response = await pinMessage(pinMessageData);
+      console.log('pin response: ', response)
+      if (response) {
+        showToast("Pinned message");
+        // const updatedMessages = messages[0].messages.chatsList.map((msg) =>
+        //   msg.id === pinMessageData.chat_id? {...msg, is_pinned: true } : msg
+        // );
+        // dispatch(setConversations({...messages[0], messages: { chatsList: updatedMessages } }));
+      } else {
+        showToast("Failed to pin message");
+      }
+    } catch (error) {
+      console.error("Error pinning message:", error);
+      showToast("Failed to pin message");
+    }
+  }
   const allMessages = messages[0]?.messages?.chatsList || [];
   const taggedMessages = allMessages && addDateTags(allMessages);
 
@@ -335,6 +356,7 @@ const ChatWindow: React.FC = () => {
                 chatUsers={activeChat?.chatUsers}
                 setReplyMessage={setReplyMessage}
                 onReact={handleReact}
+                onPin={handlePinMessage}
               />
             </div>
           );

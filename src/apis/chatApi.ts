@@ -99,13 +99,55 @@ export const chatApi = createApi({
 
           try {
             const { data } = await queryFulfilled;
-
+            console.log("conversations from server: ", data)
             // Store messages in IndexedDB
             await storeChatMessagesData(data.list);
           } catch (err) {
             console.error("Failed to store messages in IndexedDB:", err);
           } finally {
             dispatch(setConversationsLoading(false));
+          }
+        } else return;
+      },
+    }),
+
+    searchMessages: builder.mutation<ConversationsTypeResponse, string>({
+      query: (searchTerm) => ({
+        url: `chat/messages?search=${encodeURIComponent(searchTerm)}`,
+        method: "POST",
+      }),
+      onQueryStarted: async (
+        searchTerm,
+        { dispatch = useAppDispatch(), queryFulfilled }
+      ) => {
+        if (navigator.onLine) {
+          try {
+            const { data } = await queryFulfilled;
+
+          } catch (err) {
+            console.error("Failed to store messages in IndexedDB:", err);
+          } finally {
+
+          }
+        } else return;
+      },
+    }),
+
+    pinMessage: builder.mutation<ConversationsTypeResponse, object>({
+      query: (data: {chat_room_id: number, chat_id: number}) => ({
+        url: `chat/pin`,
+        method: "POST",
+        body: data
+      }),
+      onQueryStarted: async (
+        chat_room_id,
+        { dispatch, queryFulfilled }
+      ) => {
+        if (navigator.onLine) {
+          try {
+            const { data } = await queryFulfilled;
+          } catch (err) {
+            console.error("Failed to store messages in IndexedDB:", err);
           }
         } else return;
       },
@@ -153,6 +195,46 @@ export const chatApi = createApi({
         body: body,
       }),
     }),
+
+    deleteGroupMember: builder.mutation<any, object>({
+      query: (data: {chat_room_id: number, user_id: number}) => ({
+        url: `chat/user/delete`,
+        method: "POST",
+        body: data
+      }),
+      onQueryStarted: async (
+        chat_room_id,
+        { dispatch, queryFulfilled }
+      ) => {
+        if (navigator.onLine) {
+          try {
+            const { data } = await queryFulfilled;
+          } catch (err) {
+            console.error("Failed to delete member:", err);
+          }
+        } else return;
+      },
+    }),
+
+    messageReadUpdate: builder.mutation<any, object>({
+      query: (data: {chat_room_id: number}) => ({
+        url: `chat/messages/read`,
+        method: "PATCH",
+        body: data
+      }),
+      onQueryStarted: async (
+        chat_room_id,
+        { dispatch, queryFulfilled }
+      ) => {
+        if (navigator.onLine) {
+          try {
+            const { data } = await queryFulfilled;
+          } catch (err) {
+            console.error("Failed to update read status:", err);
+          }
+        } else return;
+      },
+    }),
   }),
 });
 
@@ -165,5 +247,9 @@ export const {
   useGetPreviousMessagesMutation,
   useSendReplyMutation,
   useUploadFileMutation,
-  useMessageReactMutation
+  useMessageReactMutation,
+  useSearchMessagesMutation,
+  usePinMessageMutation,
+  useDeleteGroupMemberMutation,
+  useMessageReadUpdateMutation,
 } = chatApi as any;

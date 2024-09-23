@@ -83,6 +83,17 @@ const useSocket = () => {
           console.error("Invalid response data:", data);
         }
       });
+
+      socket.on("chatStatusResp", async (data) => {
+        const currentActiveChatId = activeChatIdRef.current;
+
+        if (data && data.chatRoomId && data.frq && data.lastChatId) {
+          console.log('read status socket response: ', data)
+          
+        } else {
+          console.error("Invalid response data:", data);
+        }
+      });
     }
   }, [socket]);
   useEffect(() => {
@@ -134,6 +145,12 @@ const useSocket = () => {
     }
   };
 
+  const messagesRead = (readStatusData: {frq: string | undefined, chatRoomId: number, lastChatId:number}) => {
+    if (socket) {
+      console.log("emit message read")
+      socket.emit("chatStatus", readStatusData);
+    }
+  };
   // listeing
   const getNewMessage = () => {
     if (socket) {
@@ -166,6 +183,7 @@ const useSocket = () => {
     joinChatRoom,
     emitTyping,
     sendReaction,
+    messagesRead,
   };
 };
 
