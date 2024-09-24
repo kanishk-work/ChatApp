@@ -29,10 +29,7 @@ interface MessageBubbleProps {
   sender: "user" | "other";
   senderName: string | undefined;
   setReplyMessage: React.Dispatch<React.SetStateAction<ChatMessage | null>>;
-  onReact: (reaction: {
-    messageId: number;
-    reactionCode: string;
-  }) => Promise<void>;
+  onReact: (reaction: ReactionData) => Promise<void>;
   chatUsers: ChatUser[] | undefined;
   bubbleStyle?: React.CSSProperties;
   textStyle?: React.CSSProperties;
@@ -51,8 +48,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [openReaction, setOpenReaction] = useState<string | null>(null);
-  const [pickerPosition, setPickerPosition] = useState<'top' | 'bottom'>('bottom'); // 'top' or 'bottom'
-
+  const [pickerPosition, setPickerPosition] = useState<"top" | "bottom">(
+    "bottom"
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -85,7 +83,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "downloaded_file"; // Set a proper file name if available
+        a.download = "downloaded_file";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -106,11 +104,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       <div className="flex items-center space-x-2">
         <div>
           {isImage(fileUrl) ? (
-            <img
-              src={fileUrl}
-              className="block h-40 object-contain"
-              alt="Image Preview"
-            />
+            <picture>
+              <source srcSet={`${fileUrl}`} />
+              <img
+                src={fileUrl}
+                loading="lazy"
+                className="block h-40 object-contain"
+                alt="Image Preview"
+              />
+            </picture>
           ) : isVideo(fileUrl) ? (
             <video controls className="block h-64">
               <source src={fileUrl} type="video/mp4" />
@@ -164,8 +166,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             style={textStyle}
           >
             {parentMessage.chatFiles &&
-              parentMessage.chatFiles.map((chatFile, index) => (
-                <div key={index} className="">
+              parentMessage.chatFiles.map((chatFile) => (
+                <div key={chatFile.id} className="">
                   {getFilePreview(chatFile.file_url)}
                 </div>
               ))}
@@ -173,8 +175,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           </div>
         )}
         {message.chatFiles &&
-          message.chatFiles.map((chatFile, index) => (
-            <div key={index} className="">
+          message.chatFiles.map((chatFile) => (
+            <div key={chatFile.id} className="">
               {getFilePreview(chatFile.file_url)}
             </div>
           ))}
@@ -213,44 +215,41 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     }, {} as Record<string, string[]>);
   };
 
-   useEffect(() => {
+  useEffect(() => {
     if (showEmojiPicker && containerRef.current && pickerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
       const pickerHeight = pickerRef.current.offsetHeight;
 
       const spaceAbove = containerRect.top;
       const spaceBelow = window.innerHeight - containerRect.bottom;
-      
-      console.log('spaceAbove:', spaceAbove);
-      console.log('spaceBelow:', spaceBelow);
-      console.log('pickerheight:', pickerHeight);
-
-      console.log('pickerPosition:', pickerPosition);
 
       // Check if there's more space above or below the container, and position accordingly
       if (spaceBelow < pickerHeight && spaceAbove > pickerHeight) {
-        setPickerPosition('top');
+        setPickerPosition("top");
       } else {
-        setPickerPosition('bottom');
+        setPickerPosition("bottom");
       }
     }
   }, [showEmojiPicker]);
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(event.target as Node)
+      ) {
         setShowEmojiPicker(false);
       }
     };
 
     // Use setTimeout to ensure that the emoji picker gets a chance to open before the event listener closes it.
     const timeoutId = setTimeout(() => {
-      window.addEventListener('click', handleClickOutside);
+      window.addEventListener("click", handleClickOutside);
     }, 0);
 
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener('click', handleClickOutside);
+      window.removeEventListener("click", handleClickOutside);
     };
   }, [showEmojiPicker]);
 
@@ -260,38 +259,50 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   };
   return (
     <div
-      className={`flex flex-col ${sender === "user" ? "items-end" : "items-start"
-        } mb-2`}
+      className={`flex flex-col ${
+        sender === "user" ? "items-end" : "items-start"
+      } mb-2`}
     >
       {sender === "other" && (
         <span className="dynamic-text-color-secondary">{senderName}</span>
       )}
 
       <div
-        className={`max-w-[70%] rounded-lg px-5 py-1 relative group ${sender === "user"
+        className={`max-w-[70%] rounded-lg px-5 py-1 relative group  ${
+          sender === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-200 text-black"
-          }`}
-        style={bubbleStyle}
+        }`}
+        style={{ ...bubbleStyle, wordBreak: "break-word" }}
       >
         <div
           ref={containerRef}
-          className={`flex text-xs justify-end absolute top-0 ${sender === "user" ? "left-0" : "right-0"
-            } cursor-pointer opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200`}
+          className={`flex text-xs justify-end absolute top-0 ${
+            sender === "user" ? "left-0" : "right-0"
+          } cursor-pointer opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200`}
         >
           <DropDown
             optionsList={messageOptions}
             triggerElement={<FaChevronDown />}
-            btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"
-              }`}
-            dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
+            dropdownStyle={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${
+              sender === "user" ? "rounded-br-lg" : "rounded-bl-lg "
+            }`}
+            dropdownClassStyle={`${sender === "user" ? "right-0" : "left-0"}`}
           />
           {showEmojiPicker && (
             <div
               ref={pickerRef}
-              className={`absolute ${sender === 'user' ? 'right-0' : 'left-0'} ${pickerPosition === 'top' ? 'bottom-12' : 'top-12'} z-10`}
+              className={`absolute ${
+                sender === "user" ? "right-0" : "left-0"
+              } ${pickerPosition === "top" ? "bottom-12" : "top-12"} z-10`}
             >
-              <Picker style={{ height: '300px' }} data={data} onEmojiSelect={handleReaction} maxFrequentRows={0} previewPosition={'none'} />
+              <Picker
+                style={{ height: "300px" }}
+                data={data}
+                onEmojiSelect={handleReaction}
+                maxFrequentRows={0}
+                previewPosition={"none"}
+              />
             </div>
           )}
         </div>
