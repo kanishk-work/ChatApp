@@ -1,51 +1,61 @@
-import moment from 'moment';
-import { ChatMessage } from '../Types/conversationsType';
+import { ChatMessage } from "../Types/conversationsType";
+import { formatDate } from "./formatDate";
 
 interface TaggedItem {
-  type: 'date' | 'message';
+  type: "date" | "message";
   tag?: string;
   message?: ChatMessage;
 }
 
 export const formatDateTag = (date: string): string => {
-  const messageDate = moment(date);
-  const now = moment();
+  const messageDate = new Date(date);
+  const now = new Date();
 
-  if (messageDate.isSame(now, 'day')) {
-    return 'Today';
-  } else
+  const isSameDay = (d1: Date, d2: Date) =>
+    d1.toDateString() === d2.toDateString();
+  const isSameWeek = (d1: Date, d2: Date) => {
+    const startOfWeek = (d: Date) => {
+      const diff = d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1);
+      return new Date(d.setDate(diff));
+    };
+    return startOfWeek(d1).getTime() === startOfWeek(d2).getTime();
+  };
+  const isSameYear = (d1: Date, d2: Date) =>
+    d1.getFullYear() === d2.getFullYear();
 
-  if (messageDate.isSame(now.subtract(1, 'days'), 'day')) {
-    return 'Yesterday';
-  } else
-
-  if (messageDate.isSame(now, 'week')) {
-    return messageDate.format('dddd'); // Day of the week
-  } else
-
-  if (messageDate.isSame(now, 'year')) {
-    return messageDate.format('MMMM, D'); // Day of the month
-  } else
-
-  return messageDate.format('D MMMM YYYY'); // Different year
+  if (isSameDay(messageDate, now)) {
+    return "Today";
+  } else if (isSameDay(messageDate, new Date(now.setDate(now.getDate() - 1)))) {
+    return "Yesterday";
+  } else if (isSameWeek(messageDate, new Date())) {
+    return formatDate(date, "en-US", { weekday: "long" }); // Day of the week
+  } else if (isSameYear(messageDate, now)) {
+    return formatDate(date, "en-US", { month: "long", day: "numeric" }); // Month and Day
+  } else {
+    return formatDate(date, "en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
 };
 
 export const addDateTags = (messages: ChatMessage[]): TaggedItem[] => {
   const taggedMessages: TaggedItem[] = [];
-  let lastMessageDate: moment.Moment | null = null;
+  let lastMessageDate: Date | null = null;
 
   messages.forEach((message) => {
-    const messageDate = moment(message.createdAt);
+    const messageDate = new Date(message.createdAt);
 
-    if (!lastMessageDate || !messageDate.isSame(lastMessageDate, 'day')) {
+    if (!lastMessageDate || !isSameDay(messageDate, lastMessageDate)) {
       taggedMessages.push({
-        type: 'date',
+        type: "date",
         tag: formatDateTag(message.createdAt),
       });
     }
 
     taggedMessages.push({
-      type: 'message',
+      type: "message",
       message,
     });
 
@@ -54,3 +64,6 @@ export const addDateTags = (messages: ChatMessage[]): TaggedItem[] => {
 
   return taggedMessages;
 };
+
+const isSameDay = (d1: Date, d2: Date) =>
+  d1.toDateString() === d2.toDateString();

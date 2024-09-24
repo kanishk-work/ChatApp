@@ -19,7 +19,7 @@ export interface JoinChat {
   toUserId: number;
 }
 
-export const chatApi = createApi({
+export const chatApi: any = createApi({
   reducerPath: "chatApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_HOST_URL,
@@ -63,6 +63,7 @@ export const chatApi = createApi({
         method: "GET",
       }),
       async onQueryStarted(
+        // @ts-ignore
         searchTerm,
         { dispatch = useAppDispatch(), queryFulfilled }
       ) {
@@ -73,7 +74,6 @@ export const chatApi = createApi({
             if (data && data.list) {
               // Store chats in IndexedDB
               await storeChatData(data.list);
-              console.log(data.list);
             }
           } catch (error) {
             console.error("Failed to store chats in IndexedDB:", error);
@@ -91,6 +91,7 @@ export const chatApi = createApi({
         body: { chatRoomId },
       }),
       onQueryStarted: async (
+        // @ts-ignore
         chatRoomId,
         { dispatch = useAppDispatch(), queryFulfilled }
       ) => {
@@ -112,17 +113,16 @@ export const chatApi = createApi({
     }),
 
     getPreviousMessages: builder.mutation<ConversationsTypeResponse, object>({
-      query: (data: {chatRoomId: number, lastMessageId: number}) => ({
+      query: (data: { chatRoomId: number; lastMessageId: number }) => ({
         url: `chat/messages`,
         method: "POST",
-        body: data
+        body: data,
       }),
-      onQueryStarted: async (
-        chatRoomId,
-        { dispatch, queryFulfilled }
-      ) => {
+      // @ts-ignore
+      onQueryStarted: async (chatRoomId, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
+            // @ts-ignore
             const { data } = await queryFulfilled;
           } catch (err) {
             console.error("Failed to store messages in IndexedDB:", err);
@@ -165,5 +165,5 @@ export const {
   useGetPreviousMessagesMutation,
   useSendReplyMutation,
   useUploadFileMutation,
-  useMessageReactMutation
+  useMessageReactMutation,
 } = chatApi as any;
