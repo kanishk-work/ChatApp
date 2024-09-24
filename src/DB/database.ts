@@ -16,10 +16,11 @@ import {
   deleteChatMessage,
   updateMessages,
   addReactionToMessage,
+  addPinnedMessage,
 } from "./stores/messagesStore";
 
 import { Chat, LatestMessage } from "../Types/chats";
-import { ChatMessage, ChatReaction, ConversationsType } from "../Types/conversationsType";
+import { ChatMessage, ChatReaction, ConversationsType, PinnedChat } from "../Types/conversationsType";
 import Dexie from "dexie";
 
 class ChatAppDatabase extends Dexie {
@@ -111,6 +112,13 @@ export async function addReactionToMessageData(
 ): Promise<void> {
   return await addReactionToMessage(chatRoomId, messageId, updatedReactions);
 }
+
+export async function addPinnedMessageData(
+  pinnedMessageData: PinnedChat
+): Promise<void> {
+  return await addPinnedMessage(pinnedMessageData);
+}
+
 export async function getChatMessageData(
   id: number
 ): Promise<ConversationsType | undefined> {

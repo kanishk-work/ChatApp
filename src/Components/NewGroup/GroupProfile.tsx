@@ -77,6 +77,7 @@ const GroupProfile = ({
         profile_pic: res?.profile_pic,
         messages: {chatsList:[], length:0},
         pinnedChat: [],
+        unreadMsgs: res?.unreadMsgs
       };
       await storeChatData([res]);
       await storeChatMessagesData([chatMessageEntry]);

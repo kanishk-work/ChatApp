@@ -84,10 +84,10 @@ const useSocket = () => {
         }
       });
 
-      socket.on("chatStatusResp", async (data) => {
+      socket.on("chatStatusResp", async (data: {frq: string | undefined, chatRoomId: number, userId: number, chatIdList: { chat_id: number }[] }) => {
         const currentActiveChatId = activeChatIdRef.current;
 
-        if (data && data.chatRoomId && data.frq && data.lastChatId) {
+        if (data && data.chatRoomId && data.frq && data.chatIdList && data.userId) {
           console.log('read status socket response: ', data)
           
         } else {
@@ -145,7 +145,7 @@ const useSocket = () => {
     }
   };
 
-  const messagesRead = (readStatusData: {frq: string | undefined, chatRoomId: number, lastChatId:number}) => {
+  const messagesRead = (readStatusData: {frq: string | undefined, chatRoomId: number, userId: number, chatIdList: { chat_id: number }[] }) => {
     if (socket) {
       console.log("emit message read")
       socket.emit("chatStatus", readStatusData);

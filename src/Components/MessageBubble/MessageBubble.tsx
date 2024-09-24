@@ -290,7 +290,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             triggerElement={<FaChevronDown />}
             btnClassName={`flex items-center dynamic-accent-color p-1 dynamic-text-color-primary ${sender === "user" ? "rounded-br-lg" : "rounded-bl-lg"
               }`}
-            dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"}`}
+            dropBoxClassName={`${sender === "user" ? "right-0" : "left-0"} bottom-0`}
           />
           {showEmojiPicker && (
             <div

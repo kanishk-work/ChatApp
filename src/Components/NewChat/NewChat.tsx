@@ -10,7 +10,8 @@ import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import useSocket from "../../apis/websocket";
 import SearchBar from "../SearchBar/SearchBar";
-import { getAllChatsData, storeChatData } from "../../DB/database";
+import { getAllChatsData, storeChatData, storeChatMessagesData } from "../../DB/database";
+import { ConversationsType } from "../../Types/conversationsType";
 
 interface usersData {
   id: number;
@@ -56,7 +57,23 @@ const NewChat = () => {
       console.log(error);
     } else if (res) {
       console.log([res]);
+      const chatMessageEntry: ConversationsType = {
+        id: res?.id,
+        client_id: res?.client_id,
+        createdAt: res?.createdAt,
+        deletedAt: res?.deletedAt,
+        updatedAt: res?.updatedAt,
+        is_deleted: res?.is_deleted,
+        is_group: res?.is_group,
+        name: res?.name,
+        profile_pic: res?.profile_pic,
+        messages: {chatsList:[], length:0},
+        pinnedChat: [],
+        unreadMsgs: res?.unreadMsgs
+      };
       await storeChatData([res]);
+      await storeChatMessagesData([chatMessageEntry]);
+
       
       // const chatsFromDB = await getAllChatsData();
       // dispatch(setChats(chatsFromDB));

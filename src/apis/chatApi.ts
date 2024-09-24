@@ -3,8 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { MessagePayload, ReplyPayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
 import { ChatResponse } from "../Types/chats";
-import { storeChatData, storeChatMessagesData } from "../DB/database";
-import { ConversationsTypeResponse } from "../Types/conversationsType";
+import { addPinnedMessageData, storeChatData, storeChatMessagesData } from "../DB/database";
+import { ConversationsTypeResponse, PinnedChat } from "../Types/conversationsType";
 import {
   setChatsLoading,
   setConversationsLoading,
@@ -17,6 +17,10 @@ export interface JoinGroup {
 }
 export interface JoinChat {
   toUserId: number;
+}
+
+export interface PinChatRes {
+  data: PinnedChat
 }
 
 export const chatApi = createApi({
@@ -133,7 +137,7 @@ export const chatApi = createApi({
       },
     }),
 
-    pinMessage: builder.mutation<ConversationsTypeResponse, object>({
+    pinMessage: builder.mutation<PinChatRes, object>({
       query: (data: {chat_room_id: number, chat_id: number}) => ({
         url: `chat/pin`,
         method: "POST",
@@ -146,8 +150,10 @@ export const chatApi = createApi({
         if (navigator.onLine) {
           try {
             const { data } = await queryFulfilled;
+            console.log('pin message reponse: ', data.data)
+            await addPinnedMessageData(data.data).then()
           } catch (err) {
-            console.error("Failed to store messages in IndexedDB:", err);
+            console.error("Failed to update pinned message in IndexedDB:", err);
           }
         } else return;
       },

@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { chatApi } from "../../apis/chatApi";
 import { Chat, LatestMessage } from "../../Types/chats";
-import { ChatMessage, ChatReaction, ConversationsType } from "../../Types/conversationsType";
+import { ChatMessage, ChatReaction, ConversationsType, PinnedChat } from "../../Types/conversationsType";
 
 // Update the ChatMessage interface to align with API response
 export interface ChatMessagePayload {
@@ -71,7 +71,24 @@ const chatsSlice = createSlice({
       // Prepending older messages to the chatsList array
       state.conversations[0].messages.chatsList.unshift(...olderMessages);
     },
-
+    setPinMessage: (state, action: PayloadAction<PinnedChat>) => {
+      const newPinnedMessageData = action.payload;
+    
+      if (newPinnedMessageData) {
+        // Find the conversation by chatRoomId
+        const conversation = state.conversations.find(
+          conv => conv.id === newPinnedMessageData.chat_room_id
+        );
+    
+        if (conversation) {
+          // Update the pinned message in the conversation
+          conversation.pinnedChat = [newPinnedMessageData];
+        } else {
+          console.error(`Conversation with chatRoomId ${newPinnedMessageData.chat_room_id} not found.`);
+        }
+      }
+    },
+    
     // Chats list updates
     setChats: (state, action: PayloadAction<Chat[]>) => {
       state.chats = action.payload;
@@ -130,5 +147,5 @@ const chatsSlice = createSlice({
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setOlderMessages, setChats, setNewChat, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setOlderMessages, setChats, setNewChat, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions, setPinMessage } = chatsSlice.actions;
 export default chatsSlice.reducer;

@@ -57,7 +57,7 @@ export interface Messages {
     chatsList: ChatMessage[];
 }
 
-interface ChatData {
+export interface ChatData {
     id: number;
     updatedAt: string;
     createdAt: string;
@@ -72,7 +72,7 @@ interface ChatData {
     is_deleted: boolean;
 }
 
-interface PinnedChat {
+export interface PinnedChat {
     id: number;
     updatedAt: string;
     createdAt: string;
@@ -97,6 +97,7 @@ export interface ConversationsType {
     is_deleted: boolean;
     messages: Messages;
     pinnedChat: PinnedChat[];
+    unreadMsgs: {chat_id: number}[]
 }
 
 export interface ConversationsTypeResponse{

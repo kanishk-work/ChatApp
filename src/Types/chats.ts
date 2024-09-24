@@ -47,6 +47,7 @@ export interface Chat {
   profile_pic: string | null;
   lastMessage: LatestMessage;
   unreadCount: number;
+  unreadMsgs: {chat_id: number}[]
 }
 
 export interface ChatResponse {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { RootState } from "../../Redux/store";
-import { v4 as uuidv4 } from 'uuid'; // To generate a temporary ID
+import { v4 as uuidv4 } from 'uuid';
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
 import { useAppSelector, useAppDispatch } from "../../Redux/hooks";
@@ -22,10 +22,13 @@ import {
   setLatestMessageChat,
   setNewMessage,
   setOlderMessages,
+  setPinMessage,
 } from "../../Redux/slices/chatsSlice";
 import { addDateTags } from "../../Utils/formatDatetag";
 import { useToast } from "../Shared/Toast/ToastProvider";
 import Loader from "../Shared/Loader";
+import { TiPin } from "react-icons/ti";
+import { FaPaperclip } from "react-icons/fa";
 
 const ChatWindow: React.FC = () => {
   const [activeChat, setActiveChat] = useState<Chat>();
@@ -41,7 +44,7 @@ const ChatWindow: React.FC = () => {
   const activeUserId = useAppSelector(
     (state: RootState) => state.activeUser.id
   );
-  const messages = useAppSelector(
+  const conversation = useAppSelector(
     (state: RootState) => state.chats.conversations
   );
   const socket_room: string = activeChat
@@ -66,7 +69,7 @@ const ChatWindow: React.FC = () => {
         /* behavior: "smooth" */
       });
     }
-  }, [messages]);
+  }, [conversation]);
 
   const handleSend = async (textMessage: string, files: File[]) => {
     setReplyMessage(null); // Reset reply message after sending
@@ -134,7 +137,7 @@ const ChatWindow: React.FC = () => {
           },
         };
       }
-      
+
       // Optimistic Message before message sent (Waiting status)
       const optimisticMessage = {
         id: tempMessageId, // Temporary ID
@@ -142,15 +145,15 @@ const ChatWindow: React.FC = () => {
         createdAt: new Date().toISOString(),
         deletedAt: null,
         chatFiles: fileUrls.length ? fileUrls.map((fileUrl: any) => ({
-          id: Number('0x' + uuidv4().replace(/-/g, '')), 
-          chat_id: tempMessageId, 
-          chat_reply_id: null, 
-          user_id: activeUserId, 
-          file_url: fileUrl, 
-          createdAt: new Date().toISOString(), 
-          updatedAt: new Date().toISOString(), 
-          deletedAt: null, 
-          is_deleted: false 
+          id: Number('0x' + uuidv4().replace(/-/g, '')),
+          chat_id: tempMessageId,
+          chat_reply_id: null,
+          user_id: activeUserId,
+          file_url: fileUrl,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          deletedAt: null,
+          is_deleted: false
         })) : [],
         chatReactions: [],
         chatStatus: [{
@@ -239,9 +242,9 @@ const ChatWindow: React.FC = () => {
     };
     const getMessages = async () => {
       if (activeChatId !== null) {
-        const messages = await getMessagesByChatIdData(activeChatId);
-        if (messages && messages.length > 0) {
-          dispatch(setConversations(messages));
+        const conversation = await getMessagesByChatIdData(activeChatId);
+        if (conversation && conversation.length > 0) {
+          dispatch(setConversations(conversation));
         }
         else {
           dispatch(setConversations([]));
@@ -279,32 +282,38 @@ const ChatWindow: React.FC = () => {
   const handleScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
     const element = e.currentTarget;
     if (element.scrollTop === 0 && !oldMessagesLoading) {
-      fetchOlderMessages(activeChatId, messages[0]?.messages?.chatsList[0]?.id);
+      fetchOlderMessages(activeChatId, conversation[0]?.messages?.chatsList[0]?.id);
     }
   };
 
-  const handlePinMessage = async (pinMessageData: {chat_room_id: number, chat_id: number}) => {
+  const handlePinMessage = async (pinMessageData: { chat_room_id: number, chat_id: number }) => {
     // showToast("Pinned message");
     try {
-      const response = await pinMessage(pinMessageData);
-      console.log('pin response: ', response)
-      if (response) {
+      const { data: res, error } = await pinMessage(pinMessageData);
+      console.log('pin response: ', res)
+      if (res) {
+        dispatch(setPinMessage(res.data))
         showToast("Pinned message");
-        // const updatedMessages = messages[0].messages.chatsList.map((msg) =>
-        //   msg.id === pinMessageData.chat_id? {...msg, is_pinned: true } : msg
-        // );
-        // dispatch(setConversations({...messages[0], messages: { chatsList: updatedMessages } }));
-      } else {
+      } else if(error) {
+        console.log("Failed to pin", error)
         showToast("Failed to pin message");
+      } else {
+        console.log("Error updating pin message");
+        showToast("Error updating pin message");
       }
-    } catch (error) {
-      console.error("Error pinning message:", error);
+    } catch (err) {
+      console.error("Error pinning message:", err);
       showToast("Failed to pin message");
     }
   }
-  const allMessages = messages[0]?.messages?.chatsList || [];
+  const allMessages = conversation[0]?.messages?.chatsList || [];
   const taggedMessages = allMessages && addDateTags(allMessages);
-
+  const pinnedMessage = conversation[0]?.pinnedChat[0]?.chat_data?.chatFiles.length ? <FaPaperclip/> + "File" : conversation[0]?.pinnedChat[0]?.chat_data?.message;
+  const pinMessageSenderName = conversation[0]?.pinnedChat[0]?.chat_data.sender_id === activeUserId ? "You"
+    :
+    activeChat?.chatUsers.find(
+      (user) => user.user.id === conversation[0]?.pinnedChat[0]?.chat_data.sender_id
+    )?.user.full_name;
   return (
     <div className="flex flex-col h-full">
       <StatusBar
@@ -314,15 +323,22 @@ const ChatWindow: React.FC = () => {
           activityStatus: { color: "#27AE60" },
         }}
       />
+      {pinMessageSenderName && pinnedMessage &&
+        <div className="flex gap-2 items-center sticky py-2 px-4 break-words dynamic-accent-color dynamic-text-color-secondary">
+          <span><TiPin /></span>
+          <span className="line-clamp-1">{pinMessageSenderName + ": "} {pinnedMessage}</span>
+        </div>
+      }
+
+      {oldMessagesLoading && (
+        <div className="dynamic-notif flex items-center justify-center gap-3 rounded-lg">
+          <span>loading older messages</span> <Loader />{" "}
+        </div>
+      )}
       <div
         className="flex-1 overflow-auto p-4 scrollbar-custom"
         onScroll={handleScroll}
       >
-        {oldMessagesLoading && (
-          <div className="dynamic-notif flex items-center justify-center gap-3 rounded-lg">
-            <span>loading older messages</span> <Loader />{" "}
-          </div>
-        )}
         {taggedMessages?.map((item, index) => {
           if (item.type === "date") {
             return (

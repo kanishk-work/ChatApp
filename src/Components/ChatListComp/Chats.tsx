@@ -34,23 +34,29 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
 
   const [messageReadUpdate] = useMessageReadUpdateMutation();
 
-  const handleChatClick = async (chatId: number, chatSocket: string | undefined, lastMessageId: number) => {
+  const handleChatClick = async (chatId: number, chatSocket: string | undefined, unreadCount: number, unreadMsgsIdList: { chat_id: number }[] ) => {
     if (activeChatId !== chatId) {
-      try {
-        dispatch(setActiveChatId(chatId));
-        dispatch(setChatWindow(true));
-        if(lastMessageId){
-          dispatch(setUnreadCountChat({ chatRoomId: chatId, actionType: 'reset' }));
-          await updateUnreadMessageCountData(chatId, 'reset');
-          await messageReadUpdate({ chat_room_id: chatId });
-          messagesRead({frq: chatSocket, chatRoomId: chatId, lastChatId: lastMessageId})
+      dispatch(setActiveChatId(chatId));
+      dispatch(setChatWindow(true));
+
+      if (unreadCount) {
+        dispatch(setUnreadCountChat({ chatRoomId: chatId, actionType: 'reset' }));
+
+        try {
+          await Promise.all([
+            updateUnreadMessageCountData(chatId, 'reset'),  // IndexedDB call
+            messageReadUpdate({ chat_room_id: chatId })     // API call
+          ]);
+
+          // Trigger the messages read function after both operations are complete
+          messagesRead({ frq: chatSocket, chatRoomId: chatId, userId: activeUserId, chatIdList: unreadMsgsIdList });
+        } catch (error) {
+          console.error("Error updating unread count on server:", error);
         }
-      }
-      catch{
-        console.error("Error updating unread count on server");
       }
     }
   };
+
   console.log(chats)
   const typingUsers = useAppSelector((state: RootState) => state.chats.typing);
 
@@ -67,7 +73,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
           : chat.chatUsers.find((chatUser) => chatUser.user.id !== activeUserId)
             ?.user.profile_pic || placeholderImage;
 
-        const typingUser = typingUsers[chat.chatSocket[0].socket_room];
+        const typingUser = typingUsers[chat.chatSocket[0]?.socket_room];
 
         const allRead = chat.lastMessage?.chatStatus.every((status) => status.read);
         const anyDelivered = chat.lastMessage?.chatStatus.some((status) => status.delivered);
@@ -76,7 +82,7 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
           <div
             key={chat.id}
             className={`${chat.id === activeChatId && 'dynamic-accent-color'} flex items-center justify-center text-[var(--text-primary-light)] dark:text-[var(--text-primary)] w-full mb-2 p-1.5 hover:shadow-[0px_0px_20px_14px_#00000024] rounded-lg cursor-pointer ${className}`}
-            onClick={() => handleChatClick(chat.id, chat.chatSocket[0].socket_room, chat.lastMessage?.id)}
+            onClick={() => handleChatClick(chat.id, chat.chatSocket[0].socket_room, chat.unreadCount, chat.unreadMsgs)}
           >
             <img
               src={chatProfilePic}
