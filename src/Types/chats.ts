@@ -33,6 +33,9 @@ export interface ChatSocket {
   socket_room: string;
   chat_room_id: number;
 }
+
+export interface UnreadMsgs extends Array<{ chat_id: number }> {}
+
 export interface Chat {
   id: number;
   updatedAt: string;
@@ -47,7 +50,7 @@ export interface Chat {
   profile_pic: string | null;
   lastMessage: LatestMessage;
   unreadCount: number;
-  unreadMsgs: {chat_id: number}[]
+  unreadMsgs: UnreadMsgs;
 }
 
 export interface ChatResponse {

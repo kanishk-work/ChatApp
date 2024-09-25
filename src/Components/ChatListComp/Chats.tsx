@@ -1,15 +1,15 @@
 import { FC } from "react";
 import { Styles, applyStyles } from "../../Utils/styleUtils";
 import { RootState } from "../../Redux/store";
-import { setActiveChatId, setUnreadCountChat } from "../../Redux/slices/chatsSlice";
+import { setActiveChatId, setUnreadMessagesDataChat } from "../../Redux/slices/chatsSlice";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 
 
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
-import { Chat } from "../../Types/chats";
+import { Chat, UnreadMsgs } from "../../Types/chats";
 import { formatTime } from "../../Utils/formatTimeStamp";
-import { updateUnreadMessageCountData } from "../../DB/database";
+import { updateUnreadMessagesData } from "../../DB/database";
 import { BiCheck, BiCheckDouble, BiTime } from "react-icons/bi";
 import { useMessageReadUpdateMutation } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
@@ -34,18 +34,18 @@ const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
 
   const [messageReadUpdate] = useMessageReadUpdateMutation();
 
-  const handleChatClick = async (chatId: number, chatSocket: string | undefined, unreadCount: number, unreadMsgsIdList: { chat_id: number }[] ) => {
+  const handleChatClick = async (chatId: number, chatSocket: string | undefined, unreadCount: number, unreadMsgsIdList: UnreadMsgs ) => {
     if (activeChatId !== chatId) {
       dispatch(setActiveChatId(chatId));
       dispatch(setChatWindow(true));
 
       if (unreadCount) {
-        dispatch(setUnreadCountChat({ chatRoomId: chatId, actionType: 'reset' }));
+        dispatch(setUnreadMessagesDataChat({ chatRoomId: chatId, actionType: 'reset' }));
 
         try {
           await Promise.all([
-            updateUnreadMessageCountData(chatId, 'reset'),  // IndexedDB call
-            messageReadUpdate({ chat_room_id: chatId })     // API call
+            updateUnreadMessagesData({chatRoomId: chatId, actionType: 'reset'}),  // IndexedDB call
+            messageReadUpdate({ chat_room_id: chatId, chat_id_list: unreadMsgsIdList }) // API call
           ]);
 
           // Trigger the messages read function after both operations are complete

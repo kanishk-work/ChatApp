@@ -1,5 +1,5 @@
-import { db } from '../database'; 
-import { Chat, LatestMessage } from '../../Types/chats';
+import { db } from '../database';
+import { Chat, LatestMessage, UnreadMsgs } from '../../Types/chats';
 
 export async function storeChats(chats: Chat[]): Promise<void> {
     await Promise.all(chats.map(async chat => {
@@ -11,7 +11,7 @@ export async function storeChats(chats: Chat[]): Promise<void> {
 }
 
 export async function getChat(id: number | null): Promise<Chat | undefined> {
-    return id? await db.chats.get(id) : undefined
+    return id ? await db.chats.get(id) : undefined
 }
 
 export async function getAllChats(): Promise<Chat[]> {
@@ -26,10 +26,10 @@ export async function deleteGroupMember(chat_room_id: number | null, user_id: nu
     // delete member from chat if the chat is group
     console.log("delete group member Working")
     try {
-        const chat = chat_room_id ? await db.chats.get(chat_room_id): undefined;
+        const chat = chat_room_id ? await db.chats.get(chat_room_id) : undefined;
 
         if (chat) {
-            const updatedChatUsers = chat.chatUsers.filter(user => user.user_id!== user_id);
+            const updatedChatUsers = chat.chatUsers.filter(user => user.user_id !== user_id);
             chat.chatUsers = updatedChatUsers;
 
             await db.chats.put(chat);
@@ -61,26 +61,39 @@ export async function updateLatestMessage(chatRoomId: number, newMessage: Latest
     }
 }
 
-export async function updateUnreadMessageCount(chatRoomId: number, actionType: 'increment' | 'reset') {
-    console.log("update unread message count Working");
+export async function updateLatestMessageReadStatus(data: { chatRoomId: number, userId: number, chatIdList: UnreadMsgs }) {
+    console.log("update latest message read status Working");
+    const { chatRoomId, userId, chatIdList } = data;
     try {
-        // Retrieve the chat by its ID
-        const chat = await db.chats.get(chatRoomId);
-
-        if (chat) {
-            // Update the unreadCount based on the actionType
-            if (actionType === 'increment') {
-                chat.unreadCount += 1;
-            } else if (actionType === 'reset') {
-                chat.unreadCount = 0;
+        await db.chats.where('id').equals(chatRoomId).modify(chat => {
+            const lastMessage = chat.lastMessage;
+            if (chatIdList.some(msg => msg.chat_id === lastMessage.id)) {
+                const status = lastMessage.chatStatus.find(status => status.user_id === userId);
+                if (status) {
+                    status.read = true;
+                }
             }
-
-            // Save the updated chat back to IndexedDB
-            await db.chats.put(chat);
-        } else {
-            console.error('Chat not found');
-        }
+        });
     } catch (error) {
         console.error('Failed to update unread message count:', error);
     }
 }
+
+export async function updateUnreadMessages(data: { chatRoomId: number, actionType: 'increment' | 'reset', newMessageId?: number }) {
+    console.log("update unread message count Working");
+    const { chatRoomId, actionType, newMessageId } = data;
+    try {
+        await db.chats.where('id').equals(chatRoomId).modify(chat => {
+            if (actionType === 'increment' && newMessageId) {
+                chat.unreadCount = (chat.unreadCount || 0) + 1;
+                chat.unreadMsgs.push({ chat_id: newMessageId });
+            } else if (actionType === 'reset') {
+                chat.unreadCount = 0;
+                chat.unreadMsgs = [];
+            }
+        });
+    } catch (error) {
+        console.error('Failed to update unread message count:', error);
+    }
+}
+

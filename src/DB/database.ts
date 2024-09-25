@@ -4,8 +4,9 @@ import {
   getAllChats,
   deleteChat,
   updateLatestMessage,
-  updateUnreadMessageCount,
+  updateUnreadMessages,
   deleteGroupMember,
+  updateLatestMessageReadStatus,
 } from "./stores/chatsStore";
 
 import {
@@ -17,9 +18,10 @@ import {
   updateMessages,
   addReactionToMessage,
   addPinnedMessage,
+  updateReadStatus,
 } from "./stores/messagesStore";
 
-import { Chat, LatestMessage } from "../Types/chats";
+import { Chat, LatestMessage, UnreadMsgs } from "../Types/chats";
 import { ChatMessage, ChatReaction, ConversationsType, PinnedChat } from "../Types/conversationsType";
 import Dexie from "dexie";
 
@@ -86,10 +88,13 @@ export async function updateLatestMessageData(chatRoomId: number, newMessage: La
   return await updateLatestMessage(chatRoomId, newMessage)
 }
 
-export async function updateUnreadMessageCountData(chatRoomId: number, actionType: 'increment' | 'reset'){
-  return await updateUnreadMessageCount(chatRoomId, actionType)
+export async function updateUnreadMessagesData(data: {chatRoomId: number, actionType: 'increment' | 'reset', newMessageId?: number}){
+  return await updateUnreadMessages(data)
 }
 
+export async function updateReadStatusData(data: {chatRoomId: number, userId: number, chatIdList: UnreadMsgs}) {
+  return await updateReadStatus(data);
+}
 export async function deleteGroupMemberData(chat_room_id: number | null, user_id: number | null){
   return await deleteGroupMember(chat_room_id, user_id)
 }
@@ -117,6 +122,10 @@ export async function addPinnedMessageData(
   pinnedMessageData: PinnedChat
 ): Promise<void> {
   return await addPinnedMessage(pinnedMessageData);
+}
+
+export async function updateLatestMessageReadStatusData(data: { chatRoomId: number, userId: number, chatIdList: UnreadMsgs }) {
+  return await updateLatestMessageReadStatus(data);
 }
 
 export async function getChatMessageData(

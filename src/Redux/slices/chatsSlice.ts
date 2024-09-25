@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { chatApi } from "../../apis/chatApi";
-import { Chat, LatestMessage } from "../../Types/chats";
+import { Chat, LatestMessage, UnreadMsgs } from "../../Types/chats";
 import { ChatMessage, ChatReaction, ConversationsType, PinnedChat } from "../../Types/conversationsType";
 
 // Update the ChatMessage interface to align with API response
@@ -36,6 +36,7 @@ const initialState: ChatsState = {
 interface SetUnreadCountPayload {
   chatRoomId: number;
   actionType: 'increment' | 'reset';
+  newMessageId?: number;
 }
 
 const chatsSlice = createSlice({
@@ -51,14 +52,14 @@ const chatsSlice = createSlice({
     setConversations: (state, action: PayloadAction<ConversationsType[]>) => {
       state.conversations = action.payload;
     },
-    setNewMessage: (state, action: PayloadAction<{newMessage?: ChatMessage, tempMessageId?: Number}>) => {
-      const {newMessage, tempMessageId} = action.payload;
+    setNewMessage: (state, action: PayloadAction<{ newMessage?: ChatMessage, tempMessageId?: Number }>) => {
+      const { newMessage, tempMessageId } = action.payload;
       console.log("new message in redux: ", newMessage)
 
-      if(tempMessageId){
+      if (tempMessageId) {
         const messageToDelete = state.conversations[0].messages.chatsList.find((message) => message.id === tempMessageId);
-        if(messageToDelete){
-          state.conversations[0].messages.chatsList = state.conversations[0].messages.chatsList.filter((message) => message.id!== tempMessageId);
+        if (messageToDelete) {
+          state.conversations[0].messages.chatsList = state.conversations[0].messages.chatsList.filter((message) => message.id !== tempMessageId);
         }
       }
 
@@ -73,13 +74,13 @@ const chatsSlice = createSlice({
     },
     setPinMessage: (state, action: PayloadAction<PinnedChat>) => {
       const newPinnedMessageData = action.payload;
-    
+
       if (newPinnedMessageData) {
         // Find the conversation by chatRoomId
         const conversation = state.conversations.find(
           conv => conv.id === newPinnedMessageData.chat_room_id
         );
-    
+
         if (conversation) {
           // Update the pinned message in the conversation
           conversation.pinnedChat = [newPinnedMessageData];
@@ -88,7 +89,25 @@ const chatsSlice = createSlice({
         }
       }
     },
-    
+    setReadStatusDataChat: (state, action: PayloadAction<{ chatRoomId: number, userId: number, chatIdList: UnreadMsgs }>) => {
+      const { chatRoomId, userId, chatIdList } = action.payload;
+      console.log("read status update data in redux: ", action.payload);
+
+      const convToUpdate = state.conversations.find((conv) => conv.id === chatRoomId);
+
+      if (convToUpdate) {
+        chatIdList.forEach(chatMsgId => {
+          const message = convToUpdate.messages.chatsList.find(m => m.id === chatMsgId.chat_id);
+          if (message) {
+            const status = message.chatStatus.find(status => status.user_id === userId);
+            if (status) {
+              status.read = true;
+            }
+          }
+        });
+      }
+    },
+
     // Chats list updates
     setChats: (state, action: PayloadAction<Chat[]>) => {
       state.chats = action.payload;
@@ -111,17 +130,19 @@ const chatsSlice = createSlice({
       }
     },
 
-    setUnreadCountChat: (state, action: PayloadAction<SetUnreadCountPayload>) => {
-      const { chatRoomId, actionType } = action.payload;
+    setUnreadMessagesDataChat: (state, action: PayloadAction<SetUnreadCountPayload>) => {
+      const { chatRoomId, actionType, newMessageId } = action.payload;
       console.log("unread message update chat ID in redux: ", chatRoomId, "Action Type:", actionType);
 
       const chatToUpdate = state.chats.find((chat) => chat.id === chatRoomId);
 
       if (chatToUpdate) {
-        if (actionType === 'increment') {
+        if (actionType === 'increment' && newMessageId) {
           chatToUpdate.unreadCount += 1;
+          chatToUpdate.unreadMsgs.push({ chat_id: newMessageId })
         } else if (actionType === 'reset') {
           chatToUpdate.unreadCount = 0;
+          chatToUpdate.unreadMsgs = [];
         }
       }
     },
@@ -135,7 +156,7 @@ const chatsSlice = createSlice({
       const { messageId, updatedReactions } = action.payload;
 
       const message = state.conversations[0].messages.chatsList.find(msg => msg.id === messageId);
-      
+
       if (message) {
         message.chatReactions = updatedReactions;
 
@@ -143,9 +164,26 @@ const chatsSlice = createSlice({
       } else {
         console.error('Message not found in the conversation');
       }
-    }
+    },
+
+    setLatestMessageReadStatus: (state, action: PayloadAction<{ chatRoomId: number, userId: number, chatIdList: UnreadMsgs }>) => {
+      const { chatRoomId, userId, chatIdList } = action.payload;
+      console.log("latest read status update data in redux: ", action.payload);
+
+      const chatToUpdate = state.chats.find((chat) => chat.id === chatRoomId);
+
+      if (chatToUpdate) {
+        const lastMessage = chatToUpdate.lastMessage;
+        if (chatIdList.some(msg => msg.chat_id === lastMessage.id)) {
+          const status = lastMessage.chatStatus.find(status => status.user_id === userId);
+          if (status) {
+            status.read = true;
+          }
+        }
+      }
+    },
   },
 });
 
-export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setOlderMessages, setChats, setNewChat, setLatestMessageChat, setUnreadCountChat, setTypingStatus, setUpdatedReactions, setPinMessage } = chatsSlice.actions;
+export const { setActiveChatId, setNotifications, setConversations, setNewMessage, setOlderMessages, setChats, setNewChat, setLatestMessageChat, setUnreadMessagesDataChat, setTypingStatus, setUpdatedReactions, setPinMessage, setReadStatusDataChat, setLatestMessageReadStatus } = chatsSlice.actions;
 export default chatsSlice.reducer;

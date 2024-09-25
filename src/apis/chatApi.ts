@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { MessagePayload, ReplyPayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
-import { ChatResponse } from "../Types/chats";
+import { ChatResponse, UnreadMsgs } from "../Types/chats";
 import { addPinnedMessageData, storeChatData, storeChatMessagesData } from "../DB/database";
 import { ConversationsTypeResponse, PinnedChat } from "../Types/conversationsType";
 import {
@@ -151,7 +151,7 @@ export const chatApi = createApi({
           try {
             const { data } = await queryFulfilled;
             console.log('pin message reponse: ', data.data)
-            await addPinnedMessageData(data.data).then()
+            await addPinnedMessageData(data.data)
           } catch (err) {
             console.error("Failed to update pinned message in IndexedDB:", err);
           }
@@ -222,8 +222,8 @@ export const chatApi = createApi({
       },
     }),
 
-    messageReadUpdate: builder.mutation<any, object>({
-      query: (data: {chat_room_id: number}) => ({
+    messageReadUpdate: builder.mutation<any, {chat_room_id: number, chat_id_list: UnreadMsgs}>({
+      query: (data) => ({
         url: `chat/messages/read`,
         method: "PATCH",
         body: data
