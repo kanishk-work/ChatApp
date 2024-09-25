@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { RootState } from "../../Redux/store";
-import { v4 as uuidv4 } from 'uuid'; // To generate a temporary ID
+import { v4 as uuidv4 } from "uuid";
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
 import { useAppSelector, useAppDispatch } from "../../Redux/hooks";
@@ -13,7 +13,12 @@ import {
   useUploadFileMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
-import { getChatData, getMessagesByChatIdData, updateLatestMessageData, updateMessagesData, } from "../../DB/database";
+import {
+  getChatData,
+  getMessagesByChatIdData,
+  updateLatestMessageData,
+  updateMessagesData,
+} from "../../DB/database";
 import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
 import { Chat } from "../../Types/chats";
 import {
@@ -25,6 +30,7 @@ import {
 import { addDateTags } from "../../Utils/formatDatetag";
 import { useToast } from "../Shared/Toast/ToastProvider";
 import Loader from "../Shared/Loader";
+import { shallowEqual } from "react-redux";
 
 const ChatWindow: React.FC = () => {
   const [messagesOld, setMessages] = useState<ConversationsType[]>([]);
@@ -36,19 +42,23 @@ const ChatWindow: React.FC = () => {
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChatId
+    (state: RootState) => state.chats.activeChatId,
+    shallowEqual
   );
   const activeUserId = useAppSelector(
-    (state: RootState) => state.activeUser.id
+    (state: RootState) => state.activeUser.id,
+    shallowEqual
   );
   const messages = useAppSelector(
-    (state: RootState) => state.chats.conversations
+    (state: RootState) => state.chats.conversations,
+    shallowEqual
   );
   const socket_room: string = activeChat
     ? activeChat?.chatSocket[0].socket_room
     : "";
   const typingUser = useAppSelector(
-    (state: RootState) => state.chats.typing[socket_room]
+    (state: RootState) => state.chats.typing[socket_room],
+    shallowEqual
   );
 
   const [sendMessageApi] = useSendMessageMutation();
@@ -75,9 +85,9 @@ const ChatWindow: React.FC = () => {
       let messageReply;
       let socketPayload;
       let fileUrls = [];
-      const tempMessageId = Number('0x' + uuidv4().replace(/-/g, ''));
-      const tempStatusId = Number('0x' + uuidv4().replace(/-/g, ''));
-      const tempFileId = Number('0x' + uuidv4().replace(/-/g, ''));
+      const tempMessageId = Number("0x" + uuidv4().replace(/-/g, ""));
+      const tempStatusId = Number("0x" + uuidv4().replace(/-/g, ""));
+      const tempFileId = Number("0x" + uuidv4().replace(/-/g, ""));
 
       if (files && files.length > 0) {
         const formData = new FormData();
@@ -134,42 +144,46 @@ const ChatWindow: React.FC = () => {
           },
         };
       }
-      
+
       // Optimistic Message before message sent (Waiting status)
       const optimisticMessage = {
         id: tempMessageId, // Temporary ID
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         deletedAt: null,
-        chatFiles: fileUrls.length ? fileUrls.map((fileUrl: any) => ({
-          id: Number('0x' + uuidv4().replace(/-/g, '')), 
-          chat_id: tempMessageId, 
-          chat_reply_id: null, 
-          user_id: activeUserId, 
-          file_url: fileUrl, 
-          createdAt: new Date().toISOString(), 
-          updatedAt: new Date().toISOString(), 
-          deletedAt: null, 
-          is_deleted: false 
-        })) : [],
+        chatFiles: fileUrls.length
+          ? fileUrls.map((fileUrl: any) => ({
+              id: Number("0x" + uuidv4().replace(/-/g, "")),
+              chat_id: tempMessageId,
+              chat_reply_id: null,
+              user_id: activeUserId,
+              file_url: fileUrl,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              deletedAt: null,
+              is_deleted: false,
+            }))
+          : [],
         chatReactions: [],
-        chatStatus: [{
-          id: tempStatusId,
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-          deletedAt: null,
-          user_id: activeUserId,
-          chat_id: activeChatId,
-          parent_chat_id: null,
-          delivered: false,
-          read: false,
-        }],
+        chatStatus: [
+          {
+            id: tempStatusId,
+            updatedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            deletedAt: null,
+            user_id: activeUserId,
+            chat_id: activeChatId,
+            parent_chat_id: null,
+            delivered: false,
+            read: false,
+          },
+        ],
         sender_id: activeUserId,
-        receiver_id: newMessage?.receiver_id || null,
+        receiver_id: newMessage?.receiver_id ?? null,
         message: textMessage,
         chat_room_id: activeChatId,
         is_reply: replyMessage ? true : false,
-        parent_chat_id: replyMessage?.id || null,
+        parent_chat_id: replyMessage?.id ?? null,
         is_deleted: false,
       };
 
@@ -177,7 +191,7 @@ const ChatWindow: React.FC = () => {
       dispatch(setNewMessage({ newMessage: optimisticMessage }));
       await updateMessagesData(activeChatId, optimisticMessage);
       await updateLatestMessageData(activeChatId, optimisticMessage);
-      dispatch(setLatestMessageChat(optimisticMessage))
+      dispatch(setLatestMessageChat(optimisticMessage));
 
       try {
         const resp = replyMessage
@@ -185,14 +199,22 @@ const ChatWindow: React.FC = () => {
           : await sendMessageApi(newMessage).unwrap();
         sendMessage({ ...socketPayload, resp: resp.data });
 
-        await updateMessagesData(resp.data.chat_room_id, resp.data, tempMessageId);
+        await updateMessagesData(
+          resp.data.chat_room_id,
+          resp.data,
+          tempMessageId
+        );
         await updateLatestMessageData(resp.data.chat_room_id, resp.data);
-        dispatch(setLatestMessageChat(resp.data))
+        dispatch(setLatestMessageChat(resp.data));
 
         if (resp.data.chat_room_id === activeChatId) {
-          dispatch(setNewMessage({ newMessage: resp.data, tempMessageId: tempMessageId }));
+          dispatch(
+            setNewMessage({
+              newMessage: resp.data,
+              tempMessageId: tempMessageId,
+            })
+          );
         }
-
       } catch (error) {
         console.error("Failed to send message:", error);
         // Optionally handle the failure case (e.g., remove the optimistic message from Redux)
@@ -200,7 +222,6 @@ const ChatWindow: React.FC = () => {
       }
     }
   };
-
 
   const handleReact = async (reaction: {
     messageId: number;
@@ -260,7 +281,6 @@ const ChatWindow: React.FC = () => {
         chatRoomId,
         lastMessageId,
       });
-      console.log(newMessages.data.list);
 
       if (newMessages.data.list.length > 0) {
         dispatch(setOlderMessages(newMessages.data.list));
@@ -277,7 +297,7 @@ const ChatWindow: React.FC = () => {
   const handleScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
     const element = e.currentTarget;
     if (element.scrollTop === 0 && !oldMessagesLoading) {
-      fetchOlderMessages(activeChatId, messages[0]?.messages?.chatsList[0].id);
+      fetchOlderMessages(activeChatId, messages[0]?.messages?.chatsList[0]?.id);
     }
   };
 
@@ -302,7 +322,7 @@ const ChatWindow: React.FC = () => {
             <span>loading older messages</span> <Loader />{" "}
           </div>
         )}
-        {taggedMessages?.map((item, index) => {
+        {taggedMessages?.map((item: any, index: number) => {
           if (item.type === "date") {
             return (
               <div
@@ -328,8 +348,8 @@ const ChatWindow: React.FC = () => {
                 senderName={
                   activeChat?.is_group
                     ? activeChat.chatUsers.find(
-                      (user) => user.user.id === message.sender_id
-                    )?.user.full_name
+                        (user) => user.user.id === message.sender_id
+                      )?.user.full_name
                     : undefined
                 }
                 chatUsers={activeChat?.chatUsers}
@@ -341,9 +361,7 @@ const ChatWindow: React.FC = () => {
         })}
         <div ref={messagesEndRef} />
       </div>
-
       {typingUser && <div>{typingUser} is typing...</div>}
-
       <MessageComposer
         onSend={handleSend}
         replyMessage={replyMessage}

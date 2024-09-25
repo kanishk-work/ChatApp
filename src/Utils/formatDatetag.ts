@@ -28,9 +28,9 @@ export const formatDateTag = (date: string): string => {
   } else if (isSameDay(messageDate, new Date(now.setDate(now.getDate() - 1)))) {
     return "Yesterday";
   } else if (isSameWeek(messageDate, new Date())) {
-    return formatDate(date, "en-US", { weekday: "long" }); // Day of the week
+    return formatDate(date, "en-US", { weekday: "long" });
   } else if (isSameYear(messageDate, now)) {
-    return formatDate(date, "en-US", { month: "long", day: "numeric" }); // Month and Day
+    return formatDate(date, "en-US", { month: "long", day: "numeric" });
   } else {
     return formatDate(date, "en-US", {
       year: "numeric",

@@ -12,7 +12,7 @@ import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
-  // const { joinRoom } = useSocket();
+  const { joinRoom } = useSocket();
   const activeUser = useAppSelector(
     (state: RootState) => state.activeUser,
     shallowEqual
@@ -31,7 +31,6 @@ const App: React.FC = () => {
     (state: RootState) => state.chats.chats,
     shallowEqual
   );
-  const { joinRoom } = useSocket();
 
   const activeUserRoom = `${activeUser?.client?.email.split("@")[0]}_${
     activeUser?.email.split("@")[0]
@@ -88,7 +87,6 @@ const App: React.FC = () => {
     if (!activeUser || !activeUser.id) {
       /* Authenticate the user
        client will have to use authenticateUser function and pass login credentials to login*/
-      console.log(userCredentials);
       authenticateUser(userCredentials)
         .then(() => {
           console.log("User authenticated successfully.");

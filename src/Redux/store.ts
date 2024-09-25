@@ -12,13 +12,12 @@ import {
   persistedActiveUserReducer,
   persistedChatsReducer,
   persistedProfileReducer,
-  persistedSearchReducer,
   persistedSettingsReducer,
   persistedChatWindowReducer,
   persistedThemeReducer,
   persistedChatInfoReducer,
 } from "./persistConfig";
-import { authApi } from "../apis/authApi"; // Adjust the path as needed
+import { authApi } from "../apis/authApi";
 import { chatApi } from "../apis/chatApi";
 import loadingSliceReducer from "./slices/loadingSlice";
 
@@ -27,14 +26,13 @@ const store = configureStore({
     theme: persistedThemeReducer,
     activeUser: persistedActiveUserReducer,
     profile: persistedProfileReducer,
-    search: persistedSearchReducer,
     chats: persistedChatsReducer,
     settings: persistedSettingsReducer,
     chatWindow: persistedChatWindowReducer,
     [authApi.reducerPath]: authApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
     chatInfo: persistedChatInfoReducer,
-    loading: loadingSliceReducer
+    loading: loadingSliceReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

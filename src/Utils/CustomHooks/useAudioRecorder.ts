@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Mp3Encoder } from '@breezystack/lamejs';
+import { useState, useRef } from "react";
+import { Mp3Encoder } from "@breezystack/lamejs";
 
 interface UseAudioRecorder {
   isRecording: boolean;
@@ -11,7 +11,7 @@ interface UseAudioRecorder {
   stopRecording: () => void;
   deleteRecording: () => void;
   getAudioFile: () => Promise<File | null>;
-  formatTime: (timeInSeconds: number) => string
+  formatTime: (timeInSeconds: number) => string;
   audioUrl: string | null;
   elapsedTime: number;
 }
@@ -20,7 +20,9 @@ const useAudioRecorder = (): UseAudioRecorder => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null
+  );
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -44,31 +46,29 @@ const useAudioRecorder = (): UseAudioRecorder => {
   // }, []);
 
   const startRecording = async () => {
-    
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        setHasPermission(true);
-        const recorder = new MediaRecorder(stream);
-        setMediaRecorder(recorder);
-        setAudioStream(stream);
-        audioChunks.current = [];
-        
-        recorder.start();
-        recorder.ondataavailable = (event) => {
-          audioChunks.current.push(event.data);
-        };
-        setIsRecording(true);
-        setIsPaused(false);
-        startTimer();
-      } catch (error) {
-        setHasPermission(false);
-        console.error('Error accessing the microphone:', error);
-      }
-    
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setHasPermission(true);
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
+      setAudioStream(stream);
+      audioChunks.current = [];
+
+      recorder.start();
+      recorder.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
+      };
+      setIsRecording(true);
+      setIsPaused(false);
+      startTimer();
+    } catch (error) {
+      setHasPermission(false);
+      console.error("Error accessing the microphone:", error);
+    }
   };
 
   const pauseRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
       mediaRecorder.pause();
       setIsPaused(true);
       stopTimer();
@@ -76,7 +76,7 @@ const useAudioRecorder = (): UseAudioRecorder => {
   };
 
   const resumeRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'paused') {
+    if (mediaRecorder && mediaRecorder.state === "paused") {
       mediaRecorder.resume();
       setIsPaused(false);
       startTimer();
@@ -87,12 +87,11 @@ const useAudioRecorder = (): UseAudioRecorder => {
     if (mediaRecorder) {
       mediaRecorder.stop();
       mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunks.current, { type: 'audio/wav' });
+        const blob = new Blob(audioChunks.current, { type: "audio/wav" });
         const url = URL.createObjectURL(blob);
-        setAudioUrl(url);  // Provide the audio URL for playback or further use
-        setAudioBlob(blob); // Store the blob
+        setAudioUrl(url);
+        setAudioBlob(blob);
 
-        // Stop all tracks to release the microphone
         if (audioStream) {
           audioStream.getTracks().forEach((track) => track.stop());
           setAudioStream(null);
@@ -106,7 +105,7 @@ const useAudioRecorder = (): UseAudioRecorder => {
 
   const deleteRecording = () => {
     setAudioUrl(null);
-    setAudioBlob(null); // Reset the blob
+    setAudioBlob(null);
     setElapsedTime(0);
     audioChunks.current = [];
   };
@@ -139,19 +138,19 @@ const useAudioRecorder = (): UseAudioRecorder => {
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
     const mp3Data = encodeWavToMp3(audioBuffer);
-    return new Blob([new Uint8Array(mp3Data)], { type: 'audio/mp3' });
+    return new Blob([new Uint8Array(mp3Data)], { type: "audio/mp3" });
   };
 
   const float32ToInt16 = (samples: Float32Array): Int16Array => {
     const int16Samples = new Int16Array(samples.length);
     for (let i = 0; i < samples.length; i++) {
-      int16Samples[i] = Math.max(-1, Math.min(1, samples[i])) * 0x7FFF;
+      int16Samples[i] = Math.max(-1, Math.min(1, samples[i])) * 0x7fff;
     }
     return int16Samples;
   };
 
   const encodeWavToMp3 = (audioBuffer: AudioBuffer): Array<number> => {
-    const samples = float32ToInt16(audioBuffer.getChannelData(0)); // Mono channel
+    const samples = float32ToInt16(audioBuffer.getChannelData(0));
     const sampleRate = audioBuffer.sampleRate;
     const bitRate = 128;
 
@@ -179,7 +178,10 @@ const useAudioRecorder = (): UseAudioRecorder => {
   const formatTime = (timeInSeconds: number) => {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+      2,
+      "0"
+    )}`;
   };
   return {
     isRecording,
@@ -193,7 +195,7 @@ const useAudioRecorder = (): UseAudioRecorder => {
     getAudioFile,
     audioUrl,
     elapsedTime,
-    formatTime
+    formatTime,
   };
 };
 

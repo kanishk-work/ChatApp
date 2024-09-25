@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useDebounce } from "../../Utils/CustomHooks/useDebounce";
 import SideHeader from "../Shared/SideHeader";
 import { useSearchUsersQuery } from "../../apis/authApi";
-import { useGetChatsQuery, useStartChatMutation } from "../../apis/chatApi";
-import { setActiveChatId, setChats } from "../../Redux/slices/chatsSlice";
+import { useStartChatMutation } from "../../apis/chatApi";
+import { setActiveChatId } from "../../Redux/slices/chatsSlice";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import useSocket from "../../apis/websocket";
 import SearchBar from "../SearchBar/SearchBar";
-import { getAllChatsData, storeChatData } from "../../DB/database";
+import { storeChatData } from "../../DB/database";
+import { shallowEqual } from "react-redux";
 
 interface usersData {
   id: number;
@@ -26,7 +27,8 @@ const NewChat = () => {
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const activeChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChatId
+    (state: RootState) => state.chats.activeChatId,
+    shallowEqual
   );
   const debounceSearch = useDebounce(searchTerm, 500);
   const { newInvite, joinRoom } = useSocket();
@@ -38,14 +40,12 @@ const NewChat = () => {
   } = useSearchUsersQuery(debounceSearch, {
     skip: !debounceSearch,
   });
-  console.log(users?.list);
-  // console.log(error);
 
   const [startChat] = useStartChatMutation();
 
   const handleSelect = async (user: usersData) => {
     setIsNewChatLoading(true);
-
+    console.log("insieeeded");
     const body = {
       toUserId: user.id,
     };
@@ -53,11 +53,10 @@ const NewChat = () => {
     const { data: res, error } = await startChat(body);
 
     if (error) {
-      console.log(error);
+      console.error(error);
     } else if (res) {
-      console.log([res]);
       await storeChatData([res]);
-      
+
       // const chatsFromDB = await getAllChatsData();
       // dispatch(setChats(chatsFromDB));
       // await refetchChats();
@@ -73,7 +72,6 @@ const NewChat = () => {
         dispatch(setChatWindow(true));
         joinRoom(`${res?.chatSocket[0]?.socket_room}`);
       }
-      console.log(res);
     }
 
     setIsNewChatLoading(false);
@@ -88,7 +86,7 @@ const NewChat = () => {
       <SearchBar
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        searchBarStyles={'mb-2'}
+        searchBarStyles={"mb-2"}
       />
 
       {searchTerm?.length < 2 ? (

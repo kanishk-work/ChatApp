@@ -18,7 +18,11 @@ import {
 } from "./stores/messagesStore";
 
 import { Chat, LatestMessage } from "../Types/chats";
-import { ChatMessage, ChatReaction, ConversationsType } from "../Types/conversationsType";
+import {
+  ChatMessage,
+  ChatReaction,
+  ConversationsType,
+} from "../Types/conversationsType";
 import Dexie from "dexie";
 
 class ChatAppDatabase extends Dexie {
@@ -37,7 +41,7 @@ class ChatAppDatabase extends Dexie {
     this.chats = this.table("chats");
     this.chatMessages = this.table("chatMessages");
 
-    this.addBeforeUnloadListener(); 
+    this.addBeforeUnloadListener();
   }
 
   addBeforeUnloadListener() {
@@ -52,7 +56,6 @@ class ChatAppDatabase extends Dexie {
   async clearDatabase() {
     try {
       await this.delete(); // Deletes the entire database
-      console.log("Database cleared");
     } catch (error) {
       console.error("Failed to clear the database:", error);
     }
@@ -80,12 +83,18 @@ export async function deleteChatData(id: number): Promise<void> {
   await deleteChat(id);
 }
 
-export async function updateLatestMessageData(chatRoomId: number, newMessage: LatestMessage){
-  return await updateLatestMessage(chatRoomId, newMessage)
+export async function updateLatestMessageData(
+  chatRoomId: number,
+  newMessage: LatestMessage
+) {
+  return await updateLatestMessage(chatRoomId, newMessage);
 }
 
-export async function updateUnreadMessageCountData(chatRoomId: number, actionType: 'increment' | 'reset'){
-  return await updateUnreadMessageCount(chatRoomId, actionType)
+export async function updateUnreadMessageCountData(
+  chatRoomId: number,
+  actionType: "increment" | "reset"
+) {
+  return await updateUnreadMessageCount(chatRoomId, actionType);
 }
 
 // Chat Messages Store Operations
@@ -95,8 +104,12 @@ export async function storeChatMessagesData(
   await storeChatMessages(messages);
 }
 
-export async function updateMessagesData(chatRoomId: number, newMessage: ChatMessage, tempMessageId?: number){
-  return await updateMessages(chatRoomId, newMessage, tempMessageId)
+export async function updateMessagesData(
+  chatRoomId: number,
+  newMessage: ChatMessage,
+  tempMessageId?: number
+) {
+  return await updateMessages(chatRoomId, newMessage, tempMessageId);
 }
 
 export async function addReactionToMessageData(

@@ -11,6 +11,7 @@ import profilePlaceHolder from "./../../assets/profilePlaceHolder.jpg";
 import SearchBar from "../SearchBar/SearchBar";
 import { FC } from "react";
 import { Styles } from "../../Utils/styleUtils";
+import { shallowEqual } from "react-redux";
 
 interface ProfileAndSearchProps {
   searchTerm: string;
@@ -51,7 +52,7 @@ const ProfileAndSearch: FC<ProfileAndSearchProps> = ({
       },
     },
   ];
-  const activeUser = useAppSelector((state) => state.activeUser);
+  const activeUser = useAppSelector((state) => state.activeUser, shallowEqual);
   const dispatch = useAppDispatch();
 
   return (
@@ -75,11 +76,11 @@ const ProfileAndSearch: FC<ProfileAndSearchProps> = ({
 
       <DropDown
         optionsList={menu_items}
-        btnClassName={
+        dropdownStyle={
           "flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white"
         }
         triggerElement={<BiDotsVerticalRounded />}
-        dropBoxClassName={"right-0"}
+        dropdownClassStyle={"right-0"}
       />
     </div>
   );

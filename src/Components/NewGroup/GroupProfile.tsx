@@ -1,14 +1,15 @@
-import { FaCheck, FaPlus } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
 import SideHeader from "../Shared/SideHeader";
-import { useCreateGroupMutation, useGetChatsQuery } from "../../apis/chatApi";
+import { useCreateGroupMutation } from "../../apis/chatApi";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
-import { setActiveChatId, setChats } from "../../Redux/slices/chatsSlice";
+import { setActiveChatId } from "../../Redux/slices/chatsSlice";
 import { setChatWindow } from "../../Redux/slices/chatWindowSlice";
 import { RootState } from "../../Redux/store";
 import Loader from "../Shared/Loader";
-import { getAllChatsData, storeChatData } from "../../DB/database";
+import { storeChatData } from "../../DB/database";
 import useSocket from "../../apis/websocket";
+import { shallowEqual } from "react-redux";
 
 interface usersData {
   id: number;
@@ -32,48 +33,39 @@ const GroupProfile = ({
   const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState("");
   const membersIds = members.map((member) => member.id);
-  const userNotifRooms = members.map((member)=> member.notif_room);
-  const { newInvite, joinRoom } = useSocket();
-
-  console.log({userNotifRooms});
+  const userNotifRooms = members.map((member) => member.notif_room);
+  const { joinRoom } = useSocket();
 
   const activeChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChatId
+    (state: RootState) => state.chats.activeChatId,
+    shallowEqual
   );
 
   const body = {
     toUsersList: membersIds,
     group_name: groupName,
   };
-  console.log(body);
   const [createGroup] = useCreateGroupMutation();
 
-  const handleSubmit = async (body: { toUsersList: number[], group_name: string }) => {
+  const handleSubmit = async (body: {
+    toUsersList: number[];
+    group_name: string;
+  }) => {
     setIsLoading(true);
 
     const { data: res, error } = await createGroup(body);
 
     if (error) {
-      console.log(error);
+      console.error(error);
     } else {
-      console.log([res]);
       await storeChatData([res]);
 
       submitFn();
-      // const newInviteData = {
-      //   frq: userNotifRooms,
-      //   chatFrq: res?.chatSocket[0]?.socket_room,
-      //   resp: res,
-      // };
-
-      // newInvite(newInviteData);
-      console.log(res);
       if (activeChatId !== res?.id) {
         dispatch(setActiveChatId(res?.id));
         dispatch(setChatWindow(true));
         joinRoom(`${res?.chatSocket[0]?.socket_room}`);
       }
-      console.log(res);
     }
 
     setIsLoading(false);
@@ -131,7 +123,7 @@ const GroupProfile = ({
       </div>
       <div className="flex items-center justify-center">
         {isLoading ? (
-          <Loader loaderStyles={'text-focus-secondary'}/>
+          <Loader loaderStyles={"text-focus-secondary"} />
         ) : (
           <button
             onClick={() => handleSubmit(body)}

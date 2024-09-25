@@ -72,7 +72,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   ];
 
   const handleReaction = (emoji: any) => {
-    console.log(emoji.native);
     onReact({ messageId: message.id, reactionCode: emoji.native });
   };
 

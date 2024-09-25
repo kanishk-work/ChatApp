@@ -7,28 +7,30 @@ interface props {
     icon?: JSX.Element;
     action?: Function;
   }[];
-  btnClassName?: string;
+  dropdownStyle?: string;
   itemClassName?: string;
-  dropBoxClassName?: string;
+  dropdownClassStyle?: string;
   triggerElement: ReactNode;
 }
 
 const DropDown = ({
   optionsList,
-  btnClassName,
+  dropdownStyle,
   itemClassName,
-  dropBoxClassName,
+  dropdownClassStyle,
   triggerElement,
 }: props) => {
   return (
     <Menu as="div" className={`relative inline-block text-left`}>
       <div>
-        <MenuButton className={`${btnClassName} `}>{triggerElement}</MenuButton>
+        <MenuButton className={`${dropdownStyle} `}>
+          {triggerElement}
+        </MenuButton>
       </div>
 
       <MenuItems
         transition
-        className={`${dropBoxClassName} absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in`}
+        className={`${dropdownClassStyle} absolute z-10 mt-2 w-40 origin-top-right rounded-md bg-[var(--accent-color-light)] dark:bg-[var(--accent-color)] shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in`}
       >
         <div className="py-1">
           {optionsList.map((option: any, index: number) => (

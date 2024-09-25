@@ -8,6 +8,7 @@ import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import { Chat } from "../../Types/chats";
 import { getChatData } from "../../DB/database";
 import { useToast } from "../Shared/Toast/ToastProvider";
+import { shallowEqual } from "react-redux";
 
 interface UserProfileProps {
   media: string[];
@@ -28,14 +29,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
     { name: "User Details", icon: <FaInfoCircle /> },
   ],
 }) => {
-  const [activeChat, setActiveChat] = useState<Chat>()
+  const [activeChat, setActiveChat] = useState<Chat>();
   const dispatch = useAppDispatch();
   const activeChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChatId
+    (state: RootState) => state.chats.activeChatId,
+    shallowEqual
   );
 
   const activeUserId = useAppSelector(
-    (state: RootState) => state.activeUser.id
+    (state: RootState) => state.activeUser.id,
+    shallowEqual
   );
 
   // Set the chat name, status, and profile picture
@@ -70,13 +73,11 @@ const UserProfile: React.FC<UserProfileProps> = ({
   useEffect(() => {
     const getActiveChat = async () => {
       if (activeChatId !== null) {
-
         const activeChatFetched = await getChatData(activeChatId);
         if (activeChatFetched) {
           setActiveChat(activeChatFetched);
-          console.log('active chat from indexedDB: ', activeChatFetched)
         } else {
-          console.log("No chats found for this id.");
+          console.warn(`No chats found for this id: ${activeChatId}`);
         }
       }
     };
@@ -87,7 +88,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const { showToast } = useToast();
 
   const handleBlockUser = () => {
-    showToast('Block user triggered');
+    showToast("Block user triggered");
   };
 
   return (
@@ -151,32 +152,32 @@ const UserProfile: React.FC<UserProfileProps> = ({
           <h3 className="text-lg font-semibold dynamic-text-color-secondary">
             {userStatus}
           </h3>
-            {activeChat?.chatUsers?.map((chatUser, index) => (
-              <div
-                key={index}
-                className="mt-2 flex items-center gap-3 dynamic-text-color-primary"
-                onClick={() => dispatch(setShowChatInfo(true))}
-              >
-                <img
-                  src={chatUser.user.profile_pic || placeholderImage}
-                  alt="User profile"
-                  className="w-8 h-8 rounded-full cursor-pointer"
-                />
-                <div className="cursor-pointer w-full">
-                  <div className={`flex items-center justify-between`}>
-                    <span>{chatUser.user.full_name}</span>
-                    {chatUser.is_group_admin && (
-                      <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
-                        Group Admin
-                      </span>
-                    )}
-                  </div>
-                  <div className={`text-sm`}>
-                    <span>{chatUser.user.status}</span>
-                  </div>
+          {activeChat?.chatUsers?.map((chatUser, index) => (
+            <div
+              key={index}
+              className="mt-2 flex items-center gap-3 dynamic-text-color-primary"
+              onClick={() => dispatch(setShowChatInfo(true))}
+            >
+              <img
+                src={chatUser.user.profile_pic || placeholderImage}
+                alt="User profile"
+                className="w-8 h-8 rounded-full cursor-pointer"
+              />
+              <div className="cursor-pointer w-full">
+                <div className={`flex items-center justify-between`}>
+                  <span>{chatUser.user.full_name}</span>
+                  {chatUser.is_group_admin && (
+                    <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
+                      Group Admin
+                    </span>
+                  )}
+                </div>
+                <div className={`text-sm`}>
+                  <span>{chatUser.user.status}</span>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       )}
 

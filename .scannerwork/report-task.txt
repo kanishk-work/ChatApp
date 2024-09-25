@@ -1,0 +1,6 @@
+projectKey=wafer_chat
+serverUrl=http://192.168.0.119:9000
+serverVersion=10.4.1.88267
+dashboardUrl=http://192.168.0.119:9000/dashboard?id=wafer_chat
+ceTaskId=37942645-07ed-4b3a-a22b-e8c98b38093c
+ceTaskUrl=http://192.168.0.119:9000/api/ce/task?id=37942645-07ed-4b3a-a22b-e8c98b38093c
