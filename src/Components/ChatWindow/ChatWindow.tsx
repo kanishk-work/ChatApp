@@ -20,7 +20,7 @@ import {
   updateLatestMessageData,
   updateMessagesData,
 } from "../../DB/database";
-import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
+import { ChatMessage } from "../../Types/conversationsType";
 import { Chat } from "../../Types/chats";
 import {
   setConversations,

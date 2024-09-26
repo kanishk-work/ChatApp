@@ -24,7 +24,7 @@ interface ChatListProps {
 
 const Chats: FC<ChatListProps> = ({ chats, listStyle }) => {
   const dispatch = useAppDispatch();
-  const { className, style } = applyStyles(listStyle);
+  const { className } = applyStyles(listStyle);
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId,
     shallowEqual

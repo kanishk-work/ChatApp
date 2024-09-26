@@ -1,31 +1,30 @@
 import React, { useEffect } from "react";
 import HomeLayout from "./Layout/HomeLayout";
-import { useAppDispatch, useAppSelector } from "./Redux/hooks";
+import { useAppSelector } from "./Redux/hooks";
 import { RootState } from "./Redux/store";
 import { injectStyles } from "./Utils/injectStyles";
 import { authenticateUser } from "./Utils/logInUser";
-import { useLogInMutation } from "./apis/authApi";
 import LoginPage from "./Pages/LoginPage";
 import { LoginDetails } from "./Types/login";
 import { shallowEqual } from "react-redux";
 import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const { joinRoom } = useSocket();
   const activeUser = useAppSelector(
     (state: RootState) => state.activeUser,
     shallowEqual
   );
-  const currentUserId = useAppSelector(
-    (state: RootState) => state.activeUser.id,
-    shallowEqual
-  );
-  const currentUserRoom = useAppSelector(
-    (state: RootState) => state.activeUser.id,
-    shallowEqual
-  );
-  const [logIn] = useLogInMutation();
+  // const currentUserId = useAppSelector(
+  //   (state: RootState) => state.activeUser.id,
+  //   shallowEqual
+  // );
+  // const currentUserRoom = useAppSelector(
+  //   (state: RootState) => state.activeUser.id,
+  //   shallowEqual
+  // );
+  // const [logIn] = useLogInMutation();
 
   const chats = useAppSelector(
     (state: RootState) => state.chats.chats,

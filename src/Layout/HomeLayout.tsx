@@ -3,9 +3,8 @@ import { useAppSelector } from "../Redux/hooks";
 import { RootState } from "../Redux/store";
 import { useWindowSize } from "../Utils/windowSizeUtil";
 import { useGetChatsQuery, useGetConversationsMutation } from "../apis/chatApi";
-import { useEffect, Suspense, useState, startTransition, lazy } from "react";
+import { useEffect, Suspense, lazy } from "react";
 import Loader from "../Components/Shared/Loader";
-import useSocket from "../apis/websocket";
 import { shallowEqual } from "react-redux";
 
 const ChatListComp = lazy(

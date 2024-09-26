@@ -1,4 +1,4 @@
-import { LoginDetails } from "../Types/login";
+import { LoginDetails, LoginResponse } from "../Types/login";
 import { setActiveUser } from "../Redux/slices/activeUserSlice";
 import store from "../Redux/store";
 import { authApi } from "../apis/authApi";
@@ -9,7 +9,7 @@ export const authenticateUser = async (config: LoginDetails) => {
   chatConfig = config;
 
   try {
-    const response = await store
+    const response: LoginResponse = await store
       .dispatch(authApi.endpoints.logIn.initiate(config))
       .unwrap();
     store.dispatch(setActiveUser(response.user));

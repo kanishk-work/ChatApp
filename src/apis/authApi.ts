@@ -13,7 +13,7 @@ export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_HOST_URL,
-    headers: { Authorization: `Bearer ${localStorage.getItem('viralEffect')}` },
+    headers: { Authorization: `Bearer ${localStorage.getItem("viralEffect")}` },
   }),
   endpoints: (builder) => ({
     logIn: builder.mutation<LoginResponse, LoginDetails>({

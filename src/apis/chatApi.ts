@@ -127,28 +127,27 @@ export const chatApi: any = createApi({
         url: `chat/messages?search=${encodeURIComponent(searchTerm)}`,
         method: "POST",
       }),
-      onQueryStarted: async (
-        searchTerm,
-        { dispatch = useAppDispatch(), queryFulfilled }
-      ) => {
+      onQueryStarted: async (_, { queryFulfilled }) => {
         if (navigator.onLine) {
           try {
             await queryFulfilled;
           } catch (err) {
             console.error("Failed to store messages in IndexedDB:", err);
-          } finally {
           }
         } else return;
       },
     }),
 
-    pinMessage: builder.mutation<PinChatRes, object>({
-      query: (data: { chat_room_id: number; chat_id: number }) => ({
+    pinMessage: builder.mutation<
+      PinChatRes,
+      { chat_room_id: number; chat_id: number }
+    >({
+      query: (data) => ({
         url: `chat/pin`,
         method: "POST",
         body: data,
       }),
-      onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
+      onQueryStarted: async (_, { queryFulfilled }) => {
         if (navigator.onLine) {
           try {
             const { data } = await queryFulfilled;
@@ -160,8 +159,11 @@ export const chatApi: any = createApi({
       },
     }),
 
-    getPreviousMessages: builder.mutation<ConversationsTypeResponse, object>({
-      query: (data: { chatRoomId: number; lastMessageId: number }) => ({
+    getPreviousMessages: builder.mutation<
+      ConversationsTypeResponse,
+      { chatRoomId: number; lastMessageId: number }
+    >({
+      query: (data) => ({
         url: `chat/messages`,
         method: "POST",
         body: data,
@@ -212,7 +214,7 @@ export const chatApi: any = createApi({
       onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
-            const { data } = await queryFulfilled;
+            await queryFulfilled;
           } catch (err) {
             console.error("Failed to delete member:", err);
           }
@@ -233,7 +235,7 @@ export const chatApi: any = createApi({
       onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
-            const { data } = await queryFulfilled;
+            await queryFulfilled;
           } catch (err) {
             console.error("Failed to update read status:", err);
           }

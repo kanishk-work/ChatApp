@@ -55,7 +55,6 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const {
     isRecording,
     isPaused,
-    hasPermission,
     startRecording,
     pauseRecording,
     resumeRecording,

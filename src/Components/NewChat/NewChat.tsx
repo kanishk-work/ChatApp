@@ -24,7 +24,7 @@ interface usersData {
 }
 
 const NewChat = () => {
-  const [isNewChatLoading, setIsNewChatLoading] = useState(false);
+  const [_, setIsNewChatLoading] = useState(false);
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const activeChatId = useAppSelector(
