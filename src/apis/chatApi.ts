@@ -111,7 +111,6 @@ export const chatApi: any = createApi({
 
           try {
             const { data } = await queryFulfilled;
-            console.log("conversations from server: ", data);
             // Store messages in IndexedDB
             await storeChatMessagesData(data.list);
           } catch (err) {
@@ -134,7 +133,7 @@ export const chatApi: any = createApi({
       ) => {
         if (navigator.onLine) {
           try {
-            const { data } = await queryFulfilled;
+            await queryFulfilled;
           } catch (err) {
             console.error("Failed to store messages in IndexedDB:", err);
           } finally {
@@ -153,7 +152,6 @@ export const chatApi: any = createApi({
         if (navigator.onLine) {
           try {
             const { data } = await queryFulfilled;
-            console.log("pin message reponse: ", data.data);
             await addPinnedMessageData(data.data);
           } catch (err) {
             console.error("Failed to update pinned message in IndexedDB:", err);
@@ -210,6 +208,7 @@ export const chatApi: any = createApi({
         method: "POST",
         body: data,
       }),
+      // @ts-ignore
       onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
@@ -230,6 +229,7 @@ export const chatApi: any = createApi({
         method: "PATCH",
         body: data,
       }),
+      // @ts-ignore
       onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {

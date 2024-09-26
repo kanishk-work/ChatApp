@@ -55,7 +55,6 @@ const NewChat = () => {
     if (error) {
       console.error(error);
     } else if (res) {
-      console.log([res]);
       const chatMessageEntry: ConversationsType = {
         id: res?.id,
         client_id: res?.client_id,
