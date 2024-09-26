@@ -22,7 +22,12 @@ import {
 } from "./stores/messagesStore";
 
 import { Chat, LatestMessage, UnreadMsgs } from "../Types/chats";
-import { ChatMessage, ChatReaction, ConversationsType, PinnedChat } from "../Types/conversationsType";
+import {
+  ChatMessage,
+  ChatReaction,
+  ConversationsType,
+  PinnedChat,
+} from "../Types/conversationsType";
 import Dexie from "dexie";
 
 class ChatAppDatabase extends Dexie {
@@ -41,7 +46,7 @@ class ChatAppDatabase extends Dexie {
     this.chats = this.table("chats");
     this.chatMessages = this.table("chatMessages");
 
-    this.addBeforeUnloadListener(); 
+    this.addBeforeUnloadListener();
   }
 
   addBeforeUnloadListener() {
@@ -56,7 +61,6 @@ class ChatAppDatabase extends Dexie {
   async clearDatabase() {
     try {
       await this.delete(); // Deletes the entire database
-      console.log("Database cleared");
     } catch (error) {
       console.error("Failed to clear the database:", error);
     }
@@ -84,19 +88,33 @@ export async function deleteChatData(id: number): Promise<void> {
   await deleteChat(id);
 }
 
-export async function updateLatestMessageData(chatRoomId: number, newMessage: LatestMessage){
-  return await updateLatestMessage(chatRoomId, newMessage)
+export async function updateLatestMessageData(
+  chatRoomId: number,
+  newMessage: LatestMessage
+) {
+  return await updateLatestMessage(chatRoomId, newMessage);
 }
 
-export async function updateUnreadMessagesData(data: {chatRoomId: number, actionType: 'increment' | 'reset', newMessageId?: number}){
-  return await updateUnreadMessages(data)
+export async function updateUnreadMessagesData(data: {
+  chatRoomId: number;
+  actionType: "increment" | "reset";
+  newMessageId?: number;
+}) {
+  return await updateUnreadMessages(data);
 }
 
-export async function updateReadStatusData(data: {chatRoomId: number, userId: number, chatIdList: UnreadMsgs}) {
+export async function updateReadStatusData(data: {
+  chatRoomId: number;
+  userId: number;
+  chatIdList: UnreadMsgs;
+}) {
   return await updateReadStatus(data);
 }
-export async function deleteGroupMemberData(chat_room_id: number | null, user_id: number | null){
-  return await deleteGroupMember(chat_room_id, user_id)
+export async function deleteGroupMemberData(
+  chat_room_id: number | null,
+  user_id: number | null
+) {
+  return await deleteGroupMember(chat_room_id, user_id);
 }
 
 // Chat Messages Store Operations
@@ -106,8 +124,12 @@ export async function storeChatMessagesData(
   await storeChatMessages(messages);
 }
 
-export async function updateMessagesData(chatRoomId: number, newMessage: ChatMessage, tempMessageId?: number){
-  return await updateMessages(chatRoomId, newMessage, tempMessageId)
+export async function updateMessagesData(
+  chatRoomId: number,
+  newMessage: ChatMessage,
+  tempMessageId?: number
+) {
+  return await updateMessages(chatRoomId, newMessage, tempMessageId);
 }
 
 export async function addReactionToMessageData(
@@ -124,7 +146,11 @@ export async function addPinnedMessageData(
   return await addPinnedMessage(pinnedMessageData);
 }
 
-export async function updateLatestMessageReadStatusData(data: { chatRoomId: number, userId: number, chatIdList: UnreadMsgs }) {
+export async function updateLatestMessageReadStatusData(data: {
+  chatRoomId: number;
+  userId: number;
+  chatIdList: UnreadMsgs;
+}) {
   return await updateLatestMessageReadStatus(data);
 }
 

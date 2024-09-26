@@ -3,8 +3,15 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { MessagePayload, ReplyPayload } from "../Types/message";
 import { ChatRoom } from "../Types/chatRoom";
 import { ChatResponse, UnreadMsgs } from "../Types/chats";
-import { addPinnedMessageData, storeChatData, storeChatMessagesData } from "../DB/database";
-import { ConversationsTypeResponse, PinnedChat } from "../Types/conversationsType";
+import {
+  addPinnedMessageData,
+  storeChatData,
+  storeChatMessagesData,
+} from "../DB/database";
+import {
+  ConversationsTypeResponse,
+  PinnedChat,
+} from "../Types/conversationsType";
 import {
   setChatsLoading,
   setConversationsLoading,
@@ -20,10 +27,10 @@ export interface JoinChat {
 }
 
 export interface PinChatRes {
-  data: PinnedChat
+  data: PinnedChat;
 }
 
-export const chatApi = createApi({
+export const chatApi: any = createApi({
   reducerPath: "chatApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_HOST_URL,
@@ -67,6 +74,7 @@ export const chatApi = createApi({
         method: "GET",
       }),
       async onQueryStarted(
+        // @ts-ignore
         searchTerm,
         { dispatch = useAppDispatch(), queryFulfilled }
       ) {
@@ -77,7 +85,6 @@ export const chatApi = createApi({
             if (data && data.list) {
               // Store chats in IndexedDB
               await storeChatData(data.list);
-              console.log(data.list);
             }
           } catch (error) {
             console.error("Failed to store chats in IndexedDB:", error);
@@ -95,6 +102,7 @@ export const chatApi = createApi({
         body: { chatRoomId },
       }),
       onQueryStarted: async (
+        // @ts-ignore
         chatRoomId,
         { dispatch = useAppDispatch(), queryFulfilled }
       ) => {
@@ -103,7 +111,7 @@ export const chatApi = createApi({
 
           try {
             const { data } = await queryFulfilled;
-            console.log("conversations from server: ", data)
+            console.log("conversations from server: ", data);
             // Store messages in IndexedDB
             await storeChatMessagesData(data.list);
           } catch (err) {
@@ -127,31 +135,26 @@ export const chatApi = createApi({
         if (navigator.onLine) {
           try {
             const { data } = await queryFulfilled;
-
           } catch (err) {
             console.error("Failed to store messages in IndexedDB:", err);
           } finally {
-
           }
         } else return;
       },
     }),
 
     pinMessage: builder.mutation<PinChatRes, object>({
-      query: (data: {chat_room_id: number, chat_id: number}) => ({
+      query: (data: { chat_room_id: number; chat_id: number }) => ({
         url: `chat/pin`,
         method: "POST",
-        body: data
+        body: data,
       }),
-      onQueryStarted: async (
-        chat_room_id,
-        { dispatch, queryFulfilled }
-      ) => {
+      onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
             const { data } = await queryFulfilled;
-            console.log('pin message reponse: ', data.data)
-            await addPinnedMessageData(data.data)
+            console.log("pin message reponse: ", data.data);
+            await addPinnedMessageData(data.data);
           } catch (err) {
             console.error("Failed to update pinned message in IndexedDB:", err);
           }
@@ -160,17 +163,16 @@ export const chatApi = createApi({
     }),
 
     getPreviousMessages: builder.mutation<ConversationsTypeResponse, object>({
-      query: (data: {chatRoomId: number, lastMessageId: number}) => ({
+      query: (data: { chatRoomId: number; lastMessageId: number }) => ({
         url: `chat/messages`,
         method: "POST",
-        body: data
+        body: data,
       }),
-      onQueryStarted: async (
-        chatRoomId,
-        { dispatch, queryFulfilled }
-      ) => {
+      // @ts-ignore
+      onQueryStarted: async (chatRoomId, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
+            // @ts-ignore
             const { data } = await queryFulfilled;
           } catch (err) {
             console.error("Failed to store messages in IndexedDB:", err);
@@ -203,15 +205,12 @@ export const chatApi = createApi({
     }),
 
     deleteGroupMember: builder.mutation<any, object>({
-      query: (data: {chat_room_id: number, user_id: number}) => ({
+      query: (data: { chat_room_id: number; user_id: number }) => ({
         url: `chat/user/delete`,
         method: "POST",
-        body: data
+        body: data,
       }),
-      onQueryStarted: async (
-        chat_room_id,
-        { dispatch, queryFulfilled }
-      ) => {
+      onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
             const { data } = await queryFulfilled;
@@ -222,16 +221,16 @@ export const chatApi = createApi({
       },
     }),
 
-    messageReadUpdate: builder.mutation<any, {chat_room_id: number, chat_id_list: UnreadMsgs}>({
+    messageReadUpdate: builder.mutation<
+      any,
+      { chat_room_id: number; chat_id_list: UnreadMsgs }
+    >({
       query: (data) => ({
         url: `chat/messages/read`,
         method: "PATCH",
-        body: data
+        body: data,
       }),
-      onQueryStarted: async (
-        chat_room_id,
-        { dispatch, queryFulfilled }
-      ) => {
+      onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
         if (navigator.onLine) {
           try {
             const { data } = await queryFulfilled;

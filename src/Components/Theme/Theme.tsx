@@ -22,11 +22,23 @@ import {
 import { setShowTheme } from "../../Redux/slices/settingsSlice";
 import { RootState } from "../../Redux/store";
 
-
 const Theme = () => {
   const dispatch = useAppDispatch();
-  const { isDarkMode, theme, bgColorDark, accentColorDark, textColorPrimaryDark, textColorSecondaryDark, bgColorLight, accentColorLight, textColorPrimaryLight, textColorSecondaryLight, focusColorPrimary, focusColorSecondary, fontSize } = useAppSelector((state: RootState) => state.theme);
-
+  const {
+    isDarkMode,
+    theme,
+    bgColorDark,
+    accentColorDark,
+    textColorPrimaryDark,
+    textColorSecondaryDark,
+    bgColorLight,
+    accentColorLight,
+    textColorPrimaryLight,
+    textColorSecondaryLight,
+    focusColorPrimary,
+    focusColorSecondary,
+    fontSize,
+  } = useAppSelector((state: RootState) => state.theme);
 
   const icon = isDarkMode ? <FaMoon /> : <FaSun className="text-yellow-500" />;
   const theme_list = [
@@ -48,7 +60,6 @@ const Theme = () => {
       action: () => dispatch(setTheme("light")),
     },
   ];
-  console.log({ theme });
   useEffect(() => {
     if (theme === "system") {
       dispatch(setTheme(detectSystemTheme() ? "dark" : "light"));
@@ -71,7 +82,9 @@ const Theme = () => {
     <>
       <SideHeader title="theme" backFn={() => dispatch(setShowTheme(false))} />
       <Options optionsList={theme_list} />
-      <label className="dynamic-font-size dynamic-text-color-primary mt-2">Font Size:{fontSize} </label>
+      <label className="dynamic-font-size dynamic-text-color-primary mt-2">
+        Font Size:{fontSize}{" "}
+      </label>
       <input
         type="range"
         min="10"
@@ -109,7 +122,7 @@ const Theme = () => {
           onChange={(e) => dispatch(setTextColorSecondaryDark(e.target.value))}
         />
       </div>
-      
+
       {/* light mode */}
       <div className="flex flex-col p-3 dynamic-text-color-secondary">
         <h4>Light Mode styles</h4>
@@ -141,8 +154,8 @@ const Theme = () => {
       </div>
 
       <div className="flex flex-col p-3 dynamic-text-color-secondary">
-      <h4>Focus Colors (notifications)</h4>
-      <label>Text Color: </label>
+        <h4>Focus Colors (notifications)</h4>
+        <label>Text Color: </label>
         <input
           type="color"
           value={focusColorPrimary}
@@ -160,4 +173,3 @@ const Theme = () => {
 };
 
 export default Theme;
-

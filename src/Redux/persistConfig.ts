@@ -3,7 +3,6 @@ import { persistReducer } from "redux-persist";
 import activeUserReducer from "./slices/activeUserSlice";
 import chatsReducer from "./slices/chatsSlice";
 import profileReducer from "./slices/profileSlice";
-import searchReducer from "./slices/searchSlice";
 import settingsReducer from "./slices/settingsSlice";
 import chatWindowReducer from "./slices/chatWindowSlice";
 import themeReducer from "./slices/themeSlice";
@@ -19,10 +18,6 @@ const chatsPersistConfig = {
 };
 const profilePersistConfig = {
   key: "profile",
-  storage,
-};
-const searchPersistConfig = {
-  key: "search",
   storage,
 };
 const settingsPersistConfig = {
@@ -53,10 +48,6 @@ export const persistedChatsReducer = persistReducer(
 export const persistedProfileReducer = persistReducer(
   profilePersistConfig,
   profileReducer
-);
-export const persistedSearchReducer = persistReducer(
-  searchPersistConfig,
-  searchReducer
 );
 export const persistedSettingsReducer = persistReducer(
   settingsPersistConfig,

@@ -6,7 +6,6 @@ import { authApi } from "../apis/authApi";
 let chatConfig: LoginDetails | null = null;
 
 export const authenticateUser = async (config: LoginDetails) => {
-  console.log({ config });
   chatConfig = config;
 
   try {
@@ -14,8 +13,8 @@ export const authenticateUser = async (config: LoginDetails) => {
       .dispatch(authApi.endpoints.logIn.initiate(config))
       .unwrap();
     store.dispatch(setActiveUser(response.user));
-    
-    localStorage.setItem('viralEffect', response.accessToken);
+
+    localStorage.setItem("viralEffect", response.accessToken);
 
     console.log("Login successful:", response);
   } catch (error) {

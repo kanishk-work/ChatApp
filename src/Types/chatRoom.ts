@@ -2,9 +2,9 @@ export interface ChatSocket {
   socket_room: string;
   chat_room_id: number;
   id: number;
-  updatedAt: string; // ISO 8601 date string
-  createdAt: string; // ISO 8601 date string
-  deletedAt: string | null; // Nullable ISO 8601 date string
+  updatedAt: string;
+  createdAt: string;
+  deletedAt: string | null;
 }
 
 export interface ChatRoom {
@@ -12,9 +12,9 @@ export interface ChatRoom {
   client_id: number;
   is_group: boolean;
   id: number;
-  updatedAt: string; // ISO 8601 date string
-  createdAt: string; // ISO 8601 date string
-  deletedAt: string | null; // Nullable ISO 8601 date string
+  updatedAt: string;
+  createdAt: string;
+  deletedAt: string | null;
   is_deleted: boolean;
   chatSocket: ChatSocket;
 }

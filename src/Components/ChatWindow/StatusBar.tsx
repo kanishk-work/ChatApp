@@ -9,6 +9,7 @@ import { useWindowSize } from "../../Utils/windowSizeUtil";
 import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import { Chat } from "../../Types/chats";
+import { shallowEqual } from "react-redux";
 
 interface StatusBarStyles {
   container?: Styles;
@@ -18,7 +19,7 @@ interface StatusBarStyles {
 }
 
 interface StatusBarProps {
-  activeChat: Chat | undefined,
+  activeChat: Chat | undefined;
   statusBarStyles?: StatusBarStyles;
 }
 
@@ -31,7 +32,8 @@ const StatusBar: FC<StatusBarProps> = ({ activeChat, statusBarStyles }) => {
   const dispatch = useAppDispatch();
 
   const activeUserId = useAppSelector(
-    (state: RootState) => state.activeUser.id
+    (state: RootState) => state.activeUser.id,
+    shallowEqual
   );
 
   // Set the default (group) chat name, status, and profile picture
@@ -42,9 +44,7 @@ const StatusBar: FC<StatusBarProps> = ({ activeChat, statusBarStyles }) => {
   if (activeChat) {
     if (activeChat.is_group) {
       // Group members except the active user
-      userStatus =
-        "Members: " +
-        activeChat.chatUsers.length;
+      userStatus = "Members: " + activeChat.chatUsers.length;
       // userStatus =
       //   "Members: " +
       //   activeChat.chatUsers.filter(

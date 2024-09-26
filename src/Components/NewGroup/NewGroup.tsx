@@ -25,7 +25,6 @@ const NewGroup = () => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [showAddAlert, setShowAddAlert] = useState<boolean>(false);
 
-
   const dispatch = useAppDispatch();
   const debounceSearch = useDebounce(searchTerm, 500);
 
@@ -36,14 +35,11 @@ const NewGroup = () => {
   } = useSearchUsersQuery(debounceSearch, {
     skip: !debounceSearch,
   });
-  console.log(users?.list);
-  // console.log(error);
 
   const selectHandler = (newMember: usersData) => {
-    if (newMember !== members.find(member => member.id === newMember.id)) {
+    if (newMember !== members.find((member) => member.id === newMember.id)) {
       setMembers([...members, newMember]);
-    }
-    else {
+    } else {
       setShowAddAlert(true);
       setTimeout(() => setShowAddAlert(false), 2000);
     }
@@ -53,8 +49,6 @@ const NewGroup = () => {
     const newMembers = members.filter((member) => member.id !== memberRem.id);
     setMembers(newMembers);
   };
-
-  console.log(members);
 
   const nextHandler = () => {
     if (!members.length) {
@@ -76,18 +70,24 @@ const NewGroup = () => {
           <SearchBar
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            searchBarStyles={'mb-2'}
+            searchBarStyles={"mb-2"}
           />
 
           <div className="flex flex-wrap items-center p-1.5 gap-1.5 rounded-lg shadow-[inset_0px_0px_20px_0px_#00000024]">
             {members?.map((member) => (
-              <div key={member.id} className="relative p-1.5 dynamic-notif rounded-full">
+              <div
+                key={member.id}
+                className="relative p-1.5 dynamic-notif rounded-full"
+              >
                 <img
                   src={member.profile_pic}
                   alt="user profile pic"
                   className="object-contain h-9 w-9 rounded-full"
                 />
-                <GiCancel onClick={() => deleteItem(member)} className="absolute right-0 bottom-0" />
+                <GiCancel
+                  onClick={() => deleteItem(member)}
+                  className="absolute right-0 bottom-0"
+                />
               </div>
             ))}
           </div>

@@ -19,7 +19,7 @@ import useSocket from "../../apis/websocket";
 import { useAppSelector } from "../../Redux/hooks";
 import useAudioRecorder from "../../Utils/CustomHooks/useAudioRecorder";
 import { GiCancel } from "react-icons/gi";
-// import { useAudioRecorder } from "../../Utils/CustomHooks/useAudioRecorder";
+import { shallowEqual } from "react-redux";
 
 init({ data });
 
@@ -50,7 +50,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
 
   const messageComposerRef = useRef<HTMLDivElement>(null);
   const { emitTyping } = useSocket();
-  const activeUser = useAppSelector((state) => state.activeUser);
+  const activeUser = useAppSelector((state) => state.activeUser, shallowEqual);
 
   const {
     isRecording,
@@ -187,9 +187,13 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         <div className="flex items-center gap-2 justify-center w-full relative">
           <div className="flex-grow flex flex-col gap-2">
             {replyMessage && (
-              <div className={`w-full p-2 bg-gray-100 rounded-xl text-lg text-blue-500 flex justify-between items-center`}>
+              <div
+                className={`w-full p-2 bg-gray-100 rounded-xl text-lg text-blue-500 flex justify-between items-center`}
+              >
                 <span>{replyMessage.message}</span>
-                <button className="p-1"><GiCancel onClick={() => setReplyMessage(null)} /></button>
+                <button className="p-1">
+                  <GiCancel onClick={() => setReplyMessage(null)} />
+                </button>
               </div>
             )}
             <input
@@ -222,8 +226,8 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
               !isRecording
                 ? startRecording
                 : !isPaused
-                  ? pauseRecording
-                  : resumeRecording
+                ? pauseRecording
+                : resumeRecording
             }
             className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
             aria-label="Record"

@@ -9,6 +9,7 @@ import { Chat } from "../../Types/chats";
 import { deleteGroupMemberData, getChatData } from "../../DB/database";
 import { useToast } from "../Shared/Toast/ToastProvider";
 import { useDeleteGroupMemberMutation } from "../../apis/chatApi";
+import { shallowEqual } from "react-redux";
 
 interface UserProfileProps {
   media: string[];
@@ -29,14 +30,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
     { name: "User Details", icon: <FaInfoCircle /> },
   ],
 }) => {
-  const [activeChat, setActiveChat] = useState<Chat>()
+  const [activeChat, setActiveChat] = useState<Chat>();
   const dispatch = useAppDispatch();
   const activeChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChatId
+    (state: RootState) => state.chats.activeChatId,
+    shallowEqual
   );
 
   const activeUserId = useAppSelector(
-    (state: RootState) => state.activeUser.id
+    (state: RootState) => state.activeUser.id,
+    shallowEqual
   );
 
   // Set the chat name, status, and profile picture
@@ -72,13 +75,11 @@ const UserProfile: React.FC<UserProfileProps> = ({
   useEffect(() => {
     const getActiveChat = async () => {
       if (activeChatId !== null) {
-
         const activeChatFetched = await getChatData(activeChatId);
         if (activeChatFetched) {
           setActiveChat(activeChatFetched);
-          console.log('active chat from indexedDB: ', activeChatFetched)
         } else {
-          console.log("No chats found for this id.");
+          console.warn(`No chats found for this id: ${activeChatId}`);
         }
       }
     };
@@ -89,30 +90,35 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const { showToast } = useToast();
 
   const handleBlockUser = () => {
-    showToast('Block user triggered');
+    showToast("Block user triggered");
   };
 
-  const handleDeleteUser = async (deleteData: {chat_room_id: number | null, user_id: number | null}) => {
-    showToast('Delete user triggered');
+  const handleDeleteUser = async (deleteData: {
+    chat_room_id: number | null;
+    user_id: number | null;
+  }) => {
+    showToast("Delete user triggered");
     try {
       const res = await deleteMember(deleteData);
-      console.log('delete member response: ', res)
       if (res) {
         showToast("User deleted successfully");
         //remove member from list using setActiveChat state
-        if(activeChat){
+        if (activeChat) {
           const updatedChatUsers = activeChat?.chatUsers.filter(
-            (chatUser) => chatUser.user.id!== deleteData.user_id
+            (chatUser) => chatUser.user.id !== deleteData.user_id
           );
-          setActiveChat({...activeChat, chatUsers: updatedChatUsers });
-          await deleteGroupMemberData(deleteData.chat_room_id, deleteData.user_id)
+          setActiveChat({ ...activeChat, chatUsers: updatedChatUsers });
+          await deleteGroupMemberData(
+            deleteData.chat_room_id,
+            deleteData.user_id
+          );
           // update the chat in indexedDB
           // await updateChatData(activeChat);
         }
       }
     } catch (error) {
-      console.error('Error deleting user: ', error);
-      showToast('Error deleting user. Please try again later.');
+      console.error("Error deleting user: ", error);
+      showToast("Error deleting user. Please try again later.");
     }
   };
 
@@ -195,16 +201,20 @@ const UserProfile: React.FC<UserProfileProps> = ({
                     <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
                       Group Admin
                     </span>
-                  )
-                    :
+                  ) : (
                     <button
                       className="flex items-center text-red-600 hover:text-red-800"
-                      onClick={()=> handleDeleteUser({chat_room_id: activeChatId, user_id: chatUser.user_id}) }
+                      onClick={() =>
+                        handleDeleteUser({
+                          chat_room_id: activeChatId,
+                          user_id: chatUser.user_id,
+                        })
+                      }
                     >
                       <FaTrash className="mr-2" />
                       Delete User
                     </button>
-                  }
+                  )}
                 </div>
                 <div className={`text-sm`}>
                   <span>{chatUser.user.status}</span>

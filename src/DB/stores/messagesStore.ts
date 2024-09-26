@@ -1,18 +1,30 @@
-import { db } from '../database'; // Adjust the import path as needed
-import { ChatMessage, ChatReaction, ConversationsType, PinnedChat } from '../../Types/conversationsType';
-import { UnreadMsgs } from '../../Types/chats';
+import { db } from "../database"; // Adjust the import path as needed
+import {
+  ChatMessage,
+  ChatReaction,
+  ConversationsType,
+  PinnedChat,
+} from "../../Types/conversationsType";
+import { UnreadMsgs } from "../../Types/chats";
 
-export async function storeChatMessages(conversations: ConversationsType[]): Promise<void> {
-  await Promise.all(conversations.map(async conversation => {
-    const existingConversation = await db.chatMessages.get(conversation.id);
-    if (!existingConversation) {
-      db.chatMessages.put(conversation);
-    }
-  }));
+export async function storeChatMessages(
+  conversations: ConversationsType[]
+): Promise<void> {
+  await Promise.all(
+    conversations.map(async (conversation) => {
+      const existingConversation = await db.chatMessages.get(conversation.id);
+      if (!existingConversation) {
+        db.chatMessages.put(conversation);
+      }
+    })
+  );
 }
 
-export async function updateMessages(chatRoomId: number, newMessage: ChatMessage, tempMessageId?: number) {
-  console.log("updateMessages Working")
+export async function updateMessages(
+  chatRoomId: number,
+  newMessage: ChatMessage,
+  tempMessageId?: number
+) {
   try {
     // Retrieve the conversation by its ID
     const chatMessages = await db.chatMessages.get(chatRoomId);
@@ -20,7 +32,8 @@ export async function updateMessages(chatRoomId: number, newMessage: ChatMessage
     if (chatMessages) {
       // Delete message with tempMessageId if tempMessageId is given
       if (tempMessageId) {
-        chatMessages.messages.chatsList = chatMessages.messages.chatsList.filter(m => m.id !== tempMessageId);
+        chatMessages.messages.chatsList =
+          chatMessages.messages.chatsList.filter((m) => m.id !== tempMessageId);
         chatMessages.messages.length = chatMessages.messages.chatsList.length;
       }
       // Update the messages
@@ -30,10 +43,10 @@ export async function updateMessages(chatRoomId: number, newMessage: ChatMessage
       // Save the updated conversation back to IndexedDB
       await db.chatMessages.put(chatMessages);
     } else {
-      console.error('Conversation not found');
+      console.error("Conversation not found");
     }
   } catch (error) {
-    console.error('Failed to update messages:', error);
+    console.error("Failed to update messages:", error);
   }
 }
 
@@ -43,68 +56,90 @@ export async function addReactionToMessage(
   updatedReactions: ChatReaction[]
 ): Promise<void> {
   try {
-    await db.chatMessages.where("id").equals(chatRoomId).modify((conversation) => {
-      // Find the specific message in the chatsList array
-      const message = conversation.messages.chatsList.find(m => m.id === messageId);
+    await db.chatMessages
+      .where("id")
+      .equals(chatRoomId)
+      .modify((conversation) => {
+        // Find the specific message in the chatsList array
+        const message = conversation.messages.chatsList.find(
+          (m) => m.id === messageId
+        );
 
-      if (message) {
-        // Update the chatReactions field of the found message
-        message.chatReactions = updatedReactions;
-      } else {
-        console.error(`Message with messageId ${messageId} not found in conversation.`);
-      }
-    });
-
-    console.log('Reactions updated successfully for the message');
+        if (message) {
+          // Update the chatReactions field of the found message
+          message.chatReactions = updatedReactions;
+        } else {
+          console.error(
+            `Message with messageId ${messageId} not found in conversation.`
+          );
+        }
+      });
   } catch (error) {
-    console.error(`Error updating reactions for messageId ${messageId} in chatRoomId ${chatRoomId}:`, error);
+    console.error(
+      `Error updating reactions for messageId ${messageId} in chatRoomId ${chatRoomId}:`,
+      error
+    );
   }
 }
 
 export async function addPinnedMessage(pinnedMessageData: PinnedChat) {
-  console.log("pin messsage working Working")
-
-  db.chatMessages.where("id").equals(pinnedMessageData.chat_room_id).modify({
-    pinnedChat: [pinnedMessageData]
-  })
+  db.chatMessages
+    .where("id")
+    .equals(pinnedMessageData.chat_room_id)
+    .modify({
+      pinnedChat: [pinnedMessageData],
+    })
     .then(() => {
       console.log("Chat updated successfully");
     })
     .catch((error) => {
-      console.error('Failed to update messages:', error);
+      console.error("Failed to update messages:", error);
     });
 }
 
-export async function updateReadStatus(data: { chatRoomId: number, userId: number, chatIdList: UnreadMsgs }) {
-  console.log("update read status Working");
+export async function updateReadStatus(data: {
+  chatRoomId: number;
+  userId: number;
+  chatIdList: UnreadMsgs;
+}) {
   const { chatRoomId, userId, chatIdList } = data;
-  console.log('read status update idb data: ', data)
   try {
-    await db.chatMessages.where('id').equals(chatRoomId).modify(conv => {
-      chatIdList.forEach(chatMsgId => {
-        const message = conv.messages.chatsList.find(m => m.id === chatMsgId.chat_id);
-        if (message) {
-          const status = message.chatStatus.find(status => status.user_id === userId);
-          if (status) {
-            status.read = true;
+    await db.chatMessages
+      .where("id")
+      .equals(chatRoomId)
+      .modify((conv) => {
+        chatIdList.forEach((chatMsgId) => {
+          const message = conv.messages.chatsList.find(
+            (m) => m.id === chatMsgId.chat_id
+          );
+          if (message) {
+            const status = message.chatStatus.find(
+              (status) => status.user_id === userId
+            );
+            if (status) {
+              status.read = true;
+            }
           }
-        }
+        });
       });
-    });
   } catch (error) {
-    console.error('Failed to update unread message count:', error);
+    console.error("Failed to update unread message count:", error);
   }
 }
 
-export async function getChatMessage(id: number): Promise<ConversationsType | undefined> {
+export async function getChatMessage(
+  id: number
+): Promise<ConversationsType | undefined> {
   const chatMessages = await db.chatMessages.get(id);
   if (chatMessages) {
-    return chatMessages
+    return chatMessages;
   }
 }
 
-export async function getMessagesByChatId(id: number): Promise<ConversationsType[] | undefined> {
-  return await db.chatMessages.where('id').equals(id).toArray();
+export async function getMessagesByChatId(
+  id: number
+): Promise<ConversationsType[] | undefined> {
+  return await db.chatMessages.where("id").equals(id).toArray();
 }
 
 export async function getAllChatMessages(): Promise<ConversationsType[]> {

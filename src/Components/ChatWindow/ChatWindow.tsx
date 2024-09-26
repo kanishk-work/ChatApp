@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { RootState } from "../../Redux/store";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import MessageBubble from "../MessageBubble/MessageBubble";
 import MessageComposer from "./MessageComposer";
 import { useAppSelector, useAppDispatch } from "../../Redux/hooks";
@@ -14,8 +14,13 @@ import {
   useUploadFileMutation,
 } from "../../apis/chatApi";
 import useSocket from "../../apis/websocket";
-import { getChatData, getMessagesByChatIdData, updateLatestMessageData, updateMessagesData, } from "../../DB/database";
-import { ChatMessage } from "../../Types/conversationsType";
+import {
+  getChatData,
+  getMessagesByChatIdData,
+  updateLatestMessageData,
+  updateMessagesData,
+} from "../../DB/database";
+import { ChatMessage, ConversationsType } from "../../Types/conversationsType";
 import { Chat } from "../../Types/chats";
 import {
   setConversations,
@@ -29,6 +34,7 @@ import { useToast } from "../Shared/Toast/ToastProvider";
 import Loader from "../Shared/Loader";
 import { TiPin } from "react-icons/ti";
 import { FaPaperclip } from "react-icons/fa";
+import { shallowEqual } from "react-redux";
 
 const ChatWindow: React.FC = () => {
   const [activeChat, setActiveChat] = useState<Chat>();
@@ -39,10 +45,12 @@ const ChatWindow: React.FC = () => {
   const dispatch = useAppDispatch();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeChatId = useAppSelector(
-    (state: RootState) => state.chats.activeChatId
+    (state: RootState) => state.chats.activeChatId,
+    shallowEqual
   );
   const activeUserId = useAppSelector(
-    (state: RootState) => state.activeUser.id
+    (state: RootState) => state.activeUser.id,
+    shallowEqual
   );
   const conversation = useAppSelector(
     (state: RootState) => state.chats.conversations
@@ -51,7 +59,8 @@ const ChatWindow: React.FC = () => {
     ? activeChat?.chatSocket[0].socket_room
     : "";
   const typingUser = useAppSelector(
-    (state: RootState) => state.chats.typing[socket_room]
+    (state: RootState) => state.chats.typing[socket_room],
+    shallowEqual
   );
 
   const [sendMessageApi] = useSendMessageMutation();
@@ -79,8 +88,8 @@ const ChatWindow: React.FC = () => {
       let messageReply;
       let socketPayload;
       let fileUrls = [];
-      const tempMessageId = Number('0x' + uuidv4().replace(/-/g, ''));
-      const tempStatusId = Number('0x' + uuidv4().replace(/-/g, ''));
+      const tempMessageId = Number("0x" + uuidv4().replace(/-/g, ""));
+      const tempStatusId = Number("0x" + uuidv4().replace(/-/g, ""));
 
       if (files && files.length > 0) {
         const formData = new FormData();
@@ -144,35 +153,39 @@ const ChatWindow: React.FC = () => {
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         deletedAt: null,
-        chatFiles: fileUrls.length ? fileUrls.map((fileUrl: any) => ({
-          id: Number('0x' + uuidv4().replace(/-/g, '')),
-          chat_id: tempMessageId,
-          chat_reply_id: null,
-          user_id: activeUserId,
-          file_url: fileUrl,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          deletedAt: null,
-          is_deleted: false
-        })) : [],
+        chatFiles: fileUrls.length
+          ? fileUrls.map((fileUrl: any) => ({
+              id: Number("0x" + uuidv4().replace(/-/g, "")),
+              chat_id: tempMessageId,
+              chat_reply_id: null,
+              user_id: activeUserId,
+              file_url: fileUrl,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              deletedAt: null,
+              is_deleted: false,
+            }))
+          : [],
         chatReactions: [],
-        chatStatus: [{
-          id: tempStatusId,
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-          deletedAt: null,
-          user_id: activeUserId,
-          chat_id: activeChatId,
-          parent_chat_id: null,
-          delivered: false,
-          read: false,
-        }],
+        chatStatus: [
+          {
+            id: tempStatusId,
+            updatedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            deletedAt: null,
+            user_id: activeUserId,
+            chat_id: activeChatId,
+            parent_chat_id: null,
+            delivered: false,
+            read: false,
+          },
+        ],
         sender_id: activeUserId,
-        receiver_id: newMessage?.receiver_id || null,
+        receiver_id: newMessage?.receiver_id ?? null,
         message: textMessage,
         chat_room_id: activeChatId,
         is_reply: replyMessage ? true : false,
-        parent_chat_id: replyMessage?.id || null,
+        parent_chat_id: replyMessage?.id ?? null,
         is_deleted: false,
       };
 
@@ -180,7 +193,7 @@ const ChatWindow: React.FC = () => {
       dispatch(setNewMessage({ newMessage: optimisticMessage }));
       await updateMessagesData(activeChatId, optimisticMessage);
       await updateLatestMessageData(activeChatId, optimisticMessage);
-      dispatch(setLatestMessageChat(optimisticMessage))
+      dispatch(setLatestMessageChat(optimisticMessage));
 
       try {
         const resp = replyMessage
@@ -188,14 +201,22 @@ const ChatWindow: React.FC = () => {
           : await sendMessageApi(newMessage).unwrap();
         sendMessage({ ...socketPayload, resp: resp.data });
 
-        await updateMessagesData(resp.data.chat_room_id, resp.data, tempMessageId);
+        await updateMessagesData(
+          resp.data.chat_room_id,
+          resp.data,
+          tempMessageId
+        );
         await updateLatestMessageData(resp.data.chat_room_id, resp.data);
-        dispatch(setLatestMessageChat(resp.data))
+        dispatch(setLatestMessageChat(resp.data));
 
         if (resp.data.chat_room_id === activeChatId) {
-          dispatch(setNewMessage({ newMessage: resp.data, tempMessageId: tempMessageId }));
+          dispatch(
+            setNewMessage({
+              newMessage: resp.data,
+              tempMessageId: tempMessageId,
+            })
+          );
         }
-
       } catch (error) {
         console.error("Failed to send message:", error);
         // Optionally handle the failure case (e.g., remove the optimistic message from Redux)
@@ -203,7 +224,6 @@ const ChatWindow: React.FC = () => {
       }
     }
   };
-
 
   const handleReact = async (reaction: {
     messageId: number;
@@ -245,8 +265,7 @@ const ChatWindow: React.FC = () => {
         const conversation = await getMessagesByChatIdData(activeChatId);
         if (conversation && conversation.length > 0) {
           dispatch(setConversations(conversation));
-        }
-        else {
+        } else {
           dispatch(setConversations([]));
         }
       }
@@ -265,7 +284,6 @@ const ChatWindow: React.FC = () => {
         chatRoomId,
         lastMessageId,
       });
-      console.log(newMessages.data.list);
 
       if (newMessages.data.list.length > 0) {
         dispatch(setOlderMessages(newMessages.data.list));
@@ -282,38 +300,48 @@ const ChatWindow: React.FC = () => {
   const handleScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
     const element = e.currentTarget;
     if (element.scrollTop === 0 && !oldMessagesLoading) {
-      fetchOlderMessages(activeChatId, conversation[0]?.messages?.chatsList[0]?.id);
+      fetchOlderMessages(
+        activeChatId,
+        conversation[0]?.messages?.chatsList[0]?.id
+      );
     }
   };
 
-  const handlePinMessage = async (pinMessageData: { chat_room_id: number, chat_id: number }) => {
+  const handlePinMessage = async (pinMessageData: {
+    chat_room_id: number;
+    chat_id: number;
+  }) => {
     // showToast("Pinned message");
     try {
       const { data: res, error } = await pinMessage(pinMessageData);
-      console.log('pin response: ', res)
       if (res) {
-        dispatch(setPinMessage(res.data))
+        dispatch(setPinMessage(res.data));
         showToast("Pinned message");
-      } else if(error) {
-        console.log("Failed to pin", error)
+      } else if (error) {
+        console.error("Failed to pin", error);
         showToast("Failed to pin message");
       } else {
-        console.log("Error updating pin message");
+        console.error("Error updating pin message");
         showToast("Error updating pin message");
       }
     } catch (err) {
       console.error("Error pinning message:", err);
       showToast("Failed to pin message");
     }
-  }
+  };
   const allMessages = conversation[0]?.messages?.chatsList || [];
   const taggedMessages = allMessages && addDateTags(allMessages);
-  const pinnedMessage = conversation[0]?.pinnedChat[0]?.chat_data?.chatFiles.length ? <FaPaperclip/> + "File" : conversation[0]?.pinnedChat[0]?.chat_data?.message;
-  const pinMessageSenderName = conversation[0]?.pinnedChat[0]?.chat_data.sender_id === activeUserId ? "You"
-    :
-    activeChat?.chatUsers.find(
-      (user) => user.user.id === conversation[0]?.pinnedChat[0]?.chat_data.sender_id
-    )?.user.full_name;
+  const pinnedMessage = conversation[0]?.pinnedChat[0]?.chat_data?.chatFiles
+    .length
+    ? <FaPaperclip /> + "File"
+    : conversation[0]?.pinnedChat[0]?.chat_data?.message;
+  const pinMessageSenderName =
+    conversation[0]?.pinnedChat[0]?.chat_data.sender_id === activeUserId
+      ? "You"
+      : activeChat?.chatUsers.find(
+          (user) =>
+            user.user.id === conversation[0]?.pinnedChat[0]?.chat_data.sender_id
+        )?.user.full_name;
   return (
     <div className="flex flex-col h-full">
       <StatusBar
@@ -323,13 +351,16 @@ const ChatWindow: React.FC = () => {
           activityStatus: { color: "#27AE60" },
         }}
       />
-      {pinMessageSenderName && pinnedMessage &&
+      {pinMessageSenderName && pinnedMessage && (
         <div className="flex gap-2 items-center sticky py-2 px-4 break-words dynamic-accent-color dynamic-text-color-secondary">
-          <span><TiPin /></span>
-          <span className="line-clamp-1">{pinMessageSenderName + ": "} {pinnedMessage}</span>
+          <span>
+            <TiPin />
+          </span>
+          <span className="line-clamp-1">
+            {pinMessageSenderName + ": "} {pinnedMessage}
+          </span>
         </div>
-      }
-
+      )}
       {oldMessagesLoading && (
         <div className="dynamic-notif flex items-center justify-center gap-3 rounded-lg">
           <span>loading older messages</span> <Loader />{" "}
@@ -365,8 +396,8 @@ const ChatWindow: React.FC = () => {
                 senderName={
                   activeChat?.is_group
                     ? activeChat.chatUsers.find(
-                      (user) => user.user.id === message.sender_id
-                    )?.user.full_name
+                        (user) => user.user.id === message.sender_id
+                      )?.user.full_name
                     : undefined
                 }
                 chatUsers={activeChat?.chatUsers}
@@ -379,9 +410,7 @@ const ChatWindow: React.FC = () => {
         })}
         <div ref={messagesEndRef} />
       </div>
-
       {typingUser && <div>{typingUser} is typing...</div>}
-
       <MessageComposer
         onSend={handleSend}
         replyMessage={replyMessage}

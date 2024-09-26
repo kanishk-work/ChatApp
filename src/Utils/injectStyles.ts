@@ -3,7 +3,7 @@ export const injectStyles = (
   accentColorDark: string,
   textColorPrimaryDark: string,
   textColorSecondaryDark: string,
-  
+
   bgColorLight: string,
   accentColorLight: string,
   textColorPrimaryLight: string,
@@ -13,7 +13,7 @@ export const injectStyles = (
   focusColorSecondary: string,
 
   fontSize: number,
-  isDarkMode: boolean,
+  isDarkMode: boolean
 ): void => {
   const styleElement = document.getElementById("dynamic-styles");
   if (styleElement && styleElement.tagName === "STYLE") {
@@ -42,20 +42,19 @@ export const injectStyles = (
 
         .dynamic-font-size{font-size: ${fontSize}px}
         .dynamic-background-color{background-color: ${
-            isDarkMode ? bgColorDark : bgColorLight
+          isDarkMode ? bgColorDark : bgColorLight
         }}
         .dynamic-accent-color{background-color: ${
-            isDarkMode ? accentColorDark : accentColorLight
+          isDarkMode ? accentColorDark : accentColorLight
         }}
         .dynamic-text-color-primary{color: ${
-            isDarkMode ? textColorPrimaryDark : textColorPrimaryLight
+          isDarkMode ? textColorPrimaryDark : textColorPrimaryLight
         }}
         .dynamic-text-color-secondary{color: ${
-            isDarkMode ? textColorSecondaryDark : textColorSecondaryLight
+          isDarkMode ? textColorSecondaryDark : textColorSecondaryLight
         }}
         .dynamic-notif{background-color: ${focusColorSecondary}; color: ${focusColorPrimary};}
         `;
-    console.log({ fontSize });
   } else {
     const newStyleElement = document.createElement("style");
     newStyleElement.id = "dynamic-styles";
@@ -87,5 +86,4 @@ export const injectStyles = (
         `;
     document.head.appendChild(newStyleElement);
   }
-  console.log(document.head);
 };
