@@ -222,6 +222,42 @@ export const chatApi: any = createApi({
       },
     }),
 
+    exitGroup: builder.mutation<any, object>({
+      query: (data: { chat_room_id: number }) => ({
+        url: `chat/group`,
+        method: "PATCH",
+        body: data,
+      }),
+      // @ts-ignore
+      onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
+        if (navigator.onLine) {
+          try {
+            await queryFulfilled;
+          } catch (err) {
+            console.error("Failed to exit group:", err);
+          }
+        } else return;
+      },
+    }),
+
+    updateUserRole: builder.mutation<any, object>({
+      query: (data: { chat_room_id: number, user_id: number, is_admin: boolean }) => ({
+        url: `chat/group/role`,
+        method: "PATCH",
+        body: data,
+      }),
+      // @ts-ignore
+      onQueryStarted: async (chat_room_id, { dispatch, queryFulfilled }) => {
+        if (navigator.onLine) {
+          try {
+            await queryFulfilled;
+          } catch (err) {
+            console.error("Failed to change user role:", err);
+          }
+        } else return;
+      },
+    }),
+
     messageReadUpdate: builder.mutation<
       any,
       { chat_room_id: number; chat_id_list: UnreadMsgs }
@@ -259,4 +295,6 @@ export const {
   usePinMessageMutation,
   useDeleteGroupMemberMutation,
   useMessageReadUpdateMutation,
+  useExitGroupMutation,
+  useUpdateUserRoleMutation,
 } = chatApi as any;

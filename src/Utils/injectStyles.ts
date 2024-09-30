@@ -83,6 +83,16 @@ export const injectStyles = (
         .dynamic-background-color{background-color: ${
           isDarkMode ? bgColorDark : bgColorLight
         }}
+        .dynamic-accent-color{background-color: ${
+          isDarkMode ? accentColorDark : accentColorLight
+        }}
+        .dynamic-text-color-primary{color: ${
+          isDarkMode ? textColorPrimaryDark : textColorPrimaryLight
+        }}
+        .dynamic-text-color-secondary{color: ${
+          isDarkMode ? textColorSecondaryDark : textColorSecondaryLight
+        }}
+        .dynamic-notif{background-color: ${focusColorSecondary}; color: ${focusColorPrimary};}
         `;
     document.head.appendChild(newStyleElement);
   }

@@ -10,6 +10,7 @@ import { deleteGroupMemberData, getChatData } from "../../DB/database";
 import { useToast } from "../Shared/Toast/ToastProvider";
 import { useDeleteGroupMemberMutation } from "../../apis/chatApi";
 import { shallowEqual } from "react-redux";
+import Modal from "../Shared/Modal";
 
 interface UserProfileProps {
   media: string[];
@@ -31,6 +32,26 @@ const UserProfile: React.FC<UserProfileProps> = ({
   ],
 }) => {
   const [activeChat, setActiveChat] = useState<Chat>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const optionsList = [
+    {
+      name: 'Edit Message',
+      icon: <i className="fas fa-edit"></i>,
+      action: () => console.log('Edit clicked'),
+    },
+    {
+      name: 'Delete Message',
+      icon: <i className="fas fa-trash"></i>,
+      action: () => console.log('Delete clicked'),
+    },
+    {
+      name: 'Forward Message',
+      icon: <i className="fas fa-share"></i>,
+      action: () => console.log('Forward clicked'),
+    },
+  ];
+
   const dispatch = useAppDispatch();
   const activeChatId = useAppSelector(
     (state: RootState) => state.chats.activeChatId,
@@ -108,12 +129,12 @@ const UserProfile: React.FC<UserProfileProps> = ({
             (chatUser) => chatUser.user.id !== deleteData.user_id
           );
           setActiveChat({ ...activeChat, chatUsers: updatedChatUsers });
+
+          // update the chat in indexedDB
           await deleteGroupMemberData(
             deleteData.chat_room_id,
             deleteData.user_id
           );
-          // update the chat in indexedDB
-          // await updateChatData(activeChat);
         }
       }
     } catch (error) {
@@ -121,7 +142,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       showToast("Error deleting user. Please try again later.");
     }
   };
-
   return (
     <div className="p-4 w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full relative">
       <div className="flex items-center">
@@ -183,48 +203,73 @@ const UserProfile: React.FC<UserProfileProps> = ({
           <h3 className="text-lg font-semibold dynamic-text-color-secondary">
             {userStatus}
           </h3>
-          {activeChat?.chatUsers?.map((chatUser, index) => (
-            <div
-              key={index}
-              className="mt-2 flex items-center gap-3 dynamic-text-color-primary"
-              onClick={() => dispatch(setShowChatInfo(true))}
-            >
-              <img
-                src={chatUser.user.profile_pic || placeholderImage}
-                alt="User profile"
-                className="w-8 h-8 rounded-full cursor-pointer"
-              />
-              <div className="cursor-pointer w-full">
-                <div className={`flex items-center justify-between`}>
-                  <span>{chatUser.user.full_name}</span>
-                  {chatUser.is_group_admin ? (
-                    <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
-                      Group Admin
-                    </span>
-                  ) : (
-                    <button
-                      className="flex items-center text-red-600 hover:text-red-800"
-                      onClick={() =>
-                        handleDeleteUser({
-                          chat_room_id: activeChatId,
-                          user_id: chatUser.user_id,
-                        })
-                      }
-                    >
-                      <FaTrash className="mr-2" />
-                      Delete User
-                    </button>
-                  )}
-                </div>
-                <div className={`text-sm`}>
-                  <span>{chatUser.user.status}</span>
+          {activeChat?.chatUsers?.map((chatUser, index) => {
+            const adminId = activeChat?.is_group && activeChat.chatUsers.find(user => user.is_group_admin)?.user_id;
+
+            return (
+              <div
+                key={index}
+                className="mt-2 flex items-center gap-3 dynamic-text-color-primary"
+                onClick={() => dispatch(setShowChatInfo(true))}
+              >
+                <img
+                  src={chatUser.user.profile_pic || placeholderImage}
+                  alt="User profile"
+                  className="w-8 h-8 rounded-full cursor-pointer"
+                />
+                <div className="cursor-pointer w-full">
+                  <div className={`flex items-center justify-between`}>
+                    <span>{chatUser.user.full_name}</span>
+                    {chatUser.is_group_admin ? (
+                      <span className="rounded-md dynamic-notif px-2 py-0.5 text-xs ring-1 ring-inset ring-focus-secondary">
+                        Group Admin
+                      </span>
+                    ) : (
+                      adminId === activeUserId &&
+                      <button
+                        className="flex items-center text-red-600 hover:text-red-800"
+                        onClick={() =>
+                          handleDeleteUser({
+                            chat_room_id: activeChatId,
+                            user_id: chatUser.user_id,
+                          })
+                        }
+                      >
+                        <FaTrash className="mr-2" />
+                        Remove User
+                      </button>
+                    )}
+                  </div>
+                  <div className={`text-sm`}>
+                    <span>{chatUser.user.status}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
+      <div className="p-4">
+        <h1>Chat App</h1>
+
+        {/* Button to trigger the modal */}
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded"
+          onClick={() => setIsModalOpen(true)}
+        >
+          Open Modal
+        </button>
+
+        {/* Modal Component */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          optionsList={optionsList}
+          triggerElement={<button>Open Actions</button>} // trigger button to show modal
+          itemClassName="py-2 px-4"
+        />
+      </div>
       <div className="mt-4">
         <h3 className="text-lg font-semibold dark:text-white">
           Starred Messages

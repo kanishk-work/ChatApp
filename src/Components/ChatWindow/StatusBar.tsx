@@ -10,6 +10,10 @@ import { setShowChatInfo } from "../../Redux/slices/chatInfoSlice";
 import placeholderImage from "./../../assets/profilePlaceHolder.jpg";
 import { Chat } from "../../Types/chats";
 import { shallowEqual } from "react-redux";
+import DropDown from "../Shared/DropDown";
+import { BiDotsVerticalRounded } from "react-icons/bi";
+import { useExitGroupMutation } from "../../apis/chatApi";
+import { useToast } from "../Shared/Toast/ToastProvider";
 
 interface StatusBarStyles {
   container?: Styles;
@@ -28,6 +32,39 @@ const StatusBar: FC<StatusBarProps> = ({ activeChat, statusBarStyles }) => {
   const userNameStyles = applyStyles(statusBarStyles?.userName);
   const activityStyles = applyStyles(statusBarStyles?.activityStatus);
   const backBtnStyles = applyStyles(statusBarStyles?.backBtn);
+  const { showToast } = useToast();
+
+  const [exitGroup] = useExitGroupMutation();
+
+  const handleExitGroup = async (chatRoomId: number | undefined) => {
+    if(chatRoomId === undefined) return;
+    
+    if (confirm("Press a button!") === true) {
+      const {data: res, error} = await exitGroup({ chat_room_id: chatRoomId })
+
+      if(res){
+        showToast("Exited group");
+        dispatch(setChatWindow(null));
+        dispatch(setShowChatInfo(false));
+        dispatch(setActiveChatId(null));
+      } else if (error){
+        console.error("Failed to exit group:", error);
+        showToast("Failed to exit group");
+      } else {
+        showToast("Failed to exit group");
+      }
+    }
+  };
+  const menu_items = [
+    {
+      name: "Group Info",
+      action: () => {},
+    },
+    {
+      name: "Exit Group",
+      action: () => {handleExitGroup(activeChat?.id)},
+    },
+  ];
 
   const dispatch = useAppDispatch();
 
@@ -69,10 +106,14 @@ const StatusBar: FC<StatusBarProps> = ({ activeChat, statusBarStyles }) => {
 
   return (
     <div
-      className={`flex items-center p-4 bg-gray-800 text-white ${containerStyles.className}`}
+      className={`flex items-center justify-between p-4 bg-gray-800 text-white ${containerStyles.className}`}
       style={containerStyles.style}
     >
-      {width < 764 && (
+      <div
+        className="flex items-center gap-5 cursor-pointer flex-grow"
+        onClick={() => dispatch(setShowChatInfo(true))}
+      >
+        {width < 764 && (
         <button
           onClick={() => {
             dispatch(setChatWindow(false));
@@ -84,16 +125,12 @@ const StatusBar: FC<StatusBarProps> = ({ activeChat, statusBarStyles }) => {
           <FaChevronLeft />
         </button>
       )}
-      <div
-        className="flex items-center gap-5"
-        onClick={() => dispatch(setShowChatInfo(true))}
-      >
         <img
           src={userProfilePic}
           alt="User profile"
-          className="w-10 h-10 rounded-full cursor-pointer"
+          className="w-10 h-10 rounded-full"
         />
-        <div className="cursor-pointer">
+        <div>
           <div
             className={`font-bold ${userNameStyles.className}`}
             style={userNameStyles.style}
@@ -108,6 +145,14 @@ const StatusBar: FC<StatusBarProps> = ({ activeChat, statusBarStyles }) => {
           </div>
         </div>
       </div>
+      <DropDown
+        optionsList={menu_items}
+        dropdownStyle={
+          "flex items-center text-2xl py-1 text-[var(--text-secondary-light)] dark:text-[var(--text-secondary)] rounded-full data-[hover]:bg-[var(--accent-color-light)] dark:data-[hover]:bg-[var(--accent-color)] data-[open]:bg-[var(--accent-color-light)] dark:data-[open]:bg-[var(--accent-color)] data-[focus]:outline-1 data-[focus]:outline-white"
+        }
+        triggerElement={<BiDotsVerticalRounded />}
+        dropdownClassStyle={"right-0"}
+      />
     </div>
   );
 };

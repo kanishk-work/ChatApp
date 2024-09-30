@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import HomeLayout from "./Layout/HomeLayout";
 import { useAppSelector } from "./Redux/hooks";
 import { RootState } from "./Redux/store";
@@ -11,6 +11,7 @@ import useSocket from "./apis/websocket";
 
 const App: React.FC = () => {
   // const dispatch = useAppDispatch();
+  const [loginLoading, setLoginLoading] = useState(false);
   const { joinRoom } = useSocket();
   const activeUser = useAppSelector(
     (state: RootState) => state.activeUser,
@@ -84,14 +85,17 @@ const App: React.FC = () => {
 
   const loginFn = (userCredentials: LoginDetails) => {
     if (!activeUser || !activeUser.id) {
+      setLoginLoading(true);
       /* Authenticate the user
        client will have to use authenticateUser function and pass login credentials to login*/
       authenticateUser(userCredentials)
         .then(() => {
           console.log("User authenticated successfully.");
+          setLoginLoading(false);
         })
         .catch((error) => {
           console.error("Authentication failed:", error);
+          setLoginLoading(false);
         });
     }
   };
@@ -206,7 +210,7 @@ const App: React.FC = () => {
     }
   });
 
-  return activeUser.id ? <HomeLayout /> : <LoginPage loginFn={loginFn} />;
+  return activeUser.id ? <HomeLayout /> : <LoginPage loginFn={loginFn} loginLoading={loginLoading} />;
 };
 
 export default App;

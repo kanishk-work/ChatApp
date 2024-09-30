@@ -3,9 +3,10 @@ import { LoginDetails } from "../Types/login";
 
 interface propsType {
   loginFn: (userCredentials: LoginDetails) => void;
+  loginLoading: boolean;
 }
 
-const LoginPage: React.FC<propsType> = ({ loginFn }) => {
+const LoginPage: React.FC<propsType> = ({ loginFn, loginLoading }) => {
   const [email, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -86,6 +87,15 @@ const LoginPage: React.FC<propsType> = ({ loginFn }) => {
             className="p-2 rounded-lg"
           />
         </div>
+        {loginLoading? 
+          <button
+          type="button"
+          className="bg-green-100 rounded-lg px-4 py-2"
+          disabled
+        >
+          Loading...
+        </button>
+        :
         <button
           type="button"
           onClick={handleSubmit}
@@ -93,6 +103,7 @@ const LoginPage: React.FC<propsType> = ({ loginFn }) => {
         >
           Submit
         </button>
+        }
       </form>
     </div>
   );
